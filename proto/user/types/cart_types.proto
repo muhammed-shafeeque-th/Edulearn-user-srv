@@ -1,0 +1,65 @@
+syntax = "proto3";
+package user_service;
+
+import "user/common.proto";
+
+message CartItemData {
+  string id = 1;
+  string course_id = 2;
+  string createdAt = 3;
+}
+
+message CartData {
+  string id = 1;
+  string user_id = 2;
+  int32 total = 3;
+  repeated CartItemData items = 4;
+  string updated_at = 5;
+  string created_at = 6;
+}
+
+message AddToCartRequest {
+  string user_id = 1;
+  string course_id = 2;
+}
+message AddToCartResponse {
+  oneof result {
+    CartItemData item = 1;
+    Error error = 2;
+  }
+}
+message ToggleCartItemRequest {
+  string user_id = 1;
+  string course_id = 2;
+}
+message ToggleCartItemResponse {
+  oneof result {
+    CartItemData item = 1;
+    Error error = 2;
+  }
+}
+message RemoveFromCartRequest {
+  string user_id = 1;
+  string course_id = 2;
+}
+message RemoveFromCartResponse {
+  oneof result {
+    RemoveSuccess success = 1;
+    Error error = 2;
+  }
+}
+
+message ListCartRequest {
+  string user_id = 1;
+  PaginationRequest pagination = 2;
+}
+message ListCartResponse {
+  oneof result {
+    CartListSuccess success = 1;
+    Error error = 2;
+  }
+}
+message CartListSuccess {
+  CartData cart = 1;
+  PaginationResponse pagination = 2;
+}

@@ -1,0 +1,28 @@
+syntax = "proto3";
+package user_service;
+
+import "user/common.proto";
+import "user/types/user_types.proto";
+
+message InstructorSuccessResponse {
+  UserData user = 1;
+}
+message RegisterInstructorResponse {
+  oneof result {
+    Error error = 1;
+    InstructorSuccessResponse success = 2;
+  }
+}
+message GetInstructorsRequest {
+  PaginationRequest pagination = 1;
+}
+message GetInstructorsResponse {
+  oneof result {
+    AllInstructorsSuccess success = 1;
+    Error error = 2;
+  }
+}
+message AllInstructorsSuccess {
+  repeated UserData instructors = 1;
+  PaginationResponse pagination = 2;
+}

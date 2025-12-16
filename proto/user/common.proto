@@ -1,0 +1,44 @@
+syntax = "proto3";
+package user_service;
+
+// Common enum for sorting
+enum SortOrder {
+  SORT_ORDER_UNSPECIFIED = 0;
+  ASC = 1;
+  DESC = 2;
+}
+
+// Common sorting option
+message SortOption {
+  string field = 1;
+  SortOrder order = 2;
+}
+
+// Common pagination request and response
+message PaginationRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+}
+
+message PaginationResponse {
+  int64 total_items = 3;
+}
+
+// Common error messages
+message Error {
+  string code = 1;
+  string message = 2;
+  repeated ErrorDetail details = 3;
+}
+
+
+message ErrorDetail {
+  optional string field = 1;
+  string message = 2;
+}
+
+
+
+message RemoveSuccess {
+  bool removed = 1;
+}

@@ -1,0 +1,47 @@
+syntax = "proto3";
+package user_service;
+
+import "user/types/user_types.proto";
+import "user/types/user_wallet_types.proto";
+import "user/types/cart_types.proto";
+import "user/types/wishlist_types.proto";
+import "user/types/instructor_types.proto";
+
+service UserService {
+  // User operations
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+  rpc GetUsers(GetUsersRequest) returns (GetUsersResponse);
+  rpc GetUsersByIds(GetUsersByIdsRequest) returns (GetUsersByIdsResponse);
+  rpc GetCurrentUser(GetCurrentUserRequest) returns (GetCurrentUserResponse);
+  rpc UpdateUserDetails(UpdateUserDetailsRequest) returns (UpdateUserDetailsResponse);
+  rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse);
+
+  // Instructor
+  rpc RegisterInstructor(RegisterInstructorRequest) returns (RegisterInstructorResponse);
+  rpc GetInstructorByName(GetInstructorByNameRequest) returns (GetInstructorByNameResponse);
+  rpc GetInstructors(GetInstructorsRequest) returns (GetInstructorsResponse);
+
+  // Email/verification
+  rpc GetUserEmails(GetUserEmailsRequest) returns (GetUserEmailsResponse);
+  rpc CheckUserEmailExist(CheckUserByEmailRequest) returns (CheckUserByEmailResponse);
+
+  // Block/Unblock
+  rpc BlockUser(BlockUserRequest) returns (BlockUserResponse);
+  rpc UnBlockUser(UnBlockUserRequest) returns (UnBlockUserResponse);
+
+  // Wallet
+  rpc GetUserWallet(GetUserWalletRequest) returns (GetUserWalletResponse);
+  rpc GetWalletTransactions(GetWalletTransactionsRequest) returns (GetWalletTransactionsResponse);
+
+  // Cart
+  rpc AddToCart(AddToCartRequest) returns (AddToCartResponse);
+  rpc ToggleCartItem(ToggleCartItemRequest) returns (ToggleCartItemResponse);
+  rpc RemoveFromCart(RemoveFromCartRequest) returns (RemoveFromCartResponse);
+  rpc ListUserCart(ListCartRequest) returns (ListCartResponse);
+
+  // Wishlist
+  rpc AddToWishlist(AddToWishlistRequest) returns (AddToWishlistResponse);
+  rpc ToggleWishlistItem(ToggleWishlistItemRequest) returns (ToggleWishlistItemResponse);
+  rpc RemoveFromWishlist(RemoveFromWishlistRequest) returns (RemoveFromWishlistResponse);
+  rpc ListUserWishlist(ListWishlistRequest) returns (ListWishlistResponse);
+}

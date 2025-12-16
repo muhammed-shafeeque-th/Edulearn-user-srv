@@ -1,0 +1,243 @@
+syntax = "proto3";
+package user_service;
+import "user/common.proto";
+
+
+enum UserStatus {
+  USER_STATUS_UNSPECIFIED = 0;
+  ACTIVE = 1;
+  BLOCKED = 2;
+  DELETED = 3;
+}
+
+message UserFilter {
+  UserStatus status = 1;
+  optional string email = 2;
+  optional string role = 3;
+  optional string search = 4;
+}
+
+// =======================================
+//          USER MODELS
+// =======================================
+
+
+message UserProfileData {
+  string bio = 1;
+  string phone = 2;
+  string country = 3;
+  string city = 4;
+  string gender = 5;
+  string preference = 6;
+  string language = 7;
+  string website = 8;
+}
+
+message UserSocialsData {
+  string provider = 1;
+  string profile_url = 2;
+  string provider_user_url = 3;
+}
+
+message InstructorProfileData {
+  string bio = 1;
+  string headline = 2;
+  string experience = 3;
+  string certificate = 4;
+  string expertise = 5;
+  int32 rating = 6;
+  repeated string tags = 7;
+  int32 totalRatings = 8;
+  int32 totalCourses = 9;
+  int32 totalStudents = 10;
+  string joinedAt = 11;
+}
+
+message UserData {
+  string id = 1;
+  string email = 2;
+  string role = 3;
+  string firstName = 4;
+  string status = 5;
+  string lastName = 6;
+  string username = 7;
+  string slug = 8;
+  string avatar = 9;
+  string lastLogin = 10;
+  UserProfileData profile = 11;
+  InstructorProfileData instructor_profile = 12;
+  repeated UserSocialsData socials = 13;
+  string updatedAt = 14;
+  string createdAt = 15;
+}
+
+// =======================================
+//          USER REQUESTS
+// =======================================
+
+
+message GetUsersRequest {
+  PaginationRequest pagination = 1;
+  UserFilter filter = 2;
+  SortOption sort = 3;
+}
+
+message GetUserRequest {
+  string user_id = 1;
+}
+
+
+message GetUsersByIdsRequest {
+  repeated string user_ids = 1;
+}
+
+message GetInstructorByNameRequest {
+  string username = 1;
+}
+
+message GetUserEmailsRequest {}
+
+message CheckUserByEmailRequest {
+  string email = 1;
+}
+
+message GetCurrentUserRequest {
+  string user_id = 1;
+}
+
+message BlockUserRequest {
+  string user_id = 1;
+}
+message UnBlockUserRequest {
+  string user_id = 1;
+}
+
+message UpdateUserDetailsRequest {
+  string user_id = 1;
+  optional string firstName = 2;
+  optional string lastName = 3;
+  optional string phone = 4;
+  repeated UserSocialsData socials = 5;
+  optional string biography = 6;
+  optional string avatar = 7;
+  optional string website = 8;
+  optional string language = 9;
+  optional string city = 10;
+  optional string country = 11;
+  optional string gender = 12;
+}
+
+message ChangePasswordRequest {
+  string user_id = 1;
+  string oldPassword = 2;
+  string newPassword = 3;
+}
+
+message RegisterInstructorRequest {
+  string user_id = 1;
+  string username = 2;
+  repeated string tags = 3;
+  string expertise = 4;
+  string experience = 5;
+  string education = 6;
+  string language = 7;
+  string headline = 8;
+  string biography = 9;
+  bool agreeToTerms = 10;
+  bool agreeToPrivacy = 11;
+  bool receiveUpdates = 12;
+}
+
+// =======================================
+//            USER RESPONSES
+// =======================================
+
+message UserEmailsSuccess {
+  repeated string email = 1;
+}
+message EmailExist {
+  string success = 1;
+  string error = 2; 
+}
+message UsersSuccess {
+  repeated UserData users = 1;
+  PaginationResponse pagination = 2;
+}
+message UsersResponse {
+  repeated UserData users = 1;
+}
+message GetUsersResponse {
+  oneof result {
+    UsersSuccess success = 1;
+    Error error = 2;
+  }
+}
+message GetUserEmailsResponse {
+  oneof result {
+    UserEmailsSuccess success = 1;
+    Error error = 2;
+  }
+}
+message GetUsersByIdsResponse {
+  oneof result {
+    UsersResponse success = 1;
+    Error error = 2;
+  }
+}
+message GetUserResponse {
+  oneof result {
+    UserData user = 1;
+    Error error = 2;
+  }
+}
+message GetInstructorByNameResponse {
+  oneof result {
+    UserData user = 1;
+    Error error = 2;
+  }
+}
+message GetCurrentUserResponse {
+  oneof result {
+    UserData user = 1;
+    Error error = 2;
+  }
+}
+message CheckUserByEmailResponse {
+  oneof result {
+    EmailExist response = 1;
+    Error error = 2;
+  }
+}
+message BlockUserResponse {
+  oneof result {
+    BlockUserSuccess success = 1;
+    Error error = 2;
+  }
+}
+message UnBlockUserResponse {
+  oneof result {
+    UnBlockUserSuccess success = 1;
+    Error error = 2;
+  }
+}
+message BlockUserSuccess {
+  bool updated = 1;
+}
+message UnBlockUserSuccess {
+  bool updated = 1;
+}
+message UpdateUserDetailsResponse {
+  oneof result {
+    UserData user = 1;
+    Error error = 2;
+  }
+}
+message ChangePasswordResponse {
+  oneof result {
+    ChangePasswordSuccess success = 1;
+    Error error = 2;
+  }
+}
+message ChangePasswordSuccess {
+  bool updated = 1;
+}

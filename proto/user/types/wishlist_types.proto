@@ -1,0 +1,62 @@
+syntax = "proto3";
+package user_service;
+
+import "user/common.proto";
+
+message WishlistItemData {
+  string id = 1;
+  string course_id = 2;
+  string createdAt = 3;
+}
+message WishlistData {
+  string id = 1;
+  string user_id = 2;
+  int32 total = 3;
+  repeated WishlistItemData items = 4;
+  string updated_at = 5;
+  string created_at = 6;
+}
+message AddToWishlistRequest {
+  string user_id = 1;
+  string course_id = 2;
+}
+message AddToWishlistResponse {
+  oneof result {
+    WishlistItemData item = 1;
+    Error error = 2;
+  }
+}
+message ToggleWishlistItemRequest {
+  string user_id = 1;
+  string course_id = 2;
+}
+message ToggleWishlistItemResponse {
+  oneof result {
+    WishlistItemData item = 1;
+    Error error = 2;
+  }
+}
+message RemoveFromWishlistRequest {
+  string user_id = 1;
+  string course_id = 2;
+}
+message RemoveFromWishlistResponse {
+  oneof result {
+    RemoveSuccess success = 1;
+    Error error = 2;
+  }
+}
+message ListWishlistRequest {
+  string user_id = 1;
+  PaginationRequest pagination = 2;
+}
+message ListWishlistResponse {
+  oneof result {
+    WishlistSuccess success = 1;
+    Error error = 2;
+  }
+}
+message WishlistSuccess {
+  WishlistData wishlist = 1;
+  PaginationResponse pagination = 2;
+}
