@@ -1,0 +1,52 @@
+syntax = "proto3";
+package user_service;
+
+import "user/common.proto";
+
+message UserWalletData {
+  string user_id = 1;
+  double balance = 2;
+  string currency = 3;
+  repeated WalletTransaction transactions = 4;
+  string updatedAt = 5;
+  string createdAt = 6;
+}
+
+message WalletTransaction {
+  string id = 1;
+  double amount = 2;
+  string type = 3;
+  string status = 4;
+  string relatedOrder = 5;
+  string timestamp = 6;
+  string note = 7;
+}
+
+message GetUserWalletRequest {
+  string user_id = 1;
+  PaginationRequest pagination = 2;
+}
+message GetUserWalletResponse {
+  oneof result {
+    UserWalletSuccess success = 1;
+    Error error = 2;
+  }
+}
+message UserWalletSuccess {
+  UserWalletData wallet = 1;
+  int32 total = 2;
+}
+message GetWalletTransactionsRequest {
+  string wallet_id = 1;
+  PaginationRequest pagination = 2;
+}
+message GetWalletTransactionsResponse {
+  oneof result {
+    WalletTransactionsSuccess success = 1;
+    Error error = 2;
+  }
+}
+message WalletTransactionsSuccess {
+  repeated WalletTransaction transactions = 1;
+  int32 total = 2;
+}
