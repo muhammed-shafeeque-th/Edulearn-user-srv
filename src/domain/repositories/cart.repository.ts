@@ -16,5 +16,6 @@ export abstract class ICartRepository {
   ): Promise<{ cart: Cart | null; totalItems: number }>;
   abstract update(cart: Cart): Promise<void>;
   abstract addItem(cartItem: CartItem): Promise<void>;
+  abstract clearCart(userId: string): Promise<void>;
   abstract removeItem(cartId: string, courseId: string): Promise<void>;
 }
