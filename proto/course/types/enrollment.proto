@@ -5,14 +5,41 @@ package course.enrollment;
 import "course/common.proto";
 import "course/types/course.proto";
 
+
+
+message EnrollmentData {
+  string id = 1;
+  string user_id = 2;
+  string course_id = 3;
+  string status = 4;
+  double progress = 5;
+  string enrolled_at = 6;
+  string completed_at = 7;
+  string created_at = 8;
+  string updated_at = 9;
+  optional string deleted_at = 10;
+  EnrollmentCourseData course = 11;
+}
+message EnrollmentCourseData {
+  string id = 1;
+  string title = 2;
+  int32 rating = 3;
+  string thumbnail = 4;
+  string category = 5;
+  string level = 6;
+  int32 lessonsCount = 7;
+  course.common.User instructor = 8;
+
+}
+
 // Enrollment Messages
 message EnrollmentDetail {
-   string enrollmentId = 1;
-   string userId = 2;
-   string courseId = 3;
-   int32 progressPercent = 4;
+   string enrollment_id = 1;
+   string user_id = 2;
+   string course_id = 3;
+   int32 progress_percent = 4;
    string status = 5;
-   string enrolledAt = 6;
+   string enrolled_at = 6;
    repeated EnrollmentSection sections = 7;
 }
 
@@ -21,7 +48,7 @@ message EnrollmentSection {
    string title = 2;
    optional string description = 3;
    int32 order = 4;
-   bool isPublished = 5;
+   bool is_published = 5;
    repeated LessonProgress lessons = 7;
    optional QuizProgress quiz = 9;
 }
@@ -32,12 +59,11 @@ message LessonProgress {
    int32 order = 3;
   optional int32 duration= 4; // second ?s = 1
    bool completed = 5;
-  optional string completedAt = 10;
+  optional string completed_at = 10;
 }
 
 message QuestionOption {
   string value = 1;
-  bool is_correct = 2;
 }
 
 message QuizQuestion {
@@ -49,7 +75,7 @@ message QuizQuestion {
     string type = 22;
     optional string explanation = 5;
     optional int32 score = 6;
-    optional string correctAnswer  = 11;
+    optional string correct_answer  = 11;
   
 }
 
@@ -58,13 +84,13 @@ message QuizProgress {
   string title = 3;
   optional string description = 4;
   repeated QuizQuestion questions = 5;
-  optional int32 timeLimit = 6;
-  bool requirePassingScore = 7;
-  optional int32 passingScore = 8;
+  optional int32 time_limit = 6;
+  bool require_passing_score = 7;
+  optional int32 passing_score = 8;
   bool completed = 9;
   optional bool  passed = 10;
   optional int32 score = 11;
-  optional string  completedAt = 12;
+  optional string  completed_at = 12;
 }
 
 message CreateEnrollmentRequest {
@@ -104,32 +130,6 @@ message GetEnrollmentsByCourseRequest {
   course.common.Pagination pagination = 2;
 }
 
-message EnrollmentData {
-  string id = 1;
-  string user_id = 2;
-  string course_id = 3;
-  string status = 4;
-  double progress = 5;
-  string enrolled_at = 6;
-  string completed_at = 7;
-  string created_at = 8;
-  string updated_at = 9;
-  EnrollmentCourseData course = 11;
-  
-  optional string deleted_at = 10;
-}
-message EnrollmentCourseData {
-  string id = 1;
-  string title = 2;
-  int32 rating = 3;
-  string thumbnail = 4;
-  string category = 5;
-  string level = 6;
-  int32 lessonsCount = 7;
-  course.common.User instructor = 8;
-
-}
-
 
 message EnrollmentResponse {
   oneof result {
@@ -151,7 +151,13 @@ message EnrollmentsResponse {
 }
 message GetEnrollmentResponse {
   oneof result {
-    EnrollmentDetail enrollments = 1;
+    EnrollmentData enrollment = 1;
+    course.common.Error error = 2;
+  }
+}
+message GetEnrollmentDetailsResponse {
+  oneof result {
+    EnrollmentDetail enrollment = 1;
     course.common.Error error = 2;
   }
 }
