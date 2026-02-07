@@ -10,7 +10,7 @@ import {
   OneToOne,
   OneToMany,
 } from "typeorm";
-import { UserOrmEntity } from "./user-orm-entity";
+import { UserOrmEntity } from "./user.orm-entity";
 import { CartItemOrmEntity } from "./cart-item.orm-entity";
 
 @Entity("carts")
