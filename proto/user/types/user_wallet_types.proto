@@ -37,7 +37,7 @@ message UserWalletSuccess {
   int32 total = 2;
 }
 message GetWalletTransactionsRequest {
-  string wallet_id = 1;
+  string user_id = 1;
   PaginationRequest pagination = 2;
 }
 message GetWalletTransactionsResponse {
