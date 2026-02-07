@@ -1,14 +1,16 @@
 import { v4 as uuidV4 } from "uuid";
 
-// Value Objects and Entities
-
-export type WalletTransactionType = "deposit" | "withdrawal" | "purchase" | "refund";
+export type WalletTransactionType =
+  | "deposit"
+  | "withdrawal"
+  | "purchase"
+  | "refund";
 export type WalletTransactionStatus = "pending" | "complete" | "failed";
 
 export interface WalletTransactionProps {
   id: string;
   walletId: string;
-//   userId?: string; // To support possible future querying by user
+
   amount: number;
   type: WalletTransactionType;
   status: WalletTransactionStatus;
@@ -17,7 +19,6 @@ export interface WalletTransactionProps {
   note?: string;
 }
 
-// Rich Domain Entity
 export class WalletTransaction {
   private readonly _id: string;
   private readonly _walletId: string;
@@ -35,11 +36,13 @@ export class WalletTransaction {
     this._type = props.type;
     this._status = props.status;
     this._relatedOrder = props.relatedOrder;
-    this._timestamp = props.timestamp instanceof Date ? props.timestamp : new Date(props.timestamp);
+    this._timestamp =
+      props.timestamp instanceof Date
+        ? props.timestamp
+        : new Date(props.timestamp);
     this._note = props.note;
   }
 
-  // Accessors
   get id(): string {
     return this._id;
   }
@@ -65,8 +68,9 @@ export class WalletTransaction {
     return this._note;
   }
 
-  // Domain Factory (creation always sets id & timestamp)
-  static create(props: Omit<WalletTransactionProps, "id" | "timestamp">): WalletTransaction {
+  static create(
+    props: Omit<WalletTransactionProps, "id" | "timestamp">,
+  ): WalletTransaction {
     return new WalletTransaction({
       ...props,
       id: uuidV4(),
@@ -74,12 +78,10 @@ export class WalletTransaction {
     });
   }
 
-  // Persistence rehydration
   static fromPrimitives(props: WalletTransactionProps): WalletTransaction {
     return new WalletTransaction(props);
   }
 
-  // Domain state transitions
   public markComplete(): void {
     if (this._status === "complete") return;
     this._status = "complete";
@@ -89,7 +91,6 @@ export class WalletTransaction {
     this._status = "failed";
   }
 
-  // Value object for external layers (DTO, persistence)
   toPrimitives(): WalletTransactionProps {
     return {
       id: this._id,
@@ -103,7 +104,6 @@ export class WalletTransaction {
     };
   }
 
-  // Equality comparison (for testing or business rules)
   public equals(other: WalletTransaction): boolean {
     return (
       this.id === other.id &&
