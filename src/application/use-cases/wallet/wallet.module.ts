@@ -4,16 +4,19 @@ import { RedisModule } from "src/infrastructure/redis/redis.module";
 import { KafkaModule } from "src/infrastructure/kafka/kafka.module";
 import { GetWalletTransactionsUseCase } from "./get-wallet-transactions.use-case";
 import { GetUserWalletUseCase } from "./get-user-wallet.use-case";
+import { GetInstructorRevenueSummeryUseCase } from "./get-instructor-revenue-summery.use-case";
 
 @Module({
   imports: [DatabaseRepositoryModule, RedisModule, KafkaModule],
   providers: [
     GetWalletTransactionsUseCase,
     GetUserWalletUseCase,
+    GetInstructorRevenueSummeryUseCase,
   ],
   exports: [
     GetWalletTransactionsUseCase,
     GetUserWalletUseCase,
+    GetInstructorRevenueSummeryUseCase,
   ],
 })
 export class WalletModule {}
