@@ -1,8 +1,7 @@
 import {
   Injectable,
-  Logger,
-  OnModuleInit,
   OnModuleDestroy,
+  OnApplicationBootstrap,
 } from "@nestjs/common";
 import {
   Kafka,
@@ -21,15 +20,22 @@ import {
 import { LoggingService } from "../observability/logging/logging.service";
 
 @Injectable()
-export class KafkaClient implements OnModuleInit, OnModuleDestroy {
-//   private readonly logger = new Logger(KafkaClient.name);
+export class KafkaClient implements OnApplicationBootstrap, OnModuleDestroy {
+  //   private readonly logger = new Logger(KafkaClient.name);
   private kafka: Kafka;
   private producer: Producer;
   private consumers: Map<string, Consumer> = new Map();
   private schemaRegistry: SchemaRegistry | null = null;
+  private readonly pendingSubscriptions: Map<
+    string,
+    { topic: string; handler: Function; pattern: EventPatternMetadata }[]
+  > = new Map();
   private readonly messageHandlers: Map<string, Function> = new Map();
 
-  constructor(private readonly options: KafkaModuleOptions, private readonly logger: LoggingService) {
+  constructor(
+    private readonly options: KafkaModuleOptions,
+    private readonly logger: LoggingService
+  ) {
     this.kafka = new Kafka({
       clientId: options.clientId,
       brokers: options.brokers,
@@ -52,14 +58,71 @@ export class KafkaClient implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  async onModuleInit() {
-    try {
-      await this.producer.connect();
-      this.logger.log("Kafka producer connected successfully");
-    } catch (error) {
-      this.logger.error("Failed to connect Kafka producer", error);
-      throw error;
+  async subscribe(
+    pattern: EventPatternMetadata,
+    handler: Function
+  ): Promise<void> {
+    const groupId =
+      pattern.groupId ||
+      this.options.consumer?.groupId ||
+      `${this.options.clientId}-group`;
+
+    const pending = this.pendingSubscriptions.get(groupId) || [];
+    pending.push({ topic: pattern.topic, handler, pattern });
+    this.pendingSubscriptions.set(groupId, pending);
+
+    this.logger.debug(
+      `Queued subscription for topic=${pattern.topic} group=${groupId}`
+    );
+  }
+
+  async onApplicationBootstrap(): Promise<void> {
+    await this.producer.connect();
+    this.logger.log("Kafka producer connected successfully");
+
+    for (const [groupId, subs] of this.pendingSubscriptions.entries()) {
+      const consumer = this.kafka.consumer({
+        groupId,
+        sessionTimeout: this.options.consumer?.sessionTimeout || 30000,
+        rebalanceTimeout: this.options.consumer?.rebalanceTimeout || 60000,
+        heartbeatInterval: this.options.consumer?.heartbeatInterval || 3000,
+        maxBytesPerPartition:
+          this.options.consumer?.maxBytesPerPartition || 1048576,
+        minBytes: this.options.consumer?.minBytes || 1,
+        maxBytes: this.options.consumer?.maxBytes || 10485760,
+        maxWaitTimeInMs: this.options.consumer?.maxWaitTimeInMs || 5000,
+        retry: this.options.consumer?.retry,
+      });
+
+      await consumer.connect();
+      this.consumers.set(groupId, consumer);
+      this.logger.log(`Consumer ${groupId} connected`);
+
+      // subscribe all topics
+      for (const { topic } of subs) {
+        await consumer.subscribe({ topic, fromBeginning: false });
+        this.logger.log(`Consumer ${groupId} subscribed to topic ${topic}`);
+      }
+
+      // Run once per consumer group
+      await consumer.run({
+        eachMessage: async (payload: EachMessagePayload) => {
+          const { topic } = payload;
+          const match = subs.find((s) => s.topic === topic);
+          if (match) {
+            try {
+              await this.handleMessage(payload, match.pattern, match.handler);
+            } catch (err) {
+              this.logger.error(`Error handling message on ${topic}`, err);
+            }
+          }
+        },
+      });
+
+      this.logger.log(`Consumer ${groupId} is now running`);
     }
+
+    this.pendingSubscriptions.clear();
   }
 
   async onModuleDestroy() {
@@ -70,6 +133,8 @@ export class KafkaClient implements OnModuleInit, OnModuleDestroy {
         await consumer.disconnect();
         this.logger.log(`Consumer ${groupId} disconnected`);
       }
+
+      this.consumers.clear();
 
       this.logger.log("Kafka connections closed successfully");
     } catch (error) {
@@ -122,51 +187,120 @@ export class KafkaClient implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  async subscribe(
-    pattern: EventPatternMetadata,
-    handler: Function
-  ): Promise<void> {
-    const groupId =
-      pattern.groupId ||
-      this.options.consumer?.groupId ||
-      `${this.options.clientId}-group`;
+  // async subscribe(
+  //   pattern: EventPatternMetadata,
+  //   handler: Function
+  // ): Promise<void> {
+  //   const groupId =
+  //     pattern.groupId ||
+  //     this.options.consumer?.groupId ||
+  //     `${this.options.clientId}-group`;
 
-    let consumer = this.consumers.get(groupId);
+  //   let consumer = this.consumers.get(groupId);
 
-    if (!consumer) {
-      consumer = this.kafka.consumer({
-        groupId,
-        sessionTimeout: this.options.consumer?.sessionTimeout || 30000,
-        rebalanceTimeout: this.options.consumer?.rebalanceTimeout || 60000,
-        heartbeatInterval: this.options.consumer?.heartbeatInterval || 3000,
-        maxBytesPerPartition:
-          this.options.consumer?.maxBytesPerPartition || 1048576,
-        minBytes: this.options.consumer?.minBytes || 1,
-        maxBytes: this.options.consumer?.maxBytes || 10485760,
-        maxWaitTimeInMs: this.options.consumer?.maxWaitTimeInMs || 5000,
-        retry: this.options.consumer?.retry,
-      });
+  //   if (!consumer) {
+  //     consumer = this.kafka.consumer({
+  //       groupId,
+  //       sessionTimeout: this.options.consumer?.sessionTimeout || 30000,
+  //       rebalanceTimeout: this.options.consumer?.rebalanceTimeout || 60000,
+  //       heartbeatInterval: this.options.consumer?.heartbeatInterval || 3000,
+  //       maxBytesPerPartition:
+  //         this.options.consumer?.maxBytesPerPartition || 1048576,
+  //       minBytes: this.options.consumer?.minBytes || 1,
+  //       maxBytes: this.options.consumer?.maxBytes || 10485760,
+  //       maxWaitTimeInMs: this.options.consumer?.maxWaitTimeInMs || 5000,
+  //       retry: this.options.consumer?.retry,
+  //     });
 
-      await consumer.connect();
-      this.consumers.set(groupId, consumer);
-      this.logger.log(`Consumer ${groupId} connected successfully`);
-    }
+  //     await consumer.connect();
+  //     this.consumers.set(groupId, consumer);
+  //     this.logger.log(`Consumer ${groupId} connected successfully`);
+  //   }
 
-    await consumer.subscribe({ topic: pattern.topic, fromBeginning: false });
+  //   await consumer.subscribe({ topic: pattern.topic, fromBeginning: false });
 
-    const handlerKey = `${groupId}-${pattern.topic}`;
-    this.messageHandlers.set(handlerKey, handler);
+  //   const handlerKey = `${groupId}-${pattern.topic}`;
+  //   this.messageHandlers.set(handlerKey, handler);
 
-    await consumer.run({
-      eachMessage: async (payload: EachMessagePayload) => {
-        await this.handleMessage(payload, pattern, handler);
-      },
-    });
+  //   await consumer.run({
+  //     eachMessage: async (payload: EachMessagePayload) => {
+  //       await this.handleMessage(payload, pattern, handler);
+  //     },
+  //   });
 
-    this.logger.log(
-      `Subscribed to topic ${pattern.topic} with group ${groupId}`
-    );
-  }
+  //   this.logger.log(
+  //     `Subscribed to topic ${pattern.topic} with group ${groupId}`
+  //   );
+  // }
+
+  // async subscribe(
+  //   pattern: EventPatternMetadata,
+  //   handler: Function
+  // ): Promise<void> {
+  //   const groupId =
+  //     pattern.groupId ||
+  //     this.options.consumer?.groupId ||
+  //     `${this.options.clientId}-group`;
+
+  //   let consumer = this.consumers.get(groupId);
+
+  //   // 1️⃣ Create consumer if not exists
+  //   if (!consumer) {
+  //     consumer = this.kafka.consumer({
+  //       groupId,
+  //       sessionTimeout: this.options.consumer?.sessionTimeout || 30000,
+  //       rebalanceTimeout: this.options.consumer?.rebalanceTimeout || 60000,
+  //       heartbeatInterval: this.options.consumer?.heartbeatInterval || 3000,
+  //       maxBytesPerPartition:
+  //         this.options.consumer?.maxBytesPerPartition || 1048576,
+  //       minBytes: this.options.consumer?.minBytes || 1,
+  //       maxBytes: this.options.consumer?.maxBytes || 10485760,
+  //       maxWaitTimeInMs: this.options.consumer?.maxWaitTimeInMs || 5000,
+  //       retry: this.options.consumer?.retry,
+  //     });
+
+  //     await consumer.connect();
+  //     this.consumers.set(groupId, consumer);
+  //     this.logger.log(`Consumer ${groupId} connected successfully`);
+  //   }
+
+  //   // 2️⃣ Register the handler for this topic
+  //   const topicHandlers = this.consumerHandlers.get(groupId) || [];
+  //   topicHandlers.push({ topic: pattern.topic, handler });
+  //   this.consumerHandlers.set(groupId, topicHandlers);
+
+  //   // 3️⃣ Subscribe to topic (safe even after run)
+  //   await consumer.subscribe({ topic: pattern.topic, fromBeginning: false });
+  //   this.logger.log(
+  //     `Subscribed to topic ${pattern.topic} with group ${groupId}`
+  //   );
+
+  //   // 4️⃣ Only run the consumer ONCE per groupId
+  //   if (!this.runningConsumers.has(groupId)) {
+  //     await consumer.run({
+  //       eachMessage: async (payload: EachMessagePayload) => {
+  //         const { topic } = payload;
+  //         const handlers = this.consumerHandlers.get(groupId);
+  //         if (!handlers) return;
+
+  //         const topicHandler = handlers.find((h) => h.topic === topic);
+  //         if (topicHandler) {
+  //           try {
+  //             await this.handleMessage(payload, pattern, topicHandler.handler);
+  //           } catch (err) {
+  //             this.logger.error(
+  //               `Error handling message for topic ${topic}`,
+  //               err
+  //             );
+  //           }
+  //         }
+  //       },
+  //     });
+
+  //     this.runningConsumers.add(groupId);
+  //     this.logger.log(`Consumer ${groupId} is now running`);
+  //   }
+  // }
 
   private async handleMessage(
     payload: EachMessagePayload,
@@ -190,7 +324,7 @@ export class KafkaClient implements OnModuleInit, OnModuleDestroy {
           deserializedValue = await this.schemaRegistry.decode(message.value);
         } else if (message.value) {
           try {
-            deserializedValue = JSON.parse(message.value.toString());
+            deserializedValue = JSON.parse(message.value?.toString() || "{}");
           } catch {
             // Keep as string if not valid JSON
           }
