@@ -10,7 +10,7 @@ import {
   OneToOne,
   OneToMany,
 } from "typeorm";
-import { UserOrmEntity } from "./user-orm-entity";
+import { UserOrmEntity } from "./user.orm-entity";
 import { WishlistItemOrmEntity } from "./wishlist-item.orm-entity";
 
 @Entity("wishlists")
