@@ -18,7 +18,7 @@ import {
 import { AddToWishlistUseCase } from "src/application/use-cases/wishlist/add-to-wishlist.use-case";
 import { RemoveFromWishlistUseCase } from "src/application/use-cases/wishlist/remove-wishlist.use-case";
 import { GetWishlistByUserUseCase } from "src/application/use-cases/wishlist/get-wishlist-by-user.use-case";
-import { ToggleWishlistUseCase } from "src/application/use-cases/wishlist/toggle-wishlist.use-case copy";
+import { ToggleWishlistUseCase } from "src/application/use-cases/wishlist/toggle-wishlist.use-case";
 import { Error, PaginationResponse } from "src/infrastructure/grpc/generated/user/common";
 
 @Controller()
