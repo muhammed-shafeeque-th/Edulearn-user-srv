@@ -12,11 +12,14 @@ import {
   GetWalletTransactionsRequest,
   GetWalletTransactionsResponse,
 } from "src/infrastructure/grpc/generated/user/types/user_wallet_types";
+import { GetInstructorRevenueSummeryRequest, GetInstructorRevenueSummeryResponse } from "src/infrastructure/grpc/generated/user/types/stats_types";
+import { GetInstructorRevenueSummeryUseCase } from "src/application/use-cases/wallet/get-instructor-revenue-summery.use-case";
 
 @Controller()
 export class WalletGrpcController {
   constructor(
     private readonly getUserWalletUseCase: GetUserWalletUseCase,
+    private readonly getInstructorRevenueSummeryUseCase: GetInstructorRevenueSummeryUseCase,
     private readonly getWalletTransactionsUseCase: GetWalletTransactionsUseCase,
 
     private readonly tracer: TracingService,
@@ -34,7 +37,7 @@ export class WalletGrpcController {
     };
   }
 
-  @GrpcMethod("UserService", "GetUserWallet")
+  @GrpcMethod("WalletService", "GetUserWallet")
   async getUserWallet(
     data: GetUserWalletRequest
   ): Promise<GetUserWalletResponse> {
@@ -74,8 +77,49 @@ export class WalletGrpcController {
       return { error: this.createErrorResponse(error) };
     }
   }
+  @GrpcMethod("WalletService", "GetInstructorRevenueSummery")
+  async getInstructorRevenueSummery(
+    data: GetInstructorRevenueSummeryRequest
+  ): Promise<GetInstructorRevenueSummeryResponse> {
+    try {
+      return await this.tracer.startActiveSpan(
+        "WalletGrpcController.GetInstructorRevenueSummery",
+        async (span) => {
+          this.logger.info("Handling `GetInstructorRevenueSummery` request", {
+            ctx: WalletGrpcController.name,
+          });
 
-  @GrpcMethod("UserService", "GetWalletTransactions")
+          const revenueSummary =
+            await this.getInstructorRevenueSummeryUseCase.execute(data);
+
+          this.logger.info(
+            "GetInstructorRevenueSummery request has been successfully completed"
+          );
+
+          // The proto expects: total_earnings, this_month_earnings, last_month_earnings, this_week_earnings, today_earnings (all int32)
+          return {
+            success: {
+              totalEarnings: revenueSummary.totalEarnings ?? 0,
+              thisMonthEarnings: revenueSummary.thisMonthEarnings ?? 0,
+              lastMonthEarnings: revenueSummary.lastMonthEarnings ?? 0,
+              thisWeekEarnings: revenueSummary.thisWeekEarnings ?? 0,
+              todayEarnings: revenueSummary.todayEarnings ?? 0,
+            },
+          };
+        }
+      );
+    } catch (error) {
+      this.logger.error(
+        "Error processing gRPC request `GetInstructorRevenueSummery`",
+        {
+          error,
+        }
+      );
+      return { error: this.createErrorResponse(error) };
+    }
+  }
+
+  @GrpcMethod("WalletService", "GetWalletTransactions")
   async getWalletTransactions(
     data: GetWalletTransactionsRequest
   ): Promise<GetWalletTransactionsResponse> {
@@ -83,16 +127,16 @@ export class WalletGrpcController {
       return await this.tracer.startActiveSpan(
         "WalletGrpcController.GetWalletTransactions",
         async (span) => {
-          const { pagination, walletId } = data!;
+          const { pagination, userId } = data!;
 
-          span.setAttributes({ ...pagination, walletId });
+          span.setAttributes({ ...pagination, userId });
           this.logger.info("Handling `GetWalletTransactions` request ", {
             ctx: WalletGrpcController.name,
           });
 
           const { transactions, total } =
             await this.getWalletTransactionsUseCase.execute(
-              walletId,
+              userId,
               pagination.page,
               pagination.pageSize
             );
