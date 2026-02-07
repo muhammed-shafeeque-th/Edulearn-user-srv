@@ -1,8 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import {
-  WalletDto,
-  WalletTransactionDto,
-} from "src/application/dtos/wallet.dto";
+import { WalletTransactionDto } from "src/application/dtos/wallet.dto";
 import { IWalletRepository } from "src/domain/repositories/wallet.repository";
 import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
 import { TracingService } from "src/infrastructure/observability/tracing/trace.service";
@@ -16,13 +13,13 @@ export class GetWalletTransactionsUseCase {
   ) {}
 
   /**
-   * Retrieve the transactions of wallet with id.
-   * @param walletId wallet identifier
-   * @param page pagination page number (1-based)
-   * @param limit number of transactions per page
+   * Retrieve the transactions of a wallet by user id.
+   * @param userId User identifier whose wallet transactions to retrieve.
+   * @param page Pagination page number (1-based).
+   * @param limit Number of transactions per page.
    */
   async execute(
-    walletId: string,
+    userId: string,
     page = 1,
     limit = 10
   ): Promise<{ transactions: WalletTransactionDto[]; total: number }> {
@@ -30,39 +27,52 @@ export class GetWalletTransactionsUseCase {
       "GetWalletTransactionsUseCase.execute",
       async (span) => {
         try {
-          if (page < 1) page = 1;
-          if (limit < 1) limit = 10;
-
+          page = Number.isInteger(page) && page > 0 ? page : 1;
+          limit = Number.isInteger(limit) && limit > 0 ? limit : 10;
           const offset = (page - 1) * limit;
 
           span.setAttributes({
-            "wallet.id": walletId,
-            page: page,
-            limit: limit,
+            "user.id": userId,
+            page,
+            limit,
           });
 
           this.logger.debug(
-            `Fetching wallet for Id=${walletId}, page=${page}, limit=${limit}`,
+            `Fetching wallet for userId=${userId}, page=${page}, limit=${limit}`,
             { ctx: GetWalletTransactionsUseCase.name }
           );
 
-          // Repository handles pagination and returns both wallet and transactions count
+          // Ensure wallet existence before fetching transactions
+          const { wallet } = await this.walletRepository.findByUserId(userId);
+          if (!wallet) {
+            this.logger.warn(`Wallet not found for userId=${userId}`, {
+              ctx: GetWalletTransactionsUseCase.name,
+            });
+            throw new NotFoundException(`Wallet for user ${userId} not found`);
+          }
+
+          // Fetch paginated transactions and total count
           const { transactions: walletTransactions, totalTransactions } =
             await this.walletRepository.findTransactionsByWalletId(
-              walletId,
+              wallet.id,
               offset,
               limit
             );
 
           if (!walletTransactions) {
-            this.logger.warn(`Wallet not found for Id=${walletId}`, {
-              ctx: GetWalletTransactionsUseCase.name,
-            });
-            throw new NotFoundException(`Wallet ${walletId} not found`);
+            this.logger.warn(
+              `Transactions not found for walletId=${wallet.id}`,
+              {
+                ctx: GetWalletTransactionsUseCase.name,
+              }
+            );
+            throw new NotFoundException(
+              `Transactions for wallet ${wallet.id} not found`
+            );
           }
 
           this.logger.debug(
-            `Successfully retrieved wallet transactions for walletId=${walletId}`,
+            `Successfully retrieved wallet transactions for walletId=${wallet.id}`,
             { ctx: GetWalletTransactionsUseCase.name }
           );
 
@@ -70,15 +80,17 @@ export class GetWalletTransactionsUseCase {
             transactions: walletTransactions.map(
               WalletTransactionDto.fromDomain
             ),
-            total: totalTransactions,
+            total: totalTransactions || 0,
           };
         } catch (err) {
           span.recordException?.(err);
           this.logger.error(
-            `Failed to get wallet for id: ${walletId}. Reason: ${err?.message}`,
+            `Failed to get wallet transactions for userId: ${userId}. Reason: ${err?.message}`,
             { ctx: GetWalletTransactionsUseCase.name, error: err }
           );
           throw err;
+        } finally {
+          span.end?.();
         }
       }
     );
