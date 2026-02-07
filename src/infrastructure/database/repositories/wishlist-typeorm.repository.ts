@@ -9,10 +9,11 @@ import { Wishlist } from "src/domain/entities/wishlist.entity";
 import { WishlistItem } from "src/domain/entities/wishlist-item.entity";
 import { WishlistOrmEntity } from "../entities/wishlist.orm-entity";
 import { WishlistItemOrmEntity } from "../entities/wishlist-item.orm-entity";
-import { WishlistRepository } from "src/domain/repositories/wishlist.repository";
+import { IWishlistRepository } from "src/domain/repositories/wishlist.repository";
+import { EntityMapper } from "../mapper/entity-mapper";
 
 @Injectable()
-export class WishlistTypeOrmRepository implements WishlistRepository {
+export class WishlistTypeOrmRepository implements IWishlistRepository {
   constructor(
     @InjectRepository(WishlistOrmEntity)
     private readonly repo: Repository<WishlistOrmEntity>,
@@ -20,7 +21,7 @@ export class WishlistTypeOrmRepository implements WishlistRepository {
     private readonly wishlistItemRepo: Repository<WishlistItemOrmEntity>,
     private readonly logger: LoggingService,
     private readonly tracer: TracingService,
-    private readonly metrics: MetricsService
+    private readonly metrics: MetricsService,
   ) {}
 
   async create(wishlist: Wishlist): Promise<void> {
@@ -29,28 +30,27 @@ export class WishlistTypeOrmRepository implements WishlistRepository {
       async (span) => {
         span.setAttributes({
           "db.operation": "INSERT",
-          "wishlist.id": wishlist.getId(),
+          "wishlist.id": wishlist.id,
         });
-        const ormEntity = this.toOrmEntity(wishlist);
+        const ormEntity = EntityMapper.toOrmWishlist(wishlist);
 
         this.metrics.incrementDBRequestCounter("INSERT");
-        // Measure DB operation delay
+
         const end = this.metrics.measureDBOperationDuration(
           "wishlist.create",
-          "INSERT"
+          "INSERT",
         );
         await this.repo.save(ormEntity);
 
-        // Save wishlist items if they exist
-        if (wishlist.getItems().length > 0) {
-          const wishlistItemEntities = wishlist
-            .getItems()
-            .map((item) => this.toWishlistItemOrmEntity(item));
+        if (wishlist.items.length > 0) {
+          const wishlistItemEntities = wishlist.items.map((item) =>
+            EntityMapper.toOrmWishlistItem(item),
+          );
           await this.wishlistItemRepo.save(wishlistItemEntities);
         }
 
         end();
-      }
+      },
     );
   }
 
@@ -64,10 +64,10 @@ export class WishlistTypeOrmRepository implements WishlistRepository {
         });
 
         this.metrics.incrementDBRequestCounter("SELECT");
-        // Measure DB operation delay
+
         const end = this.metrics.measureDBOperationDuration(
           "wishlist.findById",
-          "SELECT"
+          "SELECT",
         );
         const ormEntity = await this.repo.findOne({
           where: { id },
@@ -81,14 +81,14 @@ export class WishlistTypeOrmRepository implements WishlistRepository {
         }
 
         span.setAttribute("wishlist.db.found", true);
-        const wishlist = this.toDomainEntity(ormEntity);
+        const wishlist = EntityMapper.toDomainWishlist(ormEntity);
         return wishlist;
-      }
+      },
     );
   }
   async findItemByUserIdAndCourseId(
     userId: string,
-    courseId: string
+    courseId: string,
   ): Promise<WishlistItem | null> {
     return await this.tracer.startActiveSpan(
       "WishlistTypeOrmRepository.findItemByUserIdAndCourseId",
@@ -99,17 +99,15 @@ export class WishlistTypeOrmRepository implements WishlistRepository {
           "wishlist.courseId": courseId,
         });
 
-        // Find wishlist by userId first
         const result = await this.findByUserId(userId);
         if (!result.wishlist) {
           span.setAttribute("wishlist.db.found", false);
           return null;
         }
 
-        // Check if the wishlist contains the specific course
-        const wishlistItem = result.wishlist
-          .getItems()
-          .find((item) => item.getCourseId() === courseId);
+        const wishlistItem = result.wishlist.items.find(
+          (item) => item.courseId === courseId,
+        );
 
         if (!wishlistItem) {
           span.setAttribute("wishlist.db.found", false);
@@ -118,14 +116,14 @@ export class WishlistTypeOrmRepository implements WishlistRepository {
 
         span.setAttribute("wishlist.db.found", true);
         return wishlistItem;
-      }
+      },
     );
   }
 
   async findByUserId(
     userId: string,
     offset?: number,
-    limit?: number
+    limit?: number,
   ): Promise<{ wishlist: Wishlist | null; totalItems: number }> {
     return await this.tracer.startActiveSpan(
       "WishlistTypeOrmRepository.findByUserId",
@@ -135,12 +133,12 @@ export class WishlistTypeOrmRepository implements WishlistRepository {
           "user.id": userId,
         });
         this.metrics.incrementDBRequestCounter("SELECT");
-        // Measure DB operation delay
+
         const end = this.metrics.measureDBOperationDuration(
           "wishlist.findByCourseId",
-          "SELECT"
+          "SELECT",
         );
-        // First, get the wishlist without items to check if it exists
+
         const wishlistEntity = await this.repo.findOne({
           where: { userId },
         });
@@ -150,12 +148,10 @@ export class WishlistTypeOrmRepository implements WishlistRepository {
           return { wishlist: null, totalItems: 0 };
         }
 
-        // Get total count of items
         const totalItems = await this.wishlistItemRepo.count({
           where: { wishlistId: wishlistEntity.id },
         });
 
-        // Get paginated items
         const items = await this.wishlistItemRepo.find({
           where: { wishlistId: wishlistEntity.id },
           skip: offset || 0,
@@ -163,7 +159,6 @@ export class WishlistTypeOrmRepository implements WishlistRepository {
           order: { addedAt: "DESC" },
         });
 
-        // Create wishlist entity with paginated items
         const wishlistWithItems = {
           ...wishlistEntity,
           items: items,
@@ -172,10 +167,10 @@ export class WishlistTypeOrmRepository implements WishlistRepository {
         end();
 
         span.setAttribute("wishlist.db.found", true);
-        const wishlist = this.toDomainEntity(wishlistWithItems);
+        const wishlist = EntityMapper.toDomainWishlist(wishlistWithItems);
 
         return { wishlist, totalItems };
-      }
+      },
     );
   }
 
@@ -185,21 +180,21 @@ export class WishlistTypeOrmRepository implements WishlistRepository {
       async (span) => {
         span.setAttributes({
           "db.operation": "DELETE",
-          "wishlist.id": wishlist.getId(),
+          "wishlist.id": wishlist.id,
         });
 
         this.metrics.incrementDBRequestCounter("DELETE");
-        // Measure DB operation delay
+
         const end = this.metrics.measureDBOperationDuration(
           "wishlist.delete",
-          "DELETE"
+          "DELETE",
         );
-        // Delete wishlist items first
-        await this.wishlistItemRepo.delete({ wishlistId: wishlist.getId() });
-        // Then delete the wishlist
-        await this.repo.delete(wishlist.getId());
+
+        await this.wishlistItemRepo.delete({ wishlistId: wishlist.id });
+
+        await this.repo.delete(wishlist.id);
         end();
-      }
+      },
     );
   }
 
@@ -209,36 +204,33 @@ export class WishlistTypeOrmRepository implements WishlistRepository {
       async (span) => {
         span.setAttributes({
           "db.operation": "UPDATE",
-          "wishlist.id": wishlist.getId(),
+          "wishlist.id": wishlist.id,
         });
 
         this.metrics.incrementDBRequestCounter("UPDATE");
         const end = this.metrics.measureDBOperationDuration(
           "wishlist.update",
-          "UPDATE"
+          "UPDATE",
         );
 
-        // Update wishlist
-        const ormEntity = this.toOrmEntity(wishlist);
+        const ormEntity = EntityMapper.toOrmWishlist(wishlist);
         await this.repo.save(ormEntity);
 
-        // Update wishlist items
-        if (wishlist.getItems().length > 0) {
-          // Delete existing items
-          await this.wishlistItemRepo.delete({ wishlistId: wishlist.getId() });
-          // Insert new items
-          const wishlistItemEntities = wishlist
-            .getItems()
-            .map((item) => this.toWishlistItemOrmEntity(item));
+        if (wishlist.items.length > 0) {
+          await this.wishlistItemRepo.delete({ wishlistId: wishlist.id });
+
+          const wishlistItemEntities = wishlist.items.map((item) =>
+            EntityMapper.toOrmWishlistItem(item),
+          );
           await this.wishlistItemRepo.save(wishlistItemEntities);
         }
 
         end();
 
-        this.logger.debug(`Updated wishlist ${wishlist.getId()}`, {
+        this.logger.debug(`Updated wishlist ${wishlist.id}`, {
           ctx: WishlistTypeOrmRepository.name,
         });
-      }
+      },
     );
   }
 
@@ -248,44 +240,28 @@ export class WishlistTypeOrmRepository implements WishlistRepository {
       async (span) => {
         span.setAttributes({
           "db.operation": "INSERT",
-          "wishlist.id": wishlistItem.getWishlistId(),
-          "course.id": wishlistItem.getCourseId(),
+          "wishlist.id": wishlistItem.wishlistId,
+          "course.id": wishlistItem.courseId,
         });
 
-        // Check if item already exists
-        // const existingItem = await this.wishlistItemRepo.findOne({
-        //   where: {
-        //     wishlistId: wishlistItem.getWishlistId(),
-        //     courseId: wishlistItem.getCourseId(),
-        //   },
-        // });
-
-        // if (existingItem) {
-        //   this.logger.debug(
-        //     `Item ${wishlistItem.getCourseId()} already exists in wishlist ${wishlistItem.getWishlistId()}`
-        //   );
-        //   return;
-        // }
-
-        // Create new wishlist item
-        const wishlistItemOrm = this.toWishlistItemOrmEntity(wishlistItem);
+        const wishlistItemOrm = EntityMapper.toOrmWishlistItem(wishlistItem);
 
         this.metrics.incrementDBRequestCounter("INSERT");
         const end = this.metrics.measureDBOperationDuration(
           "wishlist.addItem",
-          "INSERT"
+          "INSERT",
         );
 
         await this.wishlistItemRepo.save(wishlistItemOrm);
         end();
 
         this.logger.debug(
-          `Added item ${wishlistItem.getCourseId()} to wishlist ${wishlistItem.getWishlistId()}`,
+          `Added item ${wishlistItem.courseId} to wishlist ${wishlistItem.wishlistId}`,
           {
             ctx: WishlistTypeOrmRepository.name,
-          }
+          },
         );
-      }
+      },
     );
   }
 
@@ -302,7 +278,7 @@ export class WishlistTypeOrmRepository implements WishlistRepository {
         this.metrics.incrementDBRequestCounter("DELETE");
         const end = this.metrics.measureDBOperationDuration(
           "wishlist.removeItem",
-          "DELETE"
+          "DELETE",
         );
 
         await this.wishlistItemRepo.delete({ wishlistId, courseId });
@@ -312,55 +288,9 @@ export class WishlistTypeOrmRepository implements WishlistRepository {
           `Removed item ${courseId} from wishlist ${wishlistId}`,
           {
             ctx: WishlistTypeOrmRepository.name,
-          }
+          },
         );
-      }
-    );
-  }
-
-  private toOrmEntity(wishlist: Wishlist): WishlistOrmEntity {
-    const ormEntity = new WishlistOrmEntity();
-    ormEntity.id = wishlist.getId();
-    ormEntity.userId = wishlist.getUserId();
-    ormEntity.total = wishlist.getTotal();
-    ormEntity.createdAt = wishlist.getCreatedAt();
-    ormEntity.updatedAt = wishlist.getUpdatedAt();
-
-    return ormEntity;
-  }
-
-  private toWishlistItemOrmEntity(
-    wishlistItem: WishlistItem
-  ): WishlistItemOrmEntity {
-    const ormEntity = new WishlistItemOrmEntity();
-    ormEntity.id = wishlistItem.getId();
-    ormEntity.courseId = wishlistItem.getCourseId();
-    ormEntity.wishlistId = wishlistItem.getWishlistId();
-    ormEntity.addedAt = wishlistItem.getAddedAt();
-
-    return ormEntity;
-  }
-
-  private toDomainEntity(ormEntity: WishlistOrmEntity): Wishlist {
-    const wishlistItems = ormEntity.items
-      ? ormEntity.items.map(
-          (item) =>
-            new WishlistItem(
-              item.id,
-              item.courseId,
-              item.wishlistId,
-              item.addedAt
-            )
-        )
-      : [];
-
-    return new Wishlist(
-      ormEntity.id,
-      ormEntity.userId,
-      wishlistItems,
-      ormEntity.total,
-      ormEntity.createdAt,
-      ormEntity.updatedAt
+      },
     );
   }
 }
