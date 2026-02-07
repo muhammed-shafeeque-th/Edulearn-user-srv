@@ -42,3 +42,5 @@ message ErrorDetail {
 message RemoveSuccess {
   bool removed = 1;
 }
+
+message Empty {}
