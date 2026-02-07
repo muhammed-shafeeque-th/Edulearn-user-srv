@@ -3,8 +3,6 @@ import { WalletTransaction } from "./wallet-transaction.entiy";
 
 export type WalletCurrency = "INR" | "USD";
 
-// Wallet Aggregate Root
-
 export interface WalletProps {
   id: string;
   userId: string;
@@ -24,17 +22,15 @@ export class Wallet {
   private readonly _currency: WalletCurrency = "INR";
   private readonly _createdAt: Date;
 
-  // Aggregate root encapsulates transactional state
   private constructor(props: WalletProps) {
     this._id = props.id;
     this._userId = props.userId;
-    this._balance = props.balance;
+    this._balance = Number(props.balance);
     this._transactions = props.transactions || [];
     this._createdAt = props.createdAt ? new Date(props.createdAt) : new Date();
     this._updatedAt = props.updatedAt ? new Date(props.updatedAt) : new Date();
   }
 
-  // Getters
   get id(): string {
     return this._id;
   }
@@ -47,7 +43,6 @@ export class Wallet {
   }
 
   get transactions(): readonly WalletTransaction[] {
-    // Expose as read-only array for encapsulation
     return this._transactions.slice();
   }
 
@@ -66,9 +61,11 @@ export class Wallet {
     return this._transactions.length;
   }
 
-  // Business Logic/Behavior
-
-  deposit(amount: number, note?: string, relatedOrder?: string): WalletTransaction {
+  deposit(
+    amount: number,
+    note?: string,
+    relatedOrder?: string,
+  ): WalletTransaction {
     if (amount <= 0) throw new Error("Deposit amount must be positive");
     const transaction = WalletTransaction.create({
       walletId: this.id,
@@ -76,7 +73,7 @@ export class Wallet {
       type: "deposit",
       status: "complete",
       note,
-      relatedOrder
+      relatedOrder,
     });
     this._balance += amount;
     this._transactions.push(transaction);
@@ -101,7 +98,6 @@ export class Wallet {
   }
 
   addTransaction(transaction: WalletTransaction): void {
-    // Used for replay/persistence, or external events, with invariant checks
     this._transactions.push(transaction);
     this._balance += transaction.amount;
     this._touch();
@@ -115,7 +111,6 @@ export class Wallet {
     this._updatedAt = new Date();
   }
 
-  // Optimized paginated access for large histories (for query use-cases)
   getTransactions({
     page = 1,
     pageSize = 10,
@@ -134,7 +129,7 @@ export class Wallet {
 
   static createInitial(
     userId: string,
-    currency: WalletCurrency = "USD"
+    currency: WalletCurrency = "USD",
   ): Wallet {
     return new Wallet({ id: uuidV4(), balance: 0, currency, userId });
   }
