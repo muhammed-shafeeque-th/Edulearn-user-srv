@@ -1,47 +1,84 @@
+import { v4 as uuidV4 } from "uuid";
 import { CartItem } from "./cart-item.entity";
 
+export interface CartProps {
+  id: string;
+  userId: string;
+  items?: CartItem[];
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
 export class Cart {
-  constructor(
-    private readonly id: string,
-    private readonly userId: string,
-    private items: CartItem[],
-    private readonly total: number,
-    private readonly createdAt: Date = new Date(),
-    private updatedAt: Date = new Date()
-  ) {}
+  private readonly _id: string;
+  private readonly _userId: string;
+  private _items: CartItem[];
+  private readonly _createdAt: Date;
+  private _updatedAt: Date;
 
-  // Getters
-  getId(): string {
-    return this.id;
+  private constructor(props: CartProps) {
+    this._id = props.id;
+    this._userId = props.userId;
+    this._items = props.items ? [...props.items] : [];
+    this._createdAt = props.createdAt ? new Date(props.createdAt) : new Date();
+    this._updatedAt = props.updatedAt ? new Date(props.updatedAt) : new Date();
   }
 
-  getUserId(): string {
-    return this.userId;
+  static create(
+    props: Omit<CartProps, "id" | "createdAt" | "updatedAt">,
+  ): Cart {
+    return new Cart({
+      ...props,
+      id: uuidV4(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
   }
 
-  getItems(): CartItem[] {
-    return this.items;
+  static fromPrimitives(props: CartProps): Cart {
+    return new Cart(props);
   }
 
-  getTotal(): number {
-    return this.total;
+  get id(): string {
+    return this._id;
   }
 
-  getCreatedAt(): Date {
-    return this.createdAt;
+  get userId(): string {
+    return this._userId;
   }
 
-  getUpdatedAt(): Date {
-    return this.updatedAt;
+  get items(): ReadonlyArray<CartItem> {
+    return [...this._items];
   }
 
-  removeFromCart(cartId: string) {
-    const updatedCart = this.items.filter((item) => item.getId() !== cartId);
-    this.items = updatedCart;
-    this.updatedAt = new Date();
+  get total(): number {
+    return this._items.length;
   }
-  addToCart(item: CartItem) {
-    this.items.push(item);
-    this.updatedAt = new Date();
+
+  get createdAt(): Date {
+    return this._createdAt;
+  }
+
+  get updatedAt(): Date {
+    return this._updatedAt;
+  }
+
+  addToCart(item: CartItem): void {
+    this._items.push(item);
+    this.touch();
+  }
+
+  removeFromCart(itemId: string): void {
+    this._items = this._items.filter((item) => item.id !== itemId);
+    this.touch();
+  }
+
+  clearCart(): void {
+    this._items = [];
+    this.touch();
+  }
+
+  private touch(): void {
+    this._updatedAt = new Date();
   }
 }
