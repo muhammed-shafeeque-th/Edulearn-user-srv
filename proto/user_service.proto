@@ -2,16 +2,19 @@ syntax = "proto3";
 package user_service;
 
 import "user/types/user_types.proto";
+import "user/common.proto";
 import "user/types/user_wallet_types.proto";
 import "user/types/cart_types.proto";
 import "user/types/wishlist_types.proto";
+import "user/types/stats_types.proto";
 import "user/types/instructor_types.proto";
+import "user/types/instructor_student.proto";
 
 service UserService {
   // User operations
   rpc GetUser(GetUserRequest) returns (GetUserResponse);
-  rpc GetUsers(GetUsersRequest) returns (GetUsersResponse);
-  rpc GetUsersByIds(GetUsersByIdsRequest) returns (GetUsersByIdsResponse);
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+  rpc ListUsersByIds(ListUsersByIdsRequest) returns (ListUsersResponse);
   rpc GetCurrentUser(GetCurrentUserRequest) returns (GetCurrentUserResponse);
   rpc UpdateUserDetails(UpdateUserDetailsRequest) returns (UpdateUserDetailsResponse);
   rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse);
@@ -19,7 +22,7 @@ service UserService {
   // Instructor
   rpc RegisterInstructor(RegisterInstructorRequest) returns (RegisterInstructorResponse);
   rpc GetInstructorByName(GetInstructorByNameRequest) returns (GetInstructorByNameResponse);
-  rpc GetInstructors(GetInstructorsRequest) returns (GetInstructorsResponse);
+  rpc ListInstructors(ListInstructorsRequest) returns (ListInstructorsResponse);
 
   // Email/verification
   rpc GetUserEmails(GetUserEmailsRequest) returns (GetUserEmailsResponse);
@@ -29,19 +32,44 @@ service UserService {
   rpc BlockUser(BlockUserRequest) returns (BlockUserResponse);
   rpc UnBlockUser(UnBlockUserRequest) returns (UnBlockUserResponse);
 
+  
+  // Instructor Student relations
+  rpc ListInstructorsOfStudent(ListInstructorsOfStudentRequest) returns (ListInstructorsResponse);
+  rpc ListStudentsOfInstructor(ListStudentsOfInstructorRequest) returns (ListUsersResponse);
+  rpc IsStudentOfInstructor(IsStudentOfInstructorRequest) returns (IsStudentOfInstructorResponse);
+
+  // Stats
+  rpc GetUsersStats(Empty) returns (GetUsersStatsResponse);
+  rpc GetInstructorsStats(Empty) returns (GetInstructorsStatsResponse);
+
+
+}
+
+service WalletService {
   // Wallet
   rpc GetUserWallet(GetUserWalletRequest) returns (GetUserWalletResponse);
   rpc GetWalletTransactions(GetWalletTransactionsRequest) returns (GetWalletTransactionsResponse);
 
+  // Stats
+  rpc GetInstructorRevenueSummery(GetInstructorRevenueSummeryRequest) returns (GetInstructorRevenueSummeryResponse);
+
+}
+
+service CartService {
   // Cart
   rpc AddToCart(AddToCartRequest) returns (AddToCartResponse);
   rpc ToggleCartItem(ToggleCartItemRequest) returns (ToggleCartItemResponse);
   rpc RemoveFromCart(RemoveFromCartRequest) returns (RemoveFromCartResponse);
+  rpc ClearCart(ClearCartRequest) returns (ClearCartResponse);
   rpc ListUserCart(ListCartRequest) returns (ListCartResponse);
+}
 
+
+service  WishlistService {
   // Wishlist
   rpc AddToWishlist(AddToWishlistRequest) returns (AddToWishlistResponse);
   rpc ToggleWishlistItem(ToggleWishlistItemRequest) returns (ToggleWishlistItemResponse);
   rpc RemoveFromWishlist(RemoveFromWishlistRequest) returns (RemoveFromWishlistResponse);
   rpc ListUserWishlist(ListWishlistRequest) returns (ListWishlistResponse);
+
 }
