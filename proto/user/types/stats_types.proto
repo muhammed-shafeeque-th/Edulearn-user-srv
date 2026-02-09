@@ -1,0 +1,66 @@
+syntax = "proto3";
+package user_service;
+
+import "user/common.proto";
+
+
+message GetInstructorRevenueSummeryRequest {
+    string instructor_id = 1;
+}
+
+message InstructorRevenueSummery {
+    int32 total_earnings = 1;
+    int32 this_month_earnings = 2;
+    int32 last_month_earnings = 3;
+    int32 this_week_earnings = 4;
+    int32 today_earnings = 5;
+}
+
+
+message UsersStats {
+    int32 total = 1;
+    int32 active = 2;
+    int32 inactive = 3;
+    int32 blocked = 4;
+}
+
+message InstructorsStats {
+    int32 total = 1;
+    int32 active = 2;
+    int32 inactive = 3;
+    int32 blocked = 4;
+    int32 new_this_month = 5;
+}
+
+message RevenueSummery {
+    int32 revenue_this_month = 1;
+    int32 revenue_last_month = 2;
+}
+
+message GetRevenueSummeryRequest {
+    string range = 1;
+}
+
+message GetInstructorsStats {
+    string range = 1;
+}
+
+
+message GetUsersStatsResponse {
+  oneof result {
+    UsersStats success = 1;
+    Error error = 2;
+  }
+}
+message GetInstructorsStatsResponse {
+  oneof result {
+    InstructorsStats success = 1;
+    Error error = 2;
+  }
+}
+message GetInstructorRevenueSummeryResponse {
+  oneof result {
+    InstructorRevenueSummery success = 1;
+    Error error = 2;
+  }
+}
