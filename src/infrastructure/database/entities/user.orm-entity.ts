@@ -1,4 +1,4 @@
-import { UserRoles, UserStatus } from "src/domain/entities/user-entity";
+import { UserRoles, UserStatus } from "src/domain/entities/user.entity";
 import {
   Column,
   CreateDateColumn,
