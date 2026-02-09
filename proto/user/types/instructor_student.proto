@@ -1,0 +1,42 @@
+syntax = "proto3";
+package user_service;
+
+import "user/common.proto";
+import "user/types/user_types.proto";
+
+message ListInstructorsOfStudentRequest {
+  string student_id = 1;
+  PaginationRequest pagination = 2;
+}
+message ListStudentsOfInstructorRequest {
+  string instructor_id = 1;
+  PaginationRequest pagination = 2;
+}
+
+message IsInstructorOfStudentRequest {
+  string instructor_id = 1;
+  string student_id = 2;
+}
+message IsStudentOfInstructorRequest {
+  string instructor_id = 1;
+  string student_id = 2;
+}
+
+message IsStudentOfInstructorResponse {
+  oneof result {
+    IsStudentOfInstructorSuccess success = 1;
+    Error error = 2;
+  }
+}
+message IsStudentOfInstructorSuccess {
+  bool is_student = 1;
+}
+message IsInstructorOfStudentResponse {
+  oneof result {
+    IsInstructorOfStudentSuccess success = 1;
+    Error error = 2;
+  }
+}
+message IsInstructorOfStudentSuccess {
+  bool is_student = 1;
+}
