@@ -18,5 +18,16 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false
-  }
+  },
+  "include": [
+    "src/**/*"
+, "src/infrastructure/__redis", "src/application/use-cases/cart/cart.module.ts"  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/**/*.spec.ts",
+    "src/**/old/**/*",
+    "src/**/_*.*",
+    "src/**/__*/**"
+  ]
 }
