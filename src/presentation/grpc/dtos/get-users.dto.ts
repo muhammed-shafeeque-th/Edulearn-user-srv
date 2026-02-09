@@ -9,7 +9,7 @@ import {
   ValidateNested,
 } from "class-validator";
 import { Type, plainToInstance } from "class-transformer";
-import { UserStatus as UserDomainStatus } from "src/domain/entities/user-entity";
+import { UserStatus as UserDomainStatus } from "src/domain/entities/user.entity";
 import {
   PaginationRequest,
   SortOrder as GrpcSortOrder,
