@@ -1,4 +1,3 @@
-
 import { v4 as uuidV4 } from "uuid";
 
 export interface WishlistItemProps {
@@ -8,17 +7,12 @@ export interface WishlistItemProps {
   addedAt: Date;
 }
 
-/**
- * Domain entity for WishlistItem.
- * Follows pattern from CartItem/Domain entities—immutable outwardly, factory statics, encapsulated data.
- */
 export class WishlistItem {
   private readonly _id: string;
   private readonly _courseId: string;
   private readonly _wishlistId: string;
   private readonly _addedAt: Date;
 
-  // Private constructor for full control
   private constructor(props: WishlistItemProps) {
     this._id = props.id;
     this._courseId = props.courseId;
@@ -26,11 +20,8 @@ export class WishlistItem {
     this._addedAt = new Date(props.addedAt);
   }
 
-  /**
-   * Create a new wishlist item (generates UUID and timestamp).
-   */
   static create(
-    props: Omit<WishlistItemProps, "id" | "addedAt">
+    props: Omit<WishlistItemProps, "id" | "addedAt">,
   ): WishlistItem {
     return new WishlistItem({
       ...props,
@@ -63,9 +54,6 @@ export class WishlistItem {
     return this._addedAt;
   }
 
-  /**
-   * For persistence or serialization.
-   */
   toPrimitives(): WishlistItemProps {
     return {
       id: this._id,
@@ -75,4 +63,3 @@ export class WishlistItem {
     };
   }
 }
-
