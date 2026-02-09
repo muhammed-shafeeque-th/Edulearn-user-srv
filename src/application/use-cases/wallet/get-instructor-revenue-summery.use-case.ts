@@ -7,9 +7,7 @@ import {
 import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
 import { TracingService } from "src/infrastructure/observability/tracing/trace.service";
 
-/**
- * Use case for retrieving instructor revenue summary in a clean and robust manner.
- */
+
 @Injectable()
 export class GetInstructorRevenueSummeryUseCase {
   constructor(
@@ -20,7 +18,6 @@ export class GetInstructorRevenueSummeryUseCase {
 
   /**
    * Fetch instructor's revenue summary information.
-   *
    * @param dto Information about the instructor.
    */
   async execute(
@@ -66,7 +63,6 @@ export class GetInstructorRevenueSummeryUseCase {
             { ctx: GetInstructorRevenueSummeryUseCase.name }
           );
 
-          // Map directly to the InstructorRevenueSummery schema
           return {
             totalEarnings: revenueSummary.totalEarnings ?? 0,
             thisMonthEarnings: revenueSummary.thisMonthEarnings ?? 0,

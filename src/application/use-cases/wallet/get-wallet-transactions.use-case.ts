@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { WalletTransactionDto } from "src/application/dtos/wallet.dto";
+import { UserWalletNotFoundException } from "src/domain/exceptions";
 import { IWalletRepository } from "src/domain/repositories/wallet.repository";
 import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
 import { TracingService } from "src/infrastructure/observability/tracing/trace.service";
@@ -42,16 +43,14 @@ export class GetWalletTransactionsUseCase {
             { ctx: GetWalletTransactionsUseCase.name }
           );
 
-          // Ensure wallet existence before fetching transactions
           const { wallet } = await this.walletRepository.findByUserId(userId);
           if (!wallet) {
             this.logger.warn(`Wallet not found for userId=${userId}`, {
               ctx: GetWalletTransactionsUseCase.name,
             });
-            throw new NotFoundException(`Wallet for user ${userId} not found`);
+            throw new UserWalletNotFoundException(`Wallet for user ${userId} not found`);
           }
 
-          // Fetch paginated transactions and total count
           const { transactions: walletTransactions, totalTransactions } =
             await this.walletRepository.findTransactionsByWalletId(
               wallet.id,
@@ -66,7 +65,7 @@ export class GetWalletTransactionsUseCase {
                 ctx: GetWalletTransactionsUseCase.name,
               }
             );
-            throw new NotFoundException(
+            throw new UserWalletNotFoundException(
               `Transactions for wallet ${wallet.id} not found`
             );
           }
@@ -89,9 +88,7 @@ export class GetWalletTransactionsUseCase {
             { ctx: GetWalletTransactionsUseCase.name, error: err }
           );
           throw err;
-        } finally {
-          span.end?.();
-        }
+        } 
       }
     );
   }

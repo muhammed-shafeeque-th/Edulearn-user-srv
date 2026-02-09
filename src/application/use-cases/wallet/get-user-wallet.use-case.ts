@@ -43,7 +43,6 @@ export class GetUserWalletUseCase {
             { ctx: GetUserWalletUseCase.name }
           );
 
-          // Repository handles pagination and returns both wallet and transactions count
           const { wallet: userWallet, totalTransactions } =
             await this.walletRepository.findByUserId(userId, offset, limit);
 
