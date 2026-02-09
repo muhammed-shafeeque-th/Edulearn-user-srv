@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { WishlistDto } from "src/application/dtos/wishlist.dto";
-import { WishlistNotFoundException } from "src/domain/exceptions/domain.exceptions";
+import { WishlistNotFoundException } from "src/domain/exceptions";
 import { IWishlistRepository } from "src/domain/repositories/wishlist.repository";
 import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
 import { TracingService } from "src/infrastructure/observability/tracing/trace.service";
@@ -39,7 +39,6 @@ export class GetWishlistByUserUseCase {
         const safePage = Math.max(Number(page) || 1, 1);
         const safePageSize = Math.max(Number(pageSize) || 10, 1);
 
-        // Offset is (page - 1) * pageSize
         const offset = (safePage - 1) * safePageSize;
 
         const { wishlist, totalItems } =

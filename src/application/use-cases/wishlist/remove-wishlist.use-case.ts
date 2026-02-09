@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import {
   WishlistItemAlreadyExistException,
   WishlistItemNotFoundException,
-} from "src/domain/exceptions/domain.exceptions";
+} from "src/domain/exceptions";
 import { IWishlistRepository } from "src/domain/repositories/wishlist.repository";
 import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
 import { TracingService } from "src/infrastructure/observability/tracing/trace.service";

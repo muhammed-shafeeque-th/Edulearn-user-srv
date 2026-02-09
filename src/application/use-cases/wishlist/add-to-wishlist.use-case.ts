@@ -5,7 +5,7 @@ import { Wishlist } from "src/domain/entities/wishlist.entity";
 import {
   WishlistItemAlreadyExistException,
   WishlistItemNotFoundException,
-} from "src/domain/exceptions/domain.exceptions";
+} from "src/domain/exceptions";
 import { IWishlistRepository } from "src/domain/repositories/wishlist.repository";
 import { KafkaService } from "src/infrastructure/kafka/kafka.service";
 import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
