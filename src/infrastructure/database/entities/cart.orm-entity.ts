@@ -10,7 +10,7 @@ import {
   OneToOne,
   OneToMany,
 } from "typeorm";
-import { UserOrmEntity } from "./user-orm-entity";
+import { UserOrmEntity } from "./user.orm-entity";
 import { CartItemOrmEntity } from "./cart-item.orm-entity";
 
 @Entity("carts")
@@ -24,7 +24,7 @@ export class CartOrmEntity {
 
   @OneToOne(() => UserOrmEntity, (user) => user.cart)
   @JoinColumn({ name: "userId" })
-  @Index("idx_cart_user_id") // Index for joining with sections
+  @Index("idx_cart_user_id") 
   user: UserOrmEntity;
 
   @OneToMany(() => CartItemOrmEntity, (cartItem) => cartItem.cart)

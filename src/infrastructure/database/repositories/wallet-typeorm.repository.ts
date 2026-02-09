@@ -10,6 +10,7 @@ import { TracingService } from "src/infrastructure/observability/tracing/trace.s
 import { MetricsService } from "src/infrastructure/observability/metrics/metrics.service";
 import { Wallet, WalletCurrency } from "src/domain/entities/user-wallet.entity";
 import { WalletTransaction } from "src/domain/entities/wallet-transaction.entiy";
+import { EntityMapper } from "../mapper/entity-mapper";
 
 @Injectable()
 export default class WalletTypeOrmRepositoryImpl implements IWalletRepository {
@@ -25,14 +26,14 @@ export default class WalletTypeOrmRepositoryImpl implements IWalletRepository {
   ) {}
 
   async save(wallet: Wallet): Promise<Wallet> {
-    return this.tracer.startActiveSpan(
+    return await this.tracer.startActiveSpan(
       "WalletTypeOrmRepositoryImpl.save",
       async (span) => {
         span.setAttribute("db.operation", "insert");
         span.setAttribute("wallet.userId", wallet.userId);
         this.logger.debug(`Saving wallet for userId: ${wallet.userId}`);
 
-        const ormWallet = this.mapToPersistenceEntity(wallet);
+        const ormWallet = EntityMapper.toOrmWallet(wallet);
         try {
           const resultWallet = await this.repo.save(ormWallet);
           this.logger.debug(`Wallet created with ID: ${resultWallet.id}`);
@@ -45,7 +46,7 @@ export default class WalletTypeOrmRepositoryImpl implements IWalletRepository {
 
           span.setAttribute("Wallet.created", true);
 
-          return this.mapToDomain(resultWallet, []);
+          return EntityMapper.toDomainWallet(resultWallet, []);
         } catch (err) {
           this.logger.warn(
             `Failed to create wallet for userId: ${wallet.userId}`,
@@ -66,7 +67,7 @@ export default class WalletTypeOrmRepositoryImpl implements IWalletRepository {
     wallet: Wallet | null;
     totalTransactions: number;
   }> {
-    return this.tracer.startActiveSpan(
+    return await this.tracer.startActiveSpan(
       "WalletTypeOrmRepositoryImpl.findById",
       async (span) => {
         span.setAttribute("db.operation", "select");
@@ -117,7 +118,7 @@ export default class WalletTypeOrmRepositoryImpl implements IWalletRepository {
           });
 
         return {
-          wallet: this.mapToDomain(wallet, transactionEntities),
+          wallet: EntityMapper.toDomainWallet(wallet, transactionEntities),
           totalTransactions,
         };
       }
@@ -145,7 +146,7 @@ export default class WalletTypeOrmRepositoryImpl implements IWalletRepository {
 
     return {
       transactions: transactionEntities.map((entity) =>
-        this.mapTransactionToDomain(entity)
+        EntityMapper.toDomainWalletTransaction(entity)
       ),
       totalTransactions,
     };
@@ -154,7 +155,7 @@ export default class WalletTypeOrmRepositoryImpl implements IWalletRepository {
   async findTransaction(
     transactionId: string
   ): Promise<WalletTransaction | null> {
-    return this.tracer.startActiveSpan(
+    return await this.tracer.startActiveSpan(
       "WalletTypeOrmRepositoryImpl.findTransaction",
       async (span) => {
         span.setAttribute("db.operation", "select");
@@ -169,7 +170,7 @@ export default class WalletTypeOrmRepositoryImpl implements IWalletRepository {
           this.logger.debug(
             `Cache hit for wallet transaction id : ${transactionId}`
           );
-          return this.mapTransactionToDomain(cachedTransaction);
+          return EntityMapper.toDomainWalletTransaction(cachedTransaction);
         }
 
         span.setAttribute("cache.hit", false);
@@ -200,7 +201,7 @@ export default class WalletTypeOrmRepositoryImpl implements IWalletRepository {
         this.logger.debug(
           `transaction found for  transaction id : ${transactionId}`
         );
-        return this.mapTransactionToDomain(transaction);
+        return EntityMapper.toDomainWalletTransaction(transaction);
       }
     );
   }
@@ -208,7 +209,7 @@ export default class WalletTypeOrmRepositoryImpl implements IWalletRepository {
     walletId: string,
     orderId: string
   ): Promise<WalletTransaction | null> {
-    return this.tracer.startActiveSpan(
+    return await this.tracer.startActiveSpan(
       "WalletTypeOrmRepositoryImpl.findTransactionByWalletIdAndOrderId",
       async (span) => {
         span.setAttribute("db.operation", "select");
@@ -222,11 +223,11 @@ export default class WalletTypeOrmRepositoryImpl implements IWalletRepository {
         if (!tx) {
           return null;
         }
-        
+
         this.logger.debug(
           `Transaction found for walletId: ${walletId} and orderId: ${orderId}`
         );
-        return this.mapTransactionToDomain(tx);
+        return EntityMapper.toDomainWalletTransaction(tx);
       }
     );
   }
@@ -237,7 +238,8 @@ export default class WalletTypeOrmRepositoryImpl implements IWalletRepository {
     }
     // Validate required transaction properties if necessary
     try {
-      const transactionEntity = this.mapTransactionToPersistence(transaction);
+      const transactionEntity =
+        EntityMapper.toOrmWalletTransaction(transaction);
       await this.transactionRepo.save(transactionEntity);
       // Optionally invalidate or update transaction-related cache if implemented
       this.logger.debug(
@@ -260,7 +262,7 @@ export default class WalletTypeOrmRepositoryImpl implements IWalletRepository {
     // transactions: WalletTransaction[];
     totalTransactions: number;
   }> {
-    return this.tracer.startActiveSpan(
+    return await this.tracer.startActiveSpan(
       "WalletTypeOrmRepositoryImpl.findByUserId",
       async (span) => {
         span.setAttribute("db.operation", "select");
@@ -307,7 +309,7 @@ export default class WalletTypeOrmRepositoryImpl implements IWalletRepository {
           });
 
         return {
-          wallet: this.mapToDomain(wallet, transactionEntities),
+          wallet: EntityMapper.toDomainWallet(wallet, transactionEntities),
           totalTransactions,
         };
       }
@@ -315,7 +317,7 @@ export default class WalletTypeOrmRepositoryImpl implements IWalletRepository {
   }
 
   async update(wallet: Wallet): Promise<void> {
-    return this.tracer.startActiveSpan(
+    return await this.tracer.startActiveSpan(
       "WalletTypeOrmRepositoryImpl.update",
       async (span) => {
         span.setAttribute("db.operation", "update");
@@ -328,7 +330,7 @@ export default class WalletTypeOrmRepositoryImpl implements IWalletRepository {
           return;
         }
 
-        const updateData = this.mapPartialDomainToPartialEntity(wallet);
+        const updateData = EntityMapper.toPartialOrmWallet(wallet);
 
         const endTimer = this.metrics.measureDBOperationDuration(
           "update",
@@ -363,7 +365,7 @@ export default class WalletTypeOrmRepositoryImpl implements IWalletRepository {
   }
 
   async delete(wallet: Wallet): Promise<void> {
-    return this.tracer.startActiveSpan(
+    return await this.tracer.startActiveSpan(
       "WalletTypeOrmRepositoryImpl.delete",
       async (span) => {
         span.setAttribute("db.operation", "delete");
@@ -400,7 +402,7 @@ export default class WalletTypeOrmRepositoryImpl implements IWalletRepository {
   }
 
   async findAll(offset = 0, limit = 10): Promise<Wallet[]> {
-    return this.tracer.startActiveSpan(
+    return await this.tracer.startActiveSpan(
       "WalletTypeOrmRepositoryImpl.findAll",
       async (span) => {
         span.setAttribute("db.operation", "select");
@@ -413,7 +415,9 @@ export default class WalletTypeOrmRepositoryImpl implements IWalletRepository {
         if (cached) {
           span.setAttribute("cache.hit", true);
           // No transaction joins here for bulk listing, could be provided if needed.
-          return cached.map((wallet) => this.mapToDomain(wallet, []));
+          return cached.map((wallet) =>
+            EntityMapper.toDomainWallet(wallet, [])
+          );
         }
         span.setAttribute("cache.hit", false);
 
@@ -433,92 +437,109 @@ export default class WalletTypeOrmRepositoryImpl implements IWalletRepository {
 
         await this.cache.set(cacheKey, wallets, 300); // shorter TTL for paged list
 
-        return wallets.map((wallet) => this.mapToDomain(wallet, []));
+        return wallets.map((wallet) => EntityMapper.toDomainWallet(wallet, []));
       }
     );
   }
 
+  async getRevenueSummery(
+    instructorId: string
+  ): Promise<{
+    totalEarnings: number;
+    thisMonthEarnings: number;
+    lastMonthEarnings: number;
+    thisWeekEarnings: number;
+    todayEarnings: number;
+  } | null> {
+    return await this.tracer.startActiveSpan("WalletTypeOrmRepositoryImpl.getRevenueSummery", async (span) => {
+      try {
+        // These could be parameterized or changed.
+        span.setAttribute("db.operation", "aggregate");
+        span.setAttribute("query.target", "wallet_transaction");
+        span.setAttribute("wallet.owner_id", instructorId);
+
+        if (!instructorId) {
+          this.logger.warn("getRevenueSummery called without instructorId");
+          return null;
+        }
+
+        // Find the Wallet of instructor
+        const wallet = await this.repo.findOne({
+          where: { userId: instructorId },
+          select: ["id"]
+        });
+
+        if (!wallet) {
+          this.logger.debug(`No wallet found for instructorId: ${instructorId}`);
+          return null;
+        }
+
+        // We assume 'amount' is the income, and 'createdAt' is the transaction date
+        // Optionally, you can filter only successful/settled income, etc.
+
+        // EPOCH filter helpers
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+        const startOfWeek = (() => {
+          const _d = new Date(now);
+          _d.setDate(now.getDate() - now.getDay());
+          _d.setHours(0, 0, 0, 0);
+          return _d;
+        })();
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+        // Compose subquery for summing by range
+        const agg = await this.transactionRepo
+          .createQueryBuilder("tx")
+          .select([
+            'COALESCE(SUM(tx.amount),0) as "totalEarnings"',
+            `COALESCE(SUM(CASE WHEN tx."timestamp" >= :startOfMonth THEN tx.amount ELSE 0 END),0) as "thisMonthEarnings"`,
+            `COALESCE(SUM(CASE WHEN tx."timestamp" >= :startOfLastMonth AND tx."timestamp" <= :endOfLastMonth THEN tx.amount ELSE 0 END),0) as "lastMonthEarnings"`,
+            `COALESCE(SUM(CASE WHEN tx."timestamp" >= :startOfWeek THEN tx.amount ELSE 0 END),0) as "thisWeekEarnings"`,
+            `COALESCE(SUM(CASE WHEN tx."timestamp" >= :startOfToday THEN tx.amount ELSE 0 END),0) as "todayEarnings"`
+          ])
+          .where("tx.walletId = :walletId", { walletId: wallet.id })
+          // Optionally only sum INCOME/settled/finished transactions:
+          // .andWhere('tx.type = :type', { type: 'INCOME' })
+          .setParameters({
+            startOfMonth,
+            startOfLastMonth,
+            endOfLastMonth,
+            startOfWeek,
+            startOfToday
+          })
+          .getRawOne<{
+            totalEarnings: string;
+            thisMonthEarnings: string;
+            lastMonthEarnings: string;
+            thisWeekEarnings: string;
+            todayEarnings: string;
+          }>();
+
+        return {
+          totalEarnings: Number(agg.totalEarnings) || 0,
+          thisMonthEarnings: Number(agg.thisMonthEarnings) || 0,
+          lastMonthEarnings: Number(agg.lastMonthEarnings) || 0,
+          thisWeekEarnings: Number(agg.thisWeekEarnings) || 0,
+          todayEarnings: Number(agg.todayEarnings) || 0,
+        };
+      } catch (error) {
+        this.logger.error(`Error getting revenue summary for instructor ${instructorId}: ${error?.message}`, {
+          error,
+          instructorId,
+        });
+        span?.recordException?.(error);
+        return null;
+      }
+    });
+  }
+
+
+
+
   // ============ Mapping methods (entity <-> domain) ============
-
-  private mapToDomain(
-    wallet: WalletOrmEntity,
-    transactions: WalletTransactionOrmEntity[]
-  ): Wallet {
-    if (!wallet) return null;
-    // We allow passing already mapped WalletTransaction[] for transactions
-    // let txs: WalletTransaction[];
-    // if (
-    //   transactions.length > 0 &&
-    //   transactions[0] instanceof WalletTransaction
-    // ) {
-    //   txs = transactions as WalletTransaction[];
-    // } else {
-    const txs = transactions.map((tx) => this.mapTransactionToDomain(tx));
-    // }
-    return Wallet.fromPrimitives({
-      id: wallet.id,
-      userId: wallet.userId,
-      balance: wallet.balance,
-      currency: wallet.currency as WalletCurrency,
-      createdAt: wallet.createdAt,
-      updatedAt: wallet.updatedAt,
-      transactions: txs,
-    });
-  }
-
-  private mapToPersistenceEntity(wallet: Wallet): WalletOrmEntity {
-    const orm = new WalletOrmEntity();
-    orm.id = wallet.id;
-    orm.userId = wallet.userId;
-    orm.balance = wallet.balance;
-    orm.currency = wallet.currency;
-    orm.createdAt = wallet.createdAt;
-    orm.updatedAt = wallet.updatedAt;
-    return orm;
-  }
-
-  private mapTransactionToDomain(
-    tx: WalletTransactionOrmEntity
-  ): WalletTransaction {
-    if (!tx) return null;
-    return WalletTransaction.fromPrimitives({
-      id: tx.id,
-      walletId: tx.walletId,
-      type: tx.type,
-      amount: tx.amount,
-      status: tx.status,
-      timestamp: tx.timestamp,
-      note: tx.note,
-      relatedOrder: tx.relatedOrder,
-    });
-  }
-
-  private mapTransactionToPersistence(
-    tx: WalletTransaction
-  ): WalletTransactionOrmEntity {
-    if (!tx) return null;
-    const ormEntity = new WalletTransactionOrmEntity();
-    ormEntity.id = tx.id;
-    ormEntity.walletId = tx.walletId;
-    ormEntity.type = tx.type;
-    ormEntity.amount = tx.amount;
-    ormEntity.status = tx.status;
-    ormEntity.timestamp = tx.timestamp;
-    ormEntity.note = tx.note;
-    ormEntity.relatedOrder = tx.relatedOrder;
-  }
-
-  private mapPartialDomainToPartialEntity(
-    payload: Partial<Wallet>
-  ): Partial<WalletOrmEntity> {
-    // Only map allowed updatable fields
-    const partial: Partial<WalletOrmEntity> = {};
-    if ("balance" in payload) partial.balance = payload.balance;
-    if ("currency" in payload) partial.currency = payload.currency;
-    if ("updatedAt" in payload) partial.updatedAt = payload.updatedAt;
-    // etc: whitelist updatable fields
-    return partial;
-  }
 
   // ============ Cache Key helpers ============
 

@@ -1,61 +1,62 @@
-# Stage 1: Build the application
-FROM node:18-alpine AS builder
+# Stage 1: Dependencies
+FROM node:20-alpine AS deps
 
-# Set working directory
 WORKDIR /app
 
-# Install build dependencies (e.g., for native modules)
-RUN apk add --no-cache python3 make g++ bash
+# Build tools for native deps
+RUN apk add --no-cache python3 make g++
 
-# Copy package.json and package-lock.json for dependency installation
-COPY package*.json ./
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile
 
-# Install dependencies (including devDependencies for building)
-RUN npm ci
 
-# Copy the rest of the application code
-COPY . .
+# Stage 2: Builder
+FROM node:20-alpine AS builder
 
-# Build the application
-RUN npm run build
-
-# Generate Prisma client (if applicable, adjust based on your setup)
-# RUN npx prisma generate
-
-# Stage 2: Create the production image
-FROM node:18-alpine AS production
-
-# Set working directory
 WORKDIR /app
 
-# Create a non-root user for security
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/package.json ./package.json
+COPY --from=deps /app/yarn.lock ./yarn.lock
 
-# Install only production dependencies
-COPY package*.json ./
-RUN npm ci --only=production && npm cache clean --force
+COPY tsconfig*.json ./
+COPY src ./src
+COPY proto ./proto
 
-# Copy the built application from the builder stage
+RUN yarn build
+
+
+# Stage 3: Pruner
+FROM node:20-alpine AS pruner
+
+WORKDIR /app
+
+COPY package.json yarn.lock ./
+RUN yarn install --production --frozen-lockfile
+
+
+# Stage 4: Runner
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+RUN apk add --no-cache tini curl
+
+RUN addgroup -g 1001 appgroup \
+ && adduser -D -u 1001 -G appgroup appuser
+
+COPY --from=pruner /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/yarn.lock ./yarn.lock
+COPY --from=builder /app/proto ./proto
 
-# Copy necessary files (e.g., .env for runtime, if needed)
-COPY .env ./
+# Permissions
+RUN mkdir -p /app/logs \
+ && chown -R appuser:appgroup /app
 
-# Change ownership to the non-root user
-RUN chown -R appuser:appgroup /app
-
-# Switch to the non-root user
 USER appuser
 
-# Expose the port the app runs on
-EXPOSE 3001
+EXPOSE 50052
 
-# Set environment variables for production
-ENV NODE_ENV=production
-
-# Healthcheck to ensure the service is running
-HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3001/health || exit 1
-
-# Start the application
-CMD ["yarn", "run", "start"]
+CMD ["yarn", "run", "start:prod"]

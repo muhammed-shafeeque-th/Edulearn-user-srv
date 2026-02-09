@@ -7,7 +7,7 @@ import {
   PrimaryColumn,
   JoinColumn,
 } from "typeorm";
-import { UserOrmEntity } from "./user-orm-entity";
+import { UserOrmEntity } from "./user.orm-entity";
 
 @Entity("user_socials")
 export class UserSocialOrmEntity {
@@ -16,6 +16,7 @@ export class UserSocialOrmEntity {
 
   @Column("uuid")
   userId!: string;
+  
 
   @ManyToOne(() => UserOrmEntity, (u) => u.socials, { onDelete: "CASCADE" })
   @JoinColumn({ name: "userId" })

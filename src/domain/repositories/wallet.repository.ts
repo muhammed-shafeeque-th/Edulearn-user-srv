@@ -14,6 +14,13 @@ export abstract class IWalletRepository {
   ): Promise<{ wallet: Wallet | null; totalTransactions: number }>;
   abstract update(wallet: Wallet): Promise<void>;
   abstract addTransaction(transaction: WalletTransaction): Promise<void>;
+  abstract getRevenueSummery(instructorId: string): Promise<{
+    totalEarnings: number;
+    thisMonthEarnings: number;
+    lastMonthEarnings: number;
+    thisWeekEarnings: number;
+    todayEarnings: number;
+  } | null>;
   abstract findTransaction(
     transactionId: string
   ): Promise<WalletTransaction | null>;

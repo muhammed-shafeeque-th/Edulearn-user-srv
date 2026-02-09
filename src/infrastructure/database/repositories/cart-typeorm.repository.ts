@@ -6,14 +6,15 @@ import { LoggingService } from "src/infrastructure/observability/logging/logging
 import { TracingService } from "src/infrastructure/observability/tracing/trace.service";
 import { MetricsService } from "src/infrastructure/observability/metrics/metrics.service";
 
-import { CartRepository } from "src/domain/repositories/cart.repository";
+import { ICartRepository } from "src/domain/repositories/cart.repository";
 import { CartOrmEntity } from "../entities/cart.orm-entity";
 import { CartItemOrmEntity } from "../entities/cart-item.orm-entity";
 import { Cart } from "src/domain/entities/cart.entity";
 import { CartItem } from "src/domain/entities/cart-item.entity";
+import { EntityMapper } from "../mapper/entity-mapper";
 
 @Injectable()
-export class CartTypeOrmRepository implements CartRepository {
+export class CartTypeOrmRepository implements ICartRepository {
   constructor(
     @InjectRepository(CartOrmEntity)
     private readonly repo: Repository<CartOrmEntity>,
@@ -21,7 +22,7 @@ export class CartTypeOrmRepository implements CartRepository {
     private readonly cartItemRepo: Repository<CartItemOrmEntity>,
     private readonly logger: LoggingService,
     private readonly tracer: TracingService,
-    private readonly metrics: MetricsService
+    private readonly metrics: MetricsService,
   ) {}
 
   async create(cart: Cart): Promise<void> {
@@ -30,28 +31,27 @@ export class CartTypeOrmRepository implements CartRepository {
       async (span) => {
         span.setAttributes({
           "db.operation": "INSERT",
-          "cart.id": cart.getId(),
+          "cart.id": cart.id,
         });
-        const ormEntity = this.toOrmEntity(cart);
+        const ormEntity = EntityMapper.toOrmCart(cart);
 
         this.metrics.incrementDBRequestCounter("INSERT");
-        // Measure DB operation delay
+
         const end = this.metrics.measureDBOperationDuration(
           "cart.create",
-          "INSERT"
+          "INSERT",
         );
         await this.repo.save(ormEntity);
 
-        // Save cart items if they exist
-        if (cart.getItems().length > 0) {
-          const cartItemEntities = cart
-            .getItems()
-            .map((item) => this.toCartItemOrmEntity(item));
+        if (cart.items.length > 0) {
+          const cartItemEntities = cart.items.map((item) =>
+            EntityMapper.toOrmCartItem(item),
+          );
           await this.cartItemRepo.save(cartItemEntities);
         }
 
         end();
-      }
+      },
     );
   }
 
@@ -65,10 +65,10 @@ export class CartTypeOrmRepository implements CartRepository {
         });
 
         this.metrics.incrementDBRequestCounter("SELECT");
-        // Measure DB operation delay
+
         const end = this.metrics.measureDBOperationDuration(
           "cart.findById",
-          "SELECT"
+          "SELECT",
         );
         const ormEntity = await this.repo.findOne({
           where: { id },
@@ -82,16 +82,16 @@ export class CartTypeOrmRepository implements CartRepository {
         }
 
         span.setAttribute("cart.db.found", true);
-        const cart = this.toDomainEntity(ormEntity);
+        const cart = EntityMapper.toDomainCart(ormEntity);
 
         return cart;
-      }
+      },
     );
   }
 
   async findItemByUserIdAndCourseId(
     userId: string,
-    courseId: string
+    courseId: string,
   ): Promise<CartItem | null> {
     return await this.tracer.startActiveSpan(
       "CartTypeOrmRepository.findItemByUserIdAndCourseId",
@@ -102,17 +102,15 @@ export class CartTypeOrmRepository implements CartRepository {
           "cart.courseId": courseId,
         });
 
-        // Find cart by userId first
         const result = await this.findByUserId(userId);
         if (!result.cart) {
           span.setAttribute("cart.db.found", false);
           return null;
         }
 
-        // Check if the cart contains the specific course
-        const courseItem = result.cart
-          .getItems()
-          .find((item) => item.getCourseId() === courseId);
+        const courseItem = result.cart.items.find(
+          (item) => item.courseId === courseId,
+        );
 
         if (!courseItem) {
           span.setAttribute("cart.db.found", false);
@@ -121,14 +119,14 @@ export class CartTypeOrmRepository implements CartRepository {
 
         span.setAttribute("cart.db.found", true);
         return courseItem;
-      }
+      },
     );
   }
 
   async findByUserId(
     userId: string,
     offset?: number,
-    limit?: number
+    limit?: number,
   ): Promise<{ cart: Cart | null; totalItems: number }> {
     return await this.tracer.startActiveSpan(
       "CartTypeOrmRepository.findByUserId",
@@ -138,12 +136,12 @@ export class CartTypeOrmRepository implements CartRepository {
           "user.id": userId,
         });
         this.metrics.incrementDBRequestCounter("SELECT");
-        // Measure DB operation delay
+
         const end = this.metrics.measureDBOperationDuration(
           "cart.findByCourseId",
-          "SELECT"
+          "SELECT",
         );
-        // First, get the cart without items to check if it exists
+
         const cartEntity = await this.repo.findOne({
           where: { userId },
         });
@@ -153,12 +151,10 @@ export class CartTypeOrmRepository implements CartRepository {
           return { cart: null, totalItems: 0 };
         }
 
-        // Get total count of items
         const totalItems = await this.cartItemRepo.count({
           where: { cartId: cartEntity.id },
         });
 
-        // Get paginated items
         const items = await this.cartItemRepo.find({
           where: { cartId: cartEntity.id },
           skip: offset || 0,
@@ -166,7 +162,6 @@ export class CartTypeOrmRepository implements CartRepository {
           order: { addedAt: "DESC" },
         });
 
-        // Create cart entity with paginated items
         const cartWithItems = {
           ...cartEntity,
           items: items,
@@ -175,10 +170,10 @@ export class CartTypeOrmRepository implements CartRepository {
         end();
 
         span.setAttribute("cart.db.found", true);
-        const cart = this.toDomainEntity(cartWithItems);
+        const cart = EntityMapper.toDomainCart(cartWithItems);
 
         return { cart, totalItems };
-      }
+      },
     );
   }
 
@@ -188,22 +183,57 @@ export class CartTypeOrmRepository implements CartRepository {
       async (span) => {
         span.setAttributes({
           "db.operation": "DELETE",
-          "cart.id": cart.getId(),
+          "cart.id": cart.id,
         });
 
         this.metrics.incrementDBRequestCounter("DELETE");
-        // Measure DB operation delay
+
         const end = this.metrics.measureDBOperationDuration(
           "cart.delete",
-          "DELETE"
+          "DELETE",
         );
-        // Delete cart items first
-        await this.cartItemRepo.delete({ cartId: cart.getId() });
-        // Then delete the cart
-        await this.repo.delete(cart.getId());
+
+        await this.cartItemRepo.delete({ cartId: cart.id });
+
+        await this.repo.delete(cart.id);
+        end();
+      },
+    );
+  }
+
+  async clearCart(userId: string): Promise<void> {
+    return await this.tracer.startActiveSpan(
+      "CartTypeOrmRepository.clearCart",
+      async (span) => {
+        span.setAttributes({
+          "db.operation": "DELETE",
+          "user.id": userId,
+        });
+
+        this.metrics.incrementDBRequestCounter("DELETE");
+        const end = this.metrics.measureDBOperationDuration(
+          "cart.clearCart",
+          "DELETE",
+        );
+
+        const cartEntity = await this.repo.findOne({ where: { userId } });
+
+        if (!cartEntity) {
+          end();
+          this.logger.warn(`No cart found for user ${userId} to clear`, {
+            ctx: CartTypeOrmRepository.name,
+          });
+          return;
+        }
+
+        await this.cartItemRepo.delete({ cartId: cartEntity.id });
+
         end();
 
-      }
+        this.logger.debug(`Cleared all items from cart for user ${userId}`, {
+          ctx: CartTypeOrmRepository.name,
+        });
+      },
     );
   }
 
@@ -213,37 +243,33 @@ export class CartTypeOrmRepository implements CartRepository {
       async (span) => {
         span.setAttributes({
           "db.operation": "UPDATE",
-          "cart.id": cart.getId(),
+          "cart.id": cart.id,
         });
 
         this.metrics.incrementDBRequestCounter("UPDATE");
         const end = this.metrics.measureDBOperationDuration(
           "cart.update",
-          "UPDATE"
+          "UPDATE",
         );
 
-        // Update cart
-        const ormEntity = this.toOrmEntity(cart);
+        const ormEntity = EntityMapper.toOrmCart(cart);
         await this.repo.save(ormEntity);
 
-        // Update cart items
-        if (cart.getItems().length > 0) {
-          // Delete existing items
-          await this.cartItemRepo.delete({ cartId: cart.getId() });
-          // Insert new items
-          const cartItemEntities = cart
-            .getItems()
-            .map((item) => this.toCartItemOrmEntity(item));
+        if (cart.items.length > 0) {
+          await this.cartItemRepo.delete({ cartId: cart.id });
+
+          const cartItemEntities = cart.items.map((item) =>
+            EntityMapper.toOrmCartItem(item),
+          );
           await this.cartItemRepo.save(cartItemEntities);
         }
 
         end();
 
-
-        this.logger.debug(`Updated cart ${cart.getId()}`, {
+        this.logger.debug(`Updated cart ${cart.id}`, {
           ctx: CartTypeOrmRepository.name,
         });
-      }
+      },
     );
   }
 
@@ -253,45 +279,28 @@ export class CartTypeOrmRepository implements CartRepository {
       async (span) => {
         span.setAttributes({
           "db.operation": "INSERT",
-          "cart.id": cartItem.getCartId(),
-          "course.id": cartItem.getCourseId(),
+          "cart.id": cartItem.cartId,
+          "course.id": cartItem.courseId,
         });
 
-        // // Check if item already exists
-        // const existingItem = await this.cartItemRepo.findOne({
-        //   where: {
-        //     cartId: cartItem.getCartId(),
-        //     courseId: cartItem.getCourseId(),
-        //   },
-        // });
-
-        // if (existingItem) {
-        //   this.logger.debug(
-        //     `Item ${cartItem.getCourseId()} already exists in cart ${cartItem.getCartId()}`
-        //   );
-        //   return;
-        // }
-
-        // Create new cart item
-
-        const cartItemOrm = this.toCartItemOrmEntity(cartItem);
+        const cartItemOrm = EntityMapper.toOrmCartItem(cartItem);
 
         this.metrics.incrementDBRequestCounter("INSERT");
         const end = this.metrics.measureDBOperationDuration(
           "cart.addItem",
-          "INSERT"
+          "INSERT",
         );
 
         await this.cartItemRepo.save(cartItemOrm);
         end();
 
         this.logger.debug(
-          `Added item ${cartItem.getCourseId()} to cart ${cartItem.getCartId()}`,
+          `Added item ${cartItem.courseId} to cart ${cartItem.cartId}`,
           {
             ctx: CartTypeOrmRepository.name,
-          }
+          },
         );
-      }
+      },
     );
   }
 
@@ -308,56 +317,25 @@ export class CartTypeOrmRepository implements CartRepository {
         this.metrics.incrementDBRequestCounter("DELETE");
         const end = this.metrics.measureDBOperationDuration(
           "cart.removeItem",
-          "DELETE"
+          "DELETE",
         );
 
-        await this.cartItemRepo.delete({ cartId, courseId });
+        const deleteResult = await this.cartItemRepo.delete({
+          cartId,
+          courseId,
+        });
         end();
-
+        if (deleteResult.affected === 0) {
+          this.logger.warn(
+            `No cart item found to remove for cartId=${cartId}, courseId=${courseId}`,
+            { ctx: CartTypeOrmRepository.name },
+          );
+        }
 
         this.logger.debug(`Removed item ${courseId} from cart ${cartId}`, {
           ctx: CartTypeOrmRepository.name,
         });
-      }
-    );
-  }
-
-  private toOrmEntity(cart: Cart): CartOrmEntity {
-    const ormEntity = new CartOrmEntity();
-    ormEntity.id = cart.getId();
-    ormEntity.userId = cart.getUserId();
-    ormEntity.total = cart.getTotal();
-    ormEntity.createdAt = cart.getCreatedAt();
-    ormEntity.updatedAt = cart.getUpdatedAt();
-
-    return ormEntity;
-  }
-
-  private toCartItemOrmEntity(cartItem: CartItem): CartItemOrmEntity {
-    const ormEntity = new CartItemOrmEntity();
-    ormEntity.id = cartItem.getId();
-    ormEntity.courseId = cartItem.getCourseId();
-    ormEntity.cartId = cartItem.getCartId();
-    ormEntity.addedAt = cartItem.getAddedAt();
-
-    return ormEntity;
-  }
-
-  private toDomainEntity(ormEntity: CartOrmEntity): Cart {
-    const cartItems = ormEntity.items
-      ? ormEntity.items.map(
-          (item) =>
-            new CartItem(item.id, item.courseId, item.cartId, item.addedAt)
-        )
-      : [];
-
-    return new Cart(
-      ormEntity.id,
-      ormEntity.userId,
-      cartItems,
-      ormEntity.total,
-      ormEntity.createdAt,
-      ormEntity.updatedAt
+      },
     );
   }
 }

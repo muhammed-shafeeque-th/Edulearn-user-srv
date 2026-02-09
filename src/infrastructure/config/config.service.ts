@@ -11,7 +11,7 @@ export class AppConfigService {
   }
 
   get serviceName(): string {
-    return this.configService.get<string>("SERVICE_NAME", "CourseService");
+    return this.configService.get<string>("SERVICE_NAME", "UserService");
   }
   get serviceVersion(): string {
     return this.configService.get<string>("SERVICE_VERSION", "1.0.0");
@@ -25,12 +25,16 @@ export class AppConfigService {
     return this.configService.get<number>("GRPC_PORT", 50053);
   }
 
+  get courseGrpcUrl(): string {
+    return this.configService.get<string>("COURSE_SERVICE_GRPC", 'course_srv:50053');
+  }
+
   // DB config
 
-   get databaseUrl(): string {
+  get databaseUrl(): string {
     return this.configService.get<string>(
       "DATABASE_URL",
-      "postgresql://postgres:password@localhost:5432/edulearn"
+      "postgresql://postgres:password@localhost:5432/user_service"
     );
   }
   get databaseHost(): string {
@@ -46,7 +50,7 @@ export class AppConfigService {
     return this.configService.get<string>("DATABASE_PASSWORD", "password");
   }
   get databaseName(): string {
-    return this.configService.get<string>("DATABASE_NAME", "edulearn");
+    return this.configService.get<string>("DATABASE_NAME", "user_service");
   }
 
   get databaseMaxConnections(): number {
@@ -58,7 +62,7 @@ export class AppConfigService {
   }
 
   // Redis config
-  
+
   get redisUrl(): string {
     return this.configService.get<string>(
       "REDIS_URL",
@@ -77,14 +81,17 @@ export class AppConfigService {
   get redisTtlDefault(): number {
     return this.configService.get<number>("REDIS_TTL_DEFAULT", 86400);
   }
-
+  get redisKeyPrefix(): string {
+    return this.configService.get<string>("REDIS_KEY_PREFIX", "edulearn:user:");
+  }
 
   // Kafka config
-  
+
   get kafkaBrokers(): string[] {
     return this.configService
-      .get<string>("KAFKA_BROKER", "localhost:9092")
-      .split(",");
+      .get<string>("KAFKA_BROKERS", "localhost:9092")
+      .split(",")
+      .map((broker) => broker.trim());
   }
 
   get kafkaClientId(): string {
@@ -99,22 +106,24 @@ export class AppConfigService {
   }
 
   get kafkaMaxPollRecords(): number {
-    return this.configService.get<number>("KAFKA_MAX_POLL_RECORDS", 100);
+    return Number(this.configService.get<number>("KAFKA_MAX_POLL_RECORDS", 100));
   }
 
   get kafkaFetchMaxBytes(): number {
-    return this.configService.get<number>("KAFKA_FETCH_MAX_BYTES", 5242880);
+    return Number(this.configService.get<number>("KAFKA_FETCH_MAX_BYTES", 5242880));
   }
 
   // JWT config
-   get jwtSecret(): string {
-    return this.configService.get<string>("JWT_TOKEN_SECRET", "your-secret-key");
+  get jwtSecret(): string {
+    return this.configService.get<string>(
+      "JWT_TOKEN_SECRET",
+      "your-secret-key"
+    );
   }
 
   get jwtExpiresIn(): string {
     return this.configService.get<string>("JWT_TOKEN_EXPIRY", "1h");
   }
-
 
   // Observability config
 
@@ -129,7 +138,6 @@ export class AppConfigService {
   get logLevel(): string {
     return this.configService.get<string>("LOG_LEVEL", "info");
   }
- 
 
   get jaegerHost(): string {
     return this.configService.get<string>("JAEGER_HOST", "localhost");

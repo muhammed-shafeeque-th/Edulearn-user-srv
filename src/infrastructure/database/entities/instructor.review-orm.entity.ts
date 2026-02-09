@@ -5,8 +5,8 @@ import {
   ManyToOne,
   PrimaryColumn,
 } from "typeorm";
-import { InstructorProfileOrmEntity } from "./instructor-profile-orm.entity";
-import { UserOrmEntity } from "./user-orm-entity";
+import { InstructorProfileOrmEntity } from "./instructor-profile.orm-entity";
+import { UserOrmEntity } from "./user.orm-entity";
 
 @Entity("instructor_reviews")
 export class InstructorReviewOrmEntity {

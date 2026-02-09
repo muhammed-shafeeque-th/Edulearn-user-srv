@@ -4,25 +4,109 @@ package user_service;
 import "user/common.proto";
 import "user/types/user_types.proto";
 
+
+
+// ===================================
+//          Instructor Models
+// ===================================
+
+// Expanded InstructorMeta model with relevant instructor info for listing instructors (best practice: include stats/teaser data).
+message InstructorMeta {
+  string id = 1;
+  string email = 2;
+  string role = 3;
+  string username = 6;
+  string slug = 7;
+  string avatar = 8;
+  string status = 9;
+  string headline = 10;
+  string expertise = 11;
+  repeated string tags = 12;
+  double rating = 13;
+  int32 total_ratings = 14;
+  int32 total_courses = 15;
+  int32 total_students = 16;
+  string last_login = 17;
+  string updated_at = 18;
+  string created_at = 19;
+  string language = 20;
+  string website = 21;
+  string bio = 22;
+  string joined_at = 23;
+  string education = 24;
+  string experience = 25;
+}
+
+
+// ===================================
+//      Instructor Requests
+// ===================================
+
+message GetInstructorByNameRequest {
+  string username = 1;
+}
+
+
+message RegisterInstructorRequest {
+  string user_id = 1;
+  string username = 2;
+  repeated string tags = 3;
+  string expertise = 4;
+  string experience = 5;
+  string education = 6;
+  string language = 7;
+  string headline = 8;
+  string biography = 9;
+  bool agree_to_terms = 10;
+  bool agree_to_privacy = 11;
+  bool receive_updates = 12;
+}
+
+
+message GetInstructorsRequest {
+  PaginationRequest pagination = 1;
+}
+
+message ListInstructorsRequest {
+  PaginationRequest pagination = 1;
+}
+
+
+
+// =====================================
+//     Instructor Responses
+// =====================================
+
+
+
 message InstructorSuccessResponse {
   UserData user = 1;
 }
+
+message InstructorsMetaSuccess {
+  repeated InstructorMeta instructors = 1;
+  PaginationResponse pagination = 2;
+}
+
+message ListInstructorsResponse {
+  oneof result {
+    InstructorsMetaSuccess instructors = 1;
+    Error error = 2;
+  }
+}
+message GetInstructorByNameResponse {
+  oneof result {
+    UserData user = 1;
+    Error error = 2;
+  }
+}
+
 message RegisterInstructorResponse {
   oneof result {
     Error error = 1;
     InstructorSuccessResponse success = 2;
   }
 }
-message GetInstructorsRequest {
-  PaginationRequest pagination = 1;
-}
-message GetInstructorsResponse {
-  oneof result {
-    AllInstructorsSuccess success = 1;
-    Error error = 2;
-  }
-}
-message AllInstructorsSuccess {
-  repeated UserData instructors = 1;
-  PaginationResponse pagination = 2;
-}
+
+
+

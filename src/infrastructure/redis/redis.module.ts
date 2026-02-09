@@ -3,6 +3,8 @@ import { CacheModule } from "@nestjs/cache-manager";
 import { AppConfigService } from "../config/config.service";
 import { redisStore } from "cache-manager-redis-store";
 import { RedisService } from "./redis.service";
+import { IEventProcessRepository } from "src/domain/repositories/event-process-repository.interface";
+import { EventProcessRepositoryImpl } from "./event-process.repository";
 
 @Module({
   imports: [
@@ -13,7 +15,7 @@ import { RedisService } from "./redis.service";
       inject: [AppConfigService],
     }),
   ],
-  providers: [RedisService],
-  exports: [RedisService],
+  providers: [RedisService,   { provide: IEventProcessRepository, useClass: EventProcessRepositoryImpl },],
+  exports: [RedisService, IEventProcessRepository],
 })
 export class RedisModule {}

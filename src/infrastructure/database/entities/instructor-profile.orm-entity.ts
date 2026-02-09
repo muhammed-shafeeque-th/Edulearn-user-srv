@@ -5,8 +5,9 @@ import {
   OneToOne,
   PrimaryColumn,
   JoinColumn,
+  CreateDateColumn,
 } from "typeorm";
-import { UserOrmEntity } from "./user-orm-entity";
+import { UserOrmEntity } from "./user.orm-entity";
 import { InstructorReviewOrmEntity } from "./instructor.review-orm.entity";
 
 @Entity("instructor_profiles")
@@ -35,8 +36,11 @@ export class InstructorProfileOrmEntity {
   @Column({ type: "text", nullable: true })
   experience?: string;
 
-  @Column({ type: "jsonb", nullable: true })
-  expertise?: string[];
+  @Column({ type: "text", nullable: true })
+  education?: string;
+
+  @Column({ type: "text", nullable: true })
+  expertise?: string;
 
   // @Index({ using: 'gin' })
   @Column({ type: "simple-array", nullable: true })
@@ -47,6 +51,9 @@ export class InstructorProfileOrmEntity {
 
   @Column({ type: "int", default: 0 })
   totalStudents!: number;
+
+  @CreateDateColumn({ type: "timestamp" })
+  joinedAt!: Date;
 
   @Column({ type: "int", default: 0 })
   totalCourses!: number;

@@ -1,4 +1,4 @@
-import { UserRoles, UserStatus } from "src/domain/entities/user-entity";
+import { UserRoles, UserStatus } from "src/domain/entities/user.entity";
 import {
   Column,
   CreateDateColumn,
@@ -12,10 +12,12 @@ import {
 } from "typeorm";
 import { UserConnectionOrmEntity } from "./connection-orm-entity";
 import { UserProfileOrmEntity } from "./user-profile-orm.entiry";
-import { UserSocialOrmEntity } from "./socials-orm.entity";
-import { InstructorProfileOrmEntity } from "./instructor-profile-orm.entity";
+import { UserSocialOrmEntity } from "./socials.orm-entity";
+import { InstructorProfileOrmEntity } from "./instructor-profile.orm-entity";
 import { CartOrmEntity } from "./cart.orm-entity";
 import { WishlistOrmEntity } from "./wishlist.orm-entity";
+import { WalletOrmEntity } from "./wallet.orm-entity";
+import { InstructorStudentOrmEntity } from "./instructor-student.orm-entity";
 
 @Entity("users")
 export class UserOrmEntity {
@@ -26,9 +28,13 @@ export class UserOrmEntity {
   @Column({ unique: true })
   email!: string;
 
-  // @Index({ unique: true })
-  // @Column({ unique: true, nullable: true })
-  // username?: string;
+  @Index({ unique: true })
+  @Column({ unique: true, nullable: true })
+  username?: string;
+
+  @Index({ unique: true })
+  @Column({ unique: true, nullable: true })
+  slug?: string;
 
   // @Column({ nullable: true })
   // passwordHash?: string;
@@ -54,15 +60,21 @@ export class UserOrmEntity {
   @CreateDateColumn()
   createdAt!: Date;
 
+
   @UpdateDateColumn()
   updatedAt!: Date;
 
+  @OneToOne(() => WalletOrmEntity, (p) => p.user, {
+    cascade: true,
+    // eager: true,
+    nullable: true,
+  })
+  wallet?: WalletOrmEntity;
   @OneToOne(() => UserProfileOrmEntity, (p) => p.user, {
     cascade: true,
     // eager: true,
     nullable: true,
   })
-  @JoinColumn()
   profile?: UserProfileOrmEntity;
 
   @OneToMany(() => UserSocialOrmEntity, (s) => s.user, {
@@ -73,7 +85,8 @@ export class UserOrmEntity {
 
   @OneToOne(() => InstructorProfileOrmEntity, (i) => i.user, {
     cascade: true,
-    eager: true,
+    // eager: true,
+    nullable: true,
   })
   instructorProfile?: InstructorProfileOrmEntity;
 
@@ -100,4 +113,10 @@ export class UserOrmEntity {
     cascade: true,
   })
   wishlist: WishlistOrmEntity[];
+
+  @OneToMany(() => InstructorStudentOrmEntity, (rel) => rel.instructor)
+students?: InstructorStudentOrmEntity[];
+
+@OneToMany(() => InstructorStudentOrmEntity, (rel) => rel.student)
+instructors?: InstructorStudentOrmEntity[];
 }

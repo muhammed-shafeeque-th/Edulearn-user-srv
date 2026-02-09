@@ -10,7 +10,7 @@ import {
   JoinColumn,
 } from "typeorm";
 import { WalletTransactionOrmEntity } from "./wallet-transaction.orm-entity";
-import { UserOrmEntity } from "./user-orm-entity";
+import { UserOrmEntity } from "./user.orm-entity";
 
 @Entity("wallets")
 export class WalletOrmEntity {
@@ -41,6 +41,7 @@ export class WalletOrmEntity {
     () => WalletTransactionOrmEntity,
     (transaction) => transaction.wallet,
     {
+      onDelete: "CASCADE",
       cascade: false, // Set cascade policy as needed
       eager: false, // Use query builder or relation loading for performance
     }
