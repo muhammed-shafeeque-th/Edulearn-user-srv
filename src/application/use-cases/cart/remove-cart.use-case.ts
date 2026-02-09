@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { CartItemNotFoundException } from "src/domain/exceptions/domain.exceptions";
+import { CartItemNotFoundException } from "src/domain/exceptions";
 import { ICartRepository } from "src/domain/repositories/cart.repository";
 
 import { LoggingService } from "src/infrastructure/observability/logging/logging.service";

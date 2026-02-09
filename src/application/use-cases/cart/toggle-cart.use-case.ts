@@ -5,7 +5,7 @@ import { Cart } from "src/domain/entities/cart.entity";
 import {
   CartItemAlreadyExistException,
   CartItemNotFoundException,
-} from "src/domain/exceptions/domain.exceptions";
+} from "src/domain/exceptions";
 import { ICartRepository } from "src/domain/repositories/cart.repository";
 import { KafkaService } from "src/infrastructure/kafka/kafka.service";
 import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
