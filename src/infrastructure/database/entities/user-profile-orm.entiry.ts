@@ -1,5 +1,5 @@
 import { Column, Entity, OneToOne, PrimaryColumn, CreateDateColumn, JoinColumn } from "typeorm";
-import { UserOrmEntity } from "./user-orm-entity";
+import { UserOrmEntity } from "./user.orm-entity";
 
 @Entity("user_profiles")
 export class UserProfileOrmEntity {
