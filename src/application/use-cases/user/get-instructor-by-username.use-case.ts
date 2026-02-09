@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import slugify from "slugify";
 import { UserDto } from "src/application/dtos/user.dto";
-import { UserNotFoundException } from "src/domain/exceptions/domain.exceptions";
+import { UserNotFoundException } from "src/domain/exceptions";
 import { IUserRepository } from "src/domain/repositories/user.repository";
 import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
 import { TracingService } from "src/infrastructure/observability/tracing/trace.service";

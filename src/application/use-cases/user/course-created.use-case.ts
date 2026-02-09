@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import User from "src/domain/entities/user-entity";
+import User from "src/domain/entities/user.entity";
 import { CourseCreatedEvent } from "src/domain/events/course.events";
-import { UserNotFoundException } from "src/domain/exceptions/domain.exceptions";
+import { UserNotFoundException } from "src/domain/exceptions";
 import { IUserRepository } from "src/domain/repositories/user.repository";
 import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
 import { TracingService } from "src/infrastructure/observability/tracing/trace.service";

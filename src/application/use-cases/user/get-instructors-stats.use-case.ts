@@ -4,9 +4,7 @@ import { InstructorsStats } from "src/infrastructure/grpc/generated/user/types/s
 import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
 import { TracingService } from "src/infrastructure/observability/tracing/trace.service";
 
-/**
- * Use case to retrieve statistics about instructors in the system.
- */
+
 @Injectable()
 export default class GetInstructorsStatsUseCase {
   constructor(
@@ -15,10 +13,6 @@ export default class GetInstructorsStatsUseCase {
     private readonly tracer: TracingService,
   ) {}
 
-  /**
-   * Retrieves aggregate statistics about users.
-   * @returns Object containing the instructors stats.
-   */
   async execute(): Promise<InstructorsStats> {
     return this.tracer.startActiveSpan(
       "GetInstructorsStatsUseCase.execute",
@@ -26,7 +20,6 @@ export default class GetInstructorsStatsUseCase {
         try {
           this.logger.info("Executing GetInstructorsStatsUseCase");
 
-          // Query the user repository for statistics
           const stats = await this.userRepository.getInstructorsStats();
 
           this.logger.info("GetInstructorsStatsUseCase succeeded.", {

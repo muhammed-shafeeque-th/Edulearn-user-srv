@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import User from "src/domain/entities/user-entity";
+import User from "src/domain/entities/user.entity";
 import { CourseEnrollmentEvent } from "src/domain/events/course.events";
-import { UserNotFoundException } from "src/domain/exceptions/domain.exceptions";
+import { UserNotFoundException } from "src/domain/exceptions";
 import { IInstructorStudentRepository } from "src/domain/repositories/instructor-student.repository";
 import { IUserRepository } from "src/domain/repositories/user.repository";
 import { IWalletRepository } from "src/domain/repositories/wallet.repository";

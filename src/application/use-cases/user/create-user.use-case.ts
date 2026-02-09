@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
-import User, { UserStatus } from "src/domain/entities/user-entity";
+import User, { UserStatus } from "src/domain/entities/user.entity";
 import { Cart } from "src/domain/entities/cart.entity";
 import { Wishlist } from "src/domain/entities/wishlist.entity";
-import { UserAlreadyExistException } from "src/domain/exceptions/domain.exceptions";
+import { UserAlreadyExistException } from "src/domain/exceptions";
 import { IUserRepository } from "src/domain/repositories/user.repository";
 import { ICartRepository } from "src/domain/repositories/cart.repository";
 import { IWishlistRepository } from "src/domain/repositories/wishlist.repository";
