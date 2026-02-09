@@ -1,42 +1,40 @@
 import { BaseEvent } from "./base-event";
 
 export const COURSE_EVENT_TYPES = {
-  ENROLLED: 'CourseEnrollmentEvent',
-  CREATED: 'CourseCreatedEvent'
+  ENROLLED: "CourseEnrollmentEvent",
+  CREATED: "CourseCreatedEvent",
 } as const;
 
+export interface CourseEnrollmentEvent
+  extends BaseEvent<{
+    instructorId: string;
 
-export interface CourseEnrollmentEvent extends BaseEvent<{
-  instructorId: string;
+    enrolledAt: string;
 
-  enrolledAt: string;
+    enrollmentId: string;
 
-  enrollmentId: string;
+    orderId: string;
 
-  orderId: string;
+    orderPrice: number;
 
-  orderPrice: number;
+    timestamp: number;
 
-  timestamp: number;
+    courseId: string;
 
-  courseId: string;
+    studentId: string;
+  }> {}
 
-  studentId: string;
-}> { }
+export interface CourseCreatedEvent
+  extends BaseEvent<{
+    instructorId: string;
 
+    courseId: string;
 
+    courseTitle: string;
 
-export interface CourseCreatedEvent extends BaseEvent<{
-  instructorId: string;
+    category?: string | undefined;
 
-  courseId: string;
+    status?: string | undefined;
 
-  courseTitle: string;
-
-  category?: string | undefined;
-
-  status?: string | undefined;
-
-
-  createdAt: Date;
-}> { }
+    createdAt: Date;
+  }> {}
