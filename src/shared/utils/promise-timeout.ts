@@ -1,4 +1,4 @@
-import { TimeoutException } from 'src/domain/exceptions/domain.exceptions';
+import { TimeoutException } from 'src/domain/exceptions';
 
 export function promiseTimeout<T>(
   callback: () => Promise<T>,
