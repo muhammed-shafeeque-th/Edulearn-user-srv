@@ -1,4 +1,4 @@
-import User from "src/domain/entities/user-entity";
+import User from "src/domain/entities/user.entity";
 import { UserOrmEntity } from "../entities/user.orm-entity";
 import { Wallet, WalletCurrency } from "src/domain/entities/user-wallet.entity";
 import { WalletOrmEntity } from "../entities/wallet.orm-entity";
