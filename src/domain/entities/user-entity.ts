@@ -1,6 +1,8 @@
+import { v4 as uuidV4 } from "uuid";
 import { InstructorProfile } from "./instructor-profile.entity";
 import { Gender, UserProfile } from "./user-profile.entity";
 import { UserSocials } from "./user-socials.entity";
+import { Wallet } from "./user-wallet.entity";
 
 export enum UserRoles {
   ADMIN = "admin",
@@ -14,6 +16,7 @@ export enum UserStatus {
   ACTIVE = "active",
   NOT_ACTIVE = "not-active",
   BLOCKED = "blocked",
+  DELETED = "deleted",
 }
 
 export interface UserProps {
@@ -21,209 +24,231 @@ export interface UserProps {
   email: string;
   role: UserRoles;
   status: UserStatus;
+  username?: string;
+  slug?: string;
   firstName: string;
   lastName?: string;
   avatar?: string;
   lastLoginAt?: Date | undefined;
-  profile?: UserProfile | undefined;
-  instructorProfile?: InstructorProfile | undefined;
+  profile?: UserProfile;
+  instructorProfile?: InstructorProfile;
   socials?: UserSocials[];
   createdAt: Date;
   updatedAt?: Date;
 }
 
-export default class User {
-  private props: UserProps;
+type UpdatableUserProps = Partial<
+  Pick<UserProps, "firstName" | "lastName" | "username" | "slug" | "avatar">
+>;
 
-  constructor(props: UserProps) {
-    this.props = props;
+
+export class User {
+  private readonly _id: string;
+  private _email: string;
+  private _role: UserRoles;
+  private _status: UserStatus;
+  private _username?: string;
+  private _slug?: string;
+  private _firstName: string;
+  private _lastName?: string;
+  private _avatar?: string;
+  private _lastLoginAt?: Date;
+  private _profile?: UserProfile;
+  private _instructorProfile?: InstructorProfile;
+  private _socials: UserSocials[];
+  // private _wallet: Wallet;
+  private readonly _createdAt: Date;
+  private _updatedAt: Date;
+
+  private constructor(props: UserProps) {
+    this._id = props.id;
+    this._email = props.email;
+    this._role = props.role;
+    this._status = props.status;
+    this._username = props.username;
+    this._slug = props.slug;
+    this._firstName = props.firstName;
+    this._lastName = props.lastName;
+    this._avatar = props.avatar;
+    this._lastLoginAt = props.lastLoginAt
+      ? new Date(props.lastLoginAt)
+      : undefined;
+    this._profile = props.profile;
+    this._instructorProfile = props.instructorProfile;
+    this._socials = Array.isArray(props.socials) ? [...props.socials] : [];
+    // this._wallet = props.wallet;
+    this._createdAt = new Date(props.createdAt);
+    this._updatedAt = props.updatedAt ? new Date(props.updatedAt) : new Date();
   }
+
+
+  static create(props: UserProps) {
+    return new User({
+      ...props,
+      id: props.id,
+      status: props.status ?? UserStatus.VERIFIED,
+      // wallet: props.wallet ?? Wallet.createInitial(userId),
+      createdAt: props.createdAt ?? new Date(),
+      updatedAt: props.updatedAt ?? new Date(),
+    });
+  }
+
+ 
+  static fromPrimitives(props: UserProps): User {
+    return new User({
+      ...props,
+    });
+  }
+
 
   get id() {
-    return this.props.id;
+    return this._id;
   }
-
   get email() {
-    return this.props.email;
+    return this._email;
+  }
+  get role() {
+    return this._role;
+  }
+  get status() {
+    return this._status;
+  }
+  get username() {
+    return this._username;
+  }
+  get slug() {
+    return this._slug;
   }
   get firstName() {
-    return this.props.firstName;
-  }
-  get avatar() {
-    return this.props.avatar;
+    return this._firstName;
   }
   get lastName() {
-    return this.props.lastName;
+    return this._lastName;
   }
-
-  get role() {
-    return this.props.role;
+  get avatar() {
+    return this._avatar;
   }
-
-  get status() {
-    return this.props.status;
-  }
-  get profile() {
-    return this.props.profile;
-  }
-  get instructorProfile() {
-    return this.props.instructorProfile;
-  }
-  get socials() {
-    return this.props.socials;
+  get lastLoginAt() {
+    return this._lastLoginAt;
   }
   get createdAt() {
-    return this.props.createdAt;
+    return this._createdAt;
   }
   get updatedAt() {
-    return this.props.updatedAt;
+    return this._updatedAt;
   }
-  get lastLogin() {
-    return this.props.lastLoginAt;
+  get profile() {
+    return this._profile;
   }
+  get instructorProfile() {
+    return this._instructorProfile;
+  }
+  get socials() {
+    return [...this._socials];
+  }
+  // get wallet() {
+  //   return this._wallet;
+  // }
 
   get fullName() {
-    return `${this.props.firstName ?? ""} ${this.props.lastName ?? ""}`.trim();
+    return `${this._firstName ?? ""} ${this._lastName ?? ""}`.trim();
   }
 
-  promoteToInstructor(instructor: InstructorProfile) {
-    if (this.props.role === UserRoles.INSTRUCTOR) return;
-    this.props.role = UserRoles.INSTRUCTOR;
-    this.props.instructorProfile = instructor;
 
-    this.props.updatedAt = new Date();
+  promoteToInstructor(instructor: InstructorProfile): void {
+    if (this._role === UserRoles.INSTRUCTOR) return;
+    this._role = UserRoles.INSTRUCTOR;
+    this._instructorProfile = instructor;
+    this._touch();
   }
 
-  block() {
-    this.props.status = UserStatus.BLOCKED;
-    this.props.updatedAt = new Date();
+  block(): void {
+    this._status = UserStatus.BLOCKED;
+    this._touch();
   }
 
-  activate() {
-    // if (this.props.status === UserStatus.NOT_VERIFIED)
-    //     throw new Error("Cannot reactivate not verified user");
-    this.props.status = UserStatus.ACTIVE;
-    this.props.updatedAt = new Date();
+  activate(): void {
+    this._status = UserStatus.ACTIVE;
+    this._touch();
   }
 
-  updateStatus(status: UserStatus) {
-    this.props.status = status;
-    this.props.updatedAt = new Date();
+  updateStatus(status: UserStatus): void {
+    this._status = status;
+    this._touch();
   }
 
-  updateRole(role: UserRoles) {
-    this.props.role = role;
-    this.props.updatedAt = new Date();
+  updateRole(role: UserRoles): void {
+    this._role = role;
+    this._touch();
   }
 
-  updateLastLogin(date: Date) {
-    this.props.lastLoginAt = date;
+  updateLastLogin(date: Date): void {
+    this._lastLoginAt = new Date(date);
   }
 
-  toJSON() {
-    return { ...this.props };
+  updateBasicData(data: UpdatableUserProps): void {
+    if (data.firstName !== undefined) this._firstName = data.firstName;
+    if (data.lastName !== undefined) this._lastName = data.lastName;
+    if (data.username !== undefined) this._username = data.username;
+    if (data.slug !== undefined) this._slug = data.slug;
+    if (data.avatar !== undefined) this._avatar = data.avatar;
+    this._touch();
   }
 
-  updateBasicData(data: {
-    firstName: string;
-    lastName?: string;
-    avatar?: string;
-  }) {
-    this.props = {
-      ...this.props,
-      ...data,
-      updatedAt: new Date(),
+  updateInstructorProfile(
+    ...args: Parameters<InstructorProfile["update"]>
+  ): void {
+    this._instructorProfile.update(...args);
+    this._touch();
+  }
+
+  updateProfile(...args: Parameters<UserProfile["updateProfile"]>): void {
+    this._profile?.updateProfile(...args);
+    this._touch();
+  }
+
+  setUserProfile(profile: UserProfile): void {
+    this._profile = profile;
+    this._touch();
+  }
+
+  setInstructorProfile(profile: InstructorProfile): void {
+    this._instructorProfile = profile;
+    this._touch();
+  }
+
+  setSocials(socials: UserSocials[]): void {
+    this._socials = Array.isArray(socials) ? [...socials] : [];
+    this._touch();
+  }
+
+  private _touch(): void {
+    this._updatedAt = new Date();
+  }
+
+  toPrimitives(): UserProps {
+    return {
+      id: this._id,
+      email: this._email,
+      role: this._role,
+      status: this._status,
+      username: this._username,
+      slug: this._slug,
+      firstName: this._firstName,
+      lastName: this._lastName,
+      avatar: this._avatar,
+      lastLoginAt: this._lastLoginAt,
+      profile: this._profile,
+      instructorProfile: this._instructorProfile,
+      socials: this._socials ? [...this._socials] : [],
+      createdAt: new Date(this._createdAt),
+      updatedAt: new Date(this._updatedAt),
     };
   }
 
-  updateInstructorProfile(data: {
-    bio?: string;
-    headline?: string;
-    experience?: string;
-    certificate?: string;
-    expertise?: string[];
-    tags?: string[];
-    preferences?: Record<string, string>;
-  }) {
-    this.props.instructorProfile?.update(data);
+  toJSON() {
+    return this.toPrimitives();
   }
-
-  updateProfile(data: {
-    bio?: string;
-    phone?: string;
-    country?: string;
-    city?: string;
-    gender?: Gender;
-    language?: string;
-    website?: string;
-    preferences?: Record<string, string>;
-  }) {
-    this.props.profile?.updateProfile(data);
-  }
-
-  addUserProfile(profile: UserProfile) {
-    this.props.profile = profile;
-  }
-
-  addInstructorProfile(profile: InstructorProfile) {
-    this.props.instructorProfile = profile;
-  }
-
-  setSocials(socials: UserSocials[]) {
-    this.props.socials = socials;
-  }
-
-  // upsertSocials(params: {
-  //   provider: string;
-  //   profileUrl: string;
-  //   providerUserId?: string;
-  // }[]) {
-  //   if (!this.props.socials) {
-  //     this.props.socials = [];
-  //   }
-
-  //   params.forEach((param) => {
-  //     const existingIdx = this.props.socials.findIndex((social) => social.provider === param.provider);
-  //     if (existingIdx !== -1) {
-  //       this.props.socials[existingIdx] = {
-  //         ...this.props.socials[existingIdx],
-  //         provider: param.provider,
-  //         profileUrl: param.profileUrl,
-  //         providerUserId: param.providerUserId ?? this.props.socials[existingIdx].providerUserId,
-  //       };
-  //     } else {
-  //       const newSocial = new UserSocials({
-  //         id: uu,
-  //         userId: this.props.id,
-  //         provider: params.provider,
-  //         profileUrl: params.profileUrl,
-  //         providerUserId: params.providerUserId,
-  //       });
-  //       this.props.socials.push(newSocial);
-  //     }
-  //   })
-
-  //   const existingIndex = this.props.socials.findIndex(
-  //     (social: any) => social.provider === params.provider
-  //   );
-  //   if (existingIndex !== -1) {
-  //     // Update existing social
-  //     const existing = this.props.socials[existingIndex];
-  //     this.props.socials[existingIndex] = {
-  //       ...existing,
-  //       profileUrl: params.profileUrl,
-  //       providerUserId: params.providerUserId ?? existing.providerUserId,
-  //     };
-  //   } else {
-  //     // Create new social
-  //     const newSocial = {
-  //       id: crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2),
-  //       userId: this.props.id,
-  //       provider: params.provider,
-  //       profileUrl: params.profileUrl,
-  //       providerUserId: params.providerUserId,
-  //     };
-  //     this.props.socials.push(newSocial);
-  //   }
-  // }
 }
+
+export default User;
