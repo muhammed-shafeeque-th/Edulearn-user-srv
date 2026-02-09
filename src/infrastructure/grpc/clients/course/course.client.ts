@@ -9,7 +9,7 @@ import { ClientGrpc } from "@nestjs/microservices";
 import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
 import { GRPC_COURSE_CLIENT_TOKEN } from "./constants";
 import { EnrollmentServiceClient } from "src/infrastructure/grpc/generated/course_service";
-import { ClientServiceException } from "src/domain/exceptions/domain.exceptions";
+import { ClientServiceException } from "src/domain/exceptions";
 import { CheckEnrollmentResponse } from "../../generated/course/types/enrollment";
 
 @Injectable()
