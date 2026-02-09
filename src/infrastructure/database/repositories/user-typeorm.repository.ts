@@ -1,22 +1,29 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { UserOrmEntity } from "../entities/user-orm-entity";
-import { UserRepository } from "src/domain/repositories/user.repository";
+import { UserOrmEntity } from "../entities/user.orm-entity";
+import {
+  FindFilters,
+  IUserRepository,
+} from "src/domain/repositories/user.repository";
 import { RedisService } from "src/infrastructure/redis/redis.service";
 import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
 import { TracingService } from "src/infrastructure/observability/tracing/trace.service";
 import { MetricsService } from "src/infrastructure/observability/metrics/metrics.service";
-import User, { UserRoles, UserStatus } from "src/domain/entities/user-entity";
-import { InstructorProfileOrmEntity } from "../entities/instructor-profile-orm.entity";
+import User, { UserRoles, UserStatus } from "src/domain/entities/user.entity";
+import { InstructorProfileOrmEntity } from "../entities/instructor-profile.orm-entity";
 import { UserProfileOrmEntity } from "../entities/user-profile-orm.entiry";
-import { UserSocialOrmEntity } from "../entities/socials-orm.entity";
+import { UserSocialOrmEntity } from "../entities/socials.orm-entity";
 import { UserProfile } from "src/domain/entities/user-profile.entity";
 import { InstructorProfile } from "src/domain/entities/instructor-profile.entity";
-import { UserSocials } from "src/domain/entities/user-socials.entity";
+import {
+  SocialProvider,
+  UserSocials,
+} from "src/domain/entities/user-socials.entity";
+import { EntityMapper } from "../mapper/entity-mapper";
 
 Injectable();
-export default class UserTypeOrmRepositoryImpl implements UserRepository {
+export default class UserTypeOrmRepositoryImpl implements IUserRepository {
   constructor(
     @InjectRepository(UserOrmEntity)
     private readonly repo: Repository<UserOrmEntity>,
@@ -24,7 +31,7 @@ export default class UserTypeOrmRepositoryImpl implements UserRepository {
     private readonly logger: LoggingService,
     private readonly tracer: TracingService,
     private readonly metrics: MetricsService
-  ) {}
+  ) { }
 
   public async save(user: User): Promise<User> {
     return await this.tracer.startActiveSpan(
@@ -39,7 +46,7 @@ export default class UserTypeOrmRepositoryImpl implements UserRepository {
           `Creating user in database with email: ${user.email}`
         );
         try {
-          const ormUser = this.mapToEntity(user);
+          const ormUser = EntityMapper.toOrmUser(user);
           const newUser = this.repo.create(ormUser);
           const savedUser = await this.repo.save(newUser);
 
@@ -50,6 +57,15 @@ export default class UserTypeOrmRepositoryImpl implements UserRepository {
             span.setAttribute("User.created", true);
             await Promise.allSettled([
               this.cache.set(`db:user:${savedUser.id}`, savedUser, 3600),
+              ...(savedUser.slug
+                ? [
+                  this.cache.set(
+                    `db:user:slug:${savedUser.slug}`,
+                    savedUser,
+                    3600
+                  ),
+                ]
+                : []),
               this.cache.set(
                 `db:user:email:${savedUser.email}`,
                 savedUser,
@@ -62,7 +78,7 @@ export default class UserTypeOrmRepositoryImpl implements UserRepository {
             );
             span.setAttribute("User.created", false);
           }
-          return this.mapToDomain(savedUser);
+          return EntityMapper.toDomainUser(savedUser);
         } catch (error) {
           this.logger.warn(`Error creating user with email: ${user.email}`, {
             error,
@@ -83,17 +99,16 @@ export default class UserTypeOrmRepositoryImpl implements UserRepository {
             "user.id": userId,
           });
 
-          this.logger.debug(`Fetching user from database with ID: ${userId}`);
           this.logger.debug(`Querying redis for user data with ID: ${userId}`);
 
+          const cacheKey = `db:user:${userId}`;
+
           // Read-through cache: Check cache first
-          const cachedUser = await this.cache.get<UserOrmEntity>(
-            `db:user:${userId}`
-          );
+          const cachedUser = await this.cache.get<UserOrmEntity>(cacheKey);
           if (cachedUser) {
             this.logger.debug(`Redis cache hit for user with ID: ${userId}`);
             span.setAttribute("cache.hit", true);
-            return this.mapToDomain(cachedUser);
+            return EntityMapper.toDomainUser(cachedUser);
           }
           this.logger.debug(`Redis cache miss for user with ID: ${userId}`);
           span.setAttribute("cache.hit", false);
@@ -110,18 +125,17 @@ export default class UserTypeOrmRepositoryImpl implements UserRepository {
           const user = await this.repo.findOne({
             where: { id: userId },
             relations: ["socials", "profile", "instructorProfile"],
-            // select: ['id', 'avatar', 'status', 'email', 'role'],
           });
           endTimer();
           if (user) {
             this.logger.debug("User found in DB with ID: " + userId);
             span.setAttribute("User.found", true);
-            await this.cache.set(`db:user:${userId}`, user); // Cache the result
+            await this.cache.set(cacheKey, user); // Cache the result
           } else {
             this.logger.debug("User not found in DB with ID: " + userId);
             span.setAttribute("User.found", false);
           }
-          return user ? this.mapToDomain(user) : null;
+          return user ? EntityMapper.toDomainUser(user) : null;
         }
       );
     } catch (error) {
@@ -129,6 +143,61 @@ export default class UserTypeOrmRepositoryImpl implements UserRepository {
       throw error;
     }
   }
+
+  public async findByUserSlug(slug: string): Promise<User | null> {
+    try {
+      return await this.tracer.startActiveSpan(
+        "PostgresUserRepository.findByUserSlug",
+        async (span) => {
+          span.setAttributes({
+            "db.operation": "select",
+            "user.name": slug,
+          });
+          const cacheKey = `db:user:slug:${slug}`;
+
+          this.logger.debug(`Querying redis for user data with name: ${slug}`);
+
+          // Read-through cache: Check cache first
+          const cachedUser = await this.cache.get<UserOrmEntity>(cacheKey);
+          if (cachedUser) {
+            this.logger.debug(`Redis cache hit for user with name: ${slug}`);
+            span.setAttribute("cache.hit", true);
+            return EntityMapper.toDomainUser(cachedUser);
+          }
+          this.logger.debug(`Redis cache miss for user with name: ${slug}`);
+          span.setAttribute("cache.hit", false);
+
+          // Fetch from db if not in cache
+          this.logger.debug(
+            "Querying database for user data with name: " + slug
+          );
+          const endTimer = this.metrics.measureDBOperationDuration(
+            "findByUserSlug",
+            "SELECT"
+          );
+          this.metrics.incrementDBRequestCounter("SELECT");
+          const user = await this.repo.findOne({
+            where: { slug },
+            relations: ["socials", "profile", "instructorProfile"],
+          });
+          endTimer();
+          if (user) {
+            this.logger.debug("User found in DB with name: " + slug);
+            span.setAttribute("User.found", true);
+            await this.cache.set(cacheKey, user); // Cache the result
+          } else {
+            this.logger.debug("User not found in DB with name: " + slug);
+            span.setAttribute("User.found", false);
+          }
+          return user ? EntityMapper.toDomainUser(user) : null;
+        }
+      );
+    } catch (error) {
+      this.logger.warn(`Error fetching user ${slug}`, { error });
+      throw error;
+    }
+  }
+
   public async findWithRelations(userId: string): Promise<User | null> {
     try {
       return await this.tracer.startActiveSpan(
@@ -139,20 +208,16 @@ export default class UserTypeOrmRepositoryImpl implements UserRepository {
             "user.id": userId,
           });
 
-          this.logger.debug(`Fetching user from database with ID: ${userId}`);
           this.logger.debug(`Querying redis for user data with ID: ${userId}`);
 
+          const cacheKey = `db:user:relations:${userId}`;
           // Read-through cache: Check cache first
-          const cachedUser = await this.cache.get<UserOrmEntity>(
-            `db:user:relations:${userId}`
-          );
+          const cachedUser = await this.cache.get<UserOrmEntity>(cacheKey);
           if (cachedUser) {
             this.logger.debug(`Redis cache hit for user with ID: ${userId}`);
             span.setAttribute("cache.hit", true);
-            return this.mapToDomain(cachedUser);
+            return EntityMapper.toDomainUser(cachedUser);
           }
-          this.logger.debug(`Redis cache miss for user with ID: ${userId}`);
-          span.setAttribute("cache.hit", false);
 
           // Fetch from db if not in cache
           this.logger.debug(
@@ -178,12 +243,12 @@ export default class UserTypeOrmRepositoryImpl implements UserRepository {
           if (user) {
             this.logger.debug("User found in DB with ID: " + userId);
             span.setAttribute("User.found", true);
-            await this.cache.set(`db:user:relations:${userId}`, user); // Cache the result
+            await this.cache.set(cacheKey, user); // Cache the result
           } else {
             this.logger.debug("User not found in DB with ID: " + userId);
             span.setAttribute("User.found", false);
           }
-          return user ? this.mapToDomain(user) : null;
+          return user ? EntityMapper.toDomainUser(user) : null;
         }
       );
     } catch (error) {
@@ -201,13 +266,12 @@ export default class UserTypeOrmRepositoryImpl implements UserRepository {
             "db.operation": "select",
             "user.email": email,
           });
+          const cacheKey = `db:user:email:${email}`;
           this.logger.debug(`Fetching user from database with email: ${email}`);
-          const cachedUser = await this.cache.get<UserOrmEntity>(
-            `db:user:email:${email}`
-          );
+          const cachedUser = await this.cache.get<UserOrmEntity>(cacheKey);
           if (cachedUser) {
             this.logger.debug(`Redis cache hit for user with email: ${email}`);
-            return this.mapToDomain(cachedUser);
+            return EntityMapper.toDomainUser(cachedUser);
           }
 
           const endTimer = this.metrics.measureDBOperationDuration(
@@ -224,12 +288,12 @@ export default class UserTypeOrmRepositoryImpl implements UserRepository {
           if (user) {
             this.logger.debug(`User found in DB with email: ${email}`);
             span.setAttribute("User.found", true);
-            await this.cache.set(`db:user:email:${email}`, user, 3600);
+            await this.cache.set(cacheKey, user, 3600);
           } else {
             this.logger.debug(`User not found in DB with email: ${email}`);
             span.setAttribute("User.found", false);
           }
-          return user ? this.mapToDomain(user) : null;
+          return user ? EntityMapper.toDomainUser(user) : null;
         }
       );
     } catch (error) {
@@ -305,7 +369,7 @@ export default class UserTypeOrmRepositoryImpl implements UserRepository {
           }
 
           // Map domain user to ORM entity, excluding relationships for now
-          const modelData = this.mapToEntity(data as User);
+          const modelData = EntityMapper.toOrmUser(data as User);
 
           // Remove relationships from the update data since we'll handle them separately
           const { socials, profile, instructorProfile, ...updateData } =
@@ -359,12 +423,22 @@ export default class UserTypeOrmRepositoryImpl implements UserRepository {
             relations: ["socials", "profile", "instructorProfile"],
           });
           endTimer();
+          const mappedDomain = EntityMapper.toDomainUser(updatedUser);
 
           if (updatedUser) {
             this.logger.debug(`User updated successfully with ID: ${userId}`);
             span.setAttribute("User.updated", true);
             await Promise.all([
               this.cache.set(`db:user:${userId}`, updatedUser, 3600),
+              ...(updatedUser.slug
+                ? [
+                  this.cache.set(
+                    `db:user:slug:${updatedUser.slug}`,
+                    updatedUser,
+                    3600
+                  ),
+                ]
+                : []),
               this.cache.set(
                 `db:user:email:${updatedUser.email}`,
                 updatedUser,
@@ -375,7 +449,7 @@ export default class UserTypeOrmRepositoryImpl implements UserRepository {
             this.logger.debug(`Failed to update user with ID: ${userId}`);
             span.setAttribute("User.updated", false);
           }
-          return updatedUser ? this.mapToDomain(updatedUser) : null;
+          return updatedUser ? EntityMapper.toDomainUser(updatedUser) : null;
         }
       );
     } catch (error) {
@@ -413,9 +487,9 @@ export default class UserTypeOrmRepositoryImpl implements UserRepository {
   }
 
   public async findInstructors(
+    offset: number,
     limit: number,
-    offset: number
-  ): Promise<User[] | []> {
+  ): Promise<{ instructors: User[]; totalInstructors: number }> {
     try {
       return await this.tracer.startActiveSpan(
         "PostgresUserRepository.getAllInstructors",
@@ -429,14 +503,23 @@ export default class UserTypeOrmRepositoryImpl implements UserRepository {
             `Redis cache hit for instructors with limit: ${limit}, offset: ${offset}`
           );
           const cacheKey = `db:instructors:limit${limit}:offset:${offset}`;
-          const cachedInstructors =
-            await this.cache.get<UserOrmEntity[]>(cacheKey);
+          const cacheResult = await this.cache.get<{
+            instructors: UserOrmEntity[];
+            totalInstructors: number;
+          }>(cacheKey);
+          const {
+            instructors: cachedInstructors,
+            totalInstructors: totalInstructorsCache,
+          } = cacheResult || {};
           if (cachedInstructors) {
             this.logger.debug(
               `Redis cache hit for instructors with limit: ${limit}, offset: ${offset}`
             );
             span.setAttribute("cache.hit", true);
-            return cachedInstructors.map(this.mapToDomain);
+            return {
+              instructors: cachedInstructors.map(EntityMapper.toDomainUser),
+              totalInstructors: totalInstructorsCache,
+            };
           }
           this.logger.debug(
             `Redis cache miss for instructors with limit: ${limit}, offset: ${offset}`
@@ -448,19 +531,27 @@ export default class UserTypeOrmRepositoryImpl implements UserRepository {
             "SELECT"
           );
           this.metrics.incrementDBRequestCounter("SELECT");
-          const instructors = await this.repo.find({
+          const [instructors, totalInstructors] = await this.repo.findAndCount({
             where: { role: UserRoles.INSTRUCTOR },
             skip: offset,
             take: limit,
+            relations: ["profile", "socials", "instructorProfile"],
           });
           endTimer();
 
-          await this.cache.set(cacheKey, instructors, 300);
+          await this.cache.set(
+            cacheKey,
+            { instructors, totalInstructors },
+            300
+          );
           this.logger.debug(
             `Fetched instructors successfully from DB with limit: ${limit}, offset: ${offset}`
           );
           span.setAttribute("Instructors.found", true);
-          return instructors.map(this.mapToDomain);
+          return {
+            instructors: instructors.map(EntityMapper.toDomainUser),
+            totalInstructors,
+          };
         }
       );
     } catch (error) {
@@ -489,7 +580,7 @@ export default class UserTypeOrmRepositoryImpl implements UserRepository {
           const cachedUsers = await this.cache.get<UserOrmEntity[]>(cacheKey);
           if (cachedUsers) {
             this.logger.debug(`Redis cache hit for users with ids`);
-            return cachedUsers.map(this.mapToDomain);
+            return cachedUsers.map(EntityMapper.toDomainUser);
           }
 
           const endTimer = this.metrics.measureDBOperationDuration(
@@ -509,7 +600,7 @@ export default class UserTypeOrmRepositoryImpl implements UserRepository {
             `Fetched users successfully from DB with length: ${users.length}`
           );
           span.setAttribute("Users.found", true);
-          return users.map(this.mapToDomain);
+          return users.map(EntityMapper.toDomainUser);
         }
       );
     } catch (error) {
@@ -520,55 +611,134 @@ export default class UserTypeOrmRepositoryImpl implements UserRepository {
     }
   }
 
-  public async findUsers(offset: number, limit: number): Promise<User[] | []> {
+  public async findUsers(
+    filters: FindFilters
+  ): Promise<{ users: User[]; totalUsers: number }> {
+    const offset = filters.offset ?? 0;
+    const limit = filters.limit ?? 20;
+    const sortField = filters.sortField || "createdAt";
+    const sortOrder = filters.sortOrder || "DESC";
+    const cacheKey = [
+      `db:users`,
+      `limit:${limit}`,
+      `offset:${offset}`,
+      `sort:${sortField},${sortOrder}`,
+      filters.status ? `status:${filters.status}` : "",
+      filters.role ? `role:${filters.role}` : "",
+      filters.email ? `email:${filters.email}` : "",
+      filters.search ? `search:${filters.search}` : "",
+      // Optionally include other filters in cache key
+    ]
+      .filter(Boolean)
+      .join("|");
+
     try {
       return await this.tracer.startActiveSpan(
-        "PostgresUserRepository.getAllUsers",
+        "PostgresUserRepository.findUsers",
         async (span) => {
           span.setAttributes({
             "db.operation": "select",
             "query.limit": limit,
             "query.offset": offset,
+            "query.sortField": sortField,
+            "query.sortOrder": sortOrder,
+            ...(filters.status && { "query.status": filters.status }),
+            ...(filters.role && { "query.role": filters.role }),
+            ...(filters.email && { "query.email": filters.email }),
+            ...(filters.search && { "query.search": filters.search }),
           });
           this.logger.debug(
-            `Fetching users from database with limit: ${limit}, offset: ${offset}`
+            `Fetching users from database with limit: ${limit}, offset: ${offset}, sort: ${sortField}, order: ${sortOrder}`
           );
-          const cacheKey = `db:users:limit${limit}:offset:${offset}`;
-          const cachedUsers = await this.cache.get<UserOrmEntity[]>(cacheKey);
-          if (cachedUsers) {
+
+          // Try cache first
+          const cacheResult = await this.cache.get<{
+            users: UserOrmEntity[];
+            totalUsers: number;
+          }>(cacheKey);
+
+          if (cacheResult && cacheResult.users) {
             this.logger.debug(
               `Redis cache hit for users with limit: ${limit}, offset: ${offset}`
             );
             span.setAttribute("Redis.users.cache.hit", true);
-            return cachedUsers.map(this.mapToDomain);
+            return {
+              users: cacheResult.users.map(EntityMapper.toDomainUser),
+              totalUsers: cacheResult.totalUsers,
+            };
           }
+
           this.logger.debug(
             `Redis cache miss for users with limit: ${limit}, offset: ${offset}`
           );
           span.setAttribute("Redis.users.cache.hit", false);
 
           const endTimer = this.metrics.measureDBOperationDuration(
-            "getAllUsers",
+            "findUsers",
             "SELECT"
           );
           this.metrics.incrementDBRequestCounter("SELECT");
-          const users = await this.repo.find({
-            skip: offset,
-            take: limit,
-          });
+
+          // Dynamic query building for flexible filters and search
+          const qb = this.repo
+            .createQueryBuilder("user")
+            .leftJoinAndSelect("user.profile", "profile")
+            .leftJoinAndSelect("user.instructorProfile", "instructorProfile")
+            .leftJoinAndSelect("user.socials", "socials")
+            .skip(offset)
+            .take(limit);
+          //   .orderBy(`user.${sortField}`, sortOrder as "ASC" | "DESC");
+
+          // // Conditional filters
+          // if (filters.status) {
+          //   qb.andWhere("user.status = :status", { status: filters.status });
+          // }
+          // if (filters.role) {
+          //   qb.andWhere("user.role = :role", { role: filters.role });
+          // }
+          // if (filters.email) {
+          //   qb.andWhere("user.email ILIKE :email", {
+          //     email: `%${filters.email}%`,
+          //   });
+          // }
+          // // Search by multiple fields
+          // if (filters.search) {
+          //   const search = `%${filters.search}%`;
+          //   qb.andWhere(
+          //     `(user.firstName ILIKE :search OR
+          //       user.lastName ILIKE :search OR
+          //       user.username ILIKE :search OR
+          //       user.role ILIKE :search OR
+          //       user.email ILIKE :search OR
+          //       array_to_string(user.tags, ',') ILIKE :search OR
+          //       instructorProfile.expertise ILIKE :search
+          //     )`,
+          //     { search }
+          //   );
+          // }
+          // Optionally handle advanced filtering on tags or expertise array fields.
+          // E.g., if you want to require a tag: qb.andWhere(":tag = ANY(user.tags)", { tag: desiredTag });
+
+          // Fetch records with count
+          const [users, totalUsers] = await qb.getManyAndCount();
           endTimer();
 
-          await this.cache.set(cacheKey, users, 300);
+          console.log(
+            JSON.stringify("users data : " + { users, totalUsers }, null, 2)
+          );
+
+          // Cache result
+          await this.cache.set(cacheKey, { users, totalUsers }, 300);
           this.logger.debug(
-            `Fetched users successfully from DB with limit: ${limit}, offset: ${offset}`
+            `Fetched users successfully from DB with limit: ${limit}, offset: ${offset}, total: ${totalUsers}`
           );
           span.setAttribute("Users.found", true);
-          return users.map(this.mapToDomain);
+          return { users: users.map(EntityMapper.toDomainUser), totalUsers };
         }
       );
     } catch (error) {
       this.logger.warn(
-        `Error fetching users with limit: ${limit}, offset: ${offset}`,
+        `Error fetching users with limit: ${filters.limit}, offset: ${filters.offset}`,
         {
           error,
         }
@@ -577,94 +747,86 @@ export default class UserTypeOrmRepositoryImpl implements UserRepository {
     }
   }
 
-  private mapToDomain(user: UserOrmEntity): User {
-    const domainUser = new User({
-      ...user,
-      createdAt: user.createdAt,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      id: user.id,
-      role: user.role,
-      status: user.status,
-      updatedAt: user.updatedAt,
-      avatar: user.avatarUrl,
-      profile: user.profile ? new UserProfile({ ...user.profile }) : undefined,
-      instructorProfile: user.instructorProfile
-        ? new InstructorProfile({
-            ...user.instructorProfile,
-            userId: user.id,
-          })
-        : undefined,
-      socials: user.socials?.map(
-        (social) => new UserSocials({ ...social, userId: user.id })
-      ),
-    });
+  async getInstructorsStats(): Promise<{
+    total: number;
+    active: number;
+    inactive: number;
+    blocked: number;
+    newThisMonth: number;
+  }> {
+    try {
+      return await this.tracer.startActiveSpan("UserTypeOrmRepositoryImpl.getInstructorsStats", async (span) => {
+        const now = new Date();
+        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-    return domainUser;
+        const qb = this.repo.createQueryBuilder("user")
+          .select([
+            'COUNT("user"."id") as total',
+            `SUM(CASE WHEN "user"."status" IN (:...activeStatuses) THEN 1 ELSE 0 END) as active`,
+            'SUM(CASE WHEN "user"."status" = :inactive THEN 1 ELSE 0 END) as inactive',
+            'SUM(CASE WHEN "user"."status" = :blocked THEN 1 ELSE 0 END) as blocked',
+            'SUM(CASE WHEN "user"."createdAt" >= :firstDayOfMonth THEN 1 ELSE 0 END) as "newThisMonth"',
+          ])
+          .where("user.role = :role", { role: UserRoles.INSTRUCTOR })
+          .setParameters({
+            activeStatuses: [UserStatus.ACTIVE, UserStatus.VERIFIED],
+            inactive: UserStatus.NOT_ACTIVE,
+            blocked: UserStatus.BLOCKED,
+            firstDayOfMonth,
+          });
+
+        const row = await qb.getRawOne();
+
+        console.log("instructors stats: " + JSON.stringify(row, null, 2));
+
+        return {
+          total: Number(row.total) || 0,
+          active: Number(row.active) || 0,
+          inactive: Number(row.inactive) || 0,
+          blocked: Number(row.blocked) || 0,
+          newThisMonth: Number(row.newThisMonth) || 0,
+        };
+      });
+    } catch (error) {
+      this.logger.error("Failed to get instructor stats", { error });
+      throw error;
+    }
   }
 
-  private mapToEntity(user: User): UserOrmEntity {
-    const ormEntity = new UserOrmEntity();
-    ormEntity.status = user.status;
-    ormEntity.createdAt = user.createdAt;
-    ormEntity.updatedAt = user.updatedAt;
-    ormEntity.id = user.id;
-    ormEntity.email = user.email;
-    ormEntity.role = user.role;
-    ormEntity.firstName = user.firstName;
-    ormEntity.lastName = user.lastName;
-    ormEntity.avatarUrl = user.avatar;
-    ormEntity.lastLoginAt = user.lastLogin;
+  async getUsersStats(): Promise<{
+    total: number;
+    active: number;
+    inactive: number;
+    blocked: number;
+  }> {
+    try {
+      return await this.tracer.startActiveSpan("UserTypeOrmRepositoryImpl.getUsersStats", async (span) => {
+        const qb = this.repo.createQueryBuilder("user")
+          .select([
+            "COUNT(user.id) as total",
+            `SUM(CASE WHEN "user"."status" IN (:...activeStatuses) THEN 1 ELSE 0 END) as active`,
+            "SUM(CASE WHEN user.status = :inactive THEN 1 ELSE 0 END) as inactive",
+            "SUM(CASE WHEN user.status = :blocked THEN 1 ELSE 0 END) as blocked",
+          ])
+          .setParameters({
+            activeStatuses: [UserStatus.ACTIVE, UserStatus.VERIFIED],
+            inactive: UserStatus.NOT_ACTIVE,
+            blocked: UserStatus.BLOCKED,
+          });
 
-    // Only create instructor profile if it has meaningful data
-    if (user.instructorProfile && user.instructorProfile.id) {
-      const ormInstructorProfile = new InstructorProfileOrmEntity();
-      const instructor = user.instructorProfile;
-      ormInstructorProfile.id = instructor.id;
-      ormInstructorProfile.userId = user.id;
-      ormInstructorProfile.bio = instructor.bio;
-      ormInstructorProfile.certificate = instructor.certificate;
-      ormInstructorProfile.experience = instructor.experience;
-      ormInstructorProfile.expertise = instructor.expertise;
-      ormInstructorProfile.headline = instructor.headline;
-      ormInstructorProfile.rating = instructor.rating;
-      ormInstructorProfile.tags = instructor.tags;
-      ormInstructorProfile.totalCourses = instructor.totalCourses;
-      ormInstructorProfile.totalStudents = instructor.totalStudents;
-      ormEntity.instructorProfile = ormInstructorProfile;
-    }
+        const row = await qb.getRawOne();
+        console.log("users stats : " + JSON.stringify(row, null, 2));
 
-    // Only create user profile if it has meaningful data
-    if (user.profile && user.profile.id) {
-      const ormUserProfile = new UserProfileOrmEntity();
-      const userProfile = user.profile;
-      ormUserProfile.id = userProfile.id;
-      ormUserProfile.userId = user.id;
-      ormUserProfile.bio = userProfile.bio;
-      ormUserProfile.language = userProfile.language;
-      ormUserProfile.website = userProfile.website;
-      ormUserProfile.city = userProfile.city;
-      ormUserProfile.country = userProfile.country;
-      ormUserProfile.gender = userProfile.gender;
-      ormUserProfile.phone = userProfile.phone;
-      ormUserProfile.preferences = userProfile.preferences;
-      ormEntity.profile = ormUserProfile;
-    }
-
-    // Only create socials if they exist
-    if (user.socials && user.socials.length > 0) {
-      ormEntity.socials = user.socials.map((social) => {
-        const socialEntity = new UserSocialOrmEntity();
-        socialEntity.id = social.id;
-        socialEntity.profileUrl = social.profileUrl;
-        socialEntity.provider = social.provider;
-        socialEntity.providerUserId = social.providerUserId;
-        socialEntity.userId = user.id;
-        return socialEntity;
+        return {
+          total: Number(row.total) || 0,
+          active: Number(row.active) || 0,
+          inactive: Number(row.inactive) || 0,
+          blocked: Number(row.blocked) || 0,
+        };
       });
+    } catch (error) {
+      this.logger.error("Failed to get user stats", { error });
+      throw error;
     }
-
-    return ormEntity;
   }
 }
