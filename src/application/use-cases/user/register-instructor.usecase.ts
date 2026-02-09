@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InstructorProfile } from "src/domain/entities/instructor-profile.entity";
-import { UserNotFoundException } from "src/domain/exceptions/domain.exceptions";
+import { UserNotFoundException } from "src/domain/exceptions";
 import { IUserRepository } from "src/domain/repositories/user.repository";
 import { KafkaService } from "src/infrastructure/kafka/kafka.service";
 import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
@@ -9,7 +9,7 @@ import RegisterInstructorDto from "src/presentation/grpc/dtos/register-instructo
 import {
   KafkaTopics,
 } from "src/shared/events";
-import { UserAlreadyExistException } from "../../../domain/exceptions/domain.exceptions";
+import { UserAlreadyExistException } from "../../../domain/exceptions";
 import slugify from "slugify";
 import { UserRoles } from "src/domain/entities/_user.entity";
 import { UserDto } from "src/application/dtos/user.dto";
@@ -92,7 +92,6 @@ export default class RegisterInstructorUseCase {
           }
         );
 
-        // Return updated user
         return UserDto.fromDomain(updatedUser);
       }
     );

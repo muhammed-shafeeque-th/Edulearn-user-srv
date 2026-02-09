@@ -18,7 +18,6 @@ export default class ListInstructorsOfStudentUseCase {
   /**
    * Lists the instructors of a student with pagination.
    * @param dto - The request DTO containing studentId and pagination info.
-   * @returns An object containing an array of instructor DTOs and total count.
    */
   async execute(
     dto: ListInstructorsOfStudentRequest

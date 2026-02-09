@@ -1,11 +1,17 @@
 import { Injectable, BadRequestException } from "@nestjs/common";
 import { UserDto } from "src/application/dtos/user.dto";
-import { IUserRepository, FindFilters, DOMAIN_USER_FIELDS, UserSortField } from "src/domain/repositories/user.repository";
+import {
+  IUserRepository,
+  FindFilters,
+  DOMAIN_USER_FIELDS,
+  UserSortField,
+} from "src/domain/repositories/user.repository";
 import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
 import { TracingService } from "src/infrastructure/observability/tracing/trace.service";
-import GetUsersDto, { SortOptionDto, UserFilterDto } from "src/presentation/grpc/dtos/get-users.dto";
-
-
+import GetUsersDto, {
+  SortOptionDto,
+  UserFilterDto,
+} from "src/presentation/grpc/dtos/get-users.dto";
 
 @Injectable()
 export default class GetUsersUseCaseImpl {
@@ -16,51 +22,52 @@ export default class GetUsersUseCaseImpl {
   ) {}
 
   public async execute(
-    dto: GetUsersDto
+    dto: GetUsersDto,
   ): Promise<{ users: UserDto[]; total: number }> {
     return await this.tracer.startActiveSpan(
       "GetUsersUseCaseImpl.execute",
       async (span) => {
         this.logger.info(`Executing GetUsersUseCaseImpl`, { dto });
 
-        // Compose domain-level filters and validate business constraints
         const filterObj = this.domainValidateAndMapFilters(dto);
 
-        span.setAttributes({ offset: filterObj.offset, limit: filterObj.limit, ...filterObj });
+        span.setAttributes({
+          offset: filterObj.offset,
+          limit: filterObj.limit,
+          ...filterObj,
+        });
 
-        this.logger.info("Calling repository.findUsers with filters", { filterObj });
+        this.logger.info("Calling repository.findUsers with filters", {
+          filterObj,
+        });
 
-        const { users, totalUsers } = await this.userRepository.findUsers(filterObj);
+        const { users, totalUsers } =
+          await this.userRepository.findUsers(filterObj);
 
-        this.logger.info(`Successfully fetched ${users.length} users (total: ${totalUsers})`);
+        this.logger.info(
+          `Successfully fetched ${users.length} users (total: ${totalUsers})`,
+        );
 
         return { users: users.map(UserDto.fromDomain), total: totalUsers };
-      }
+      },
     );
   }
 
-  /**
-   * Performs domain-level validation and adaptation of filters and sort options
-   */
   private domainValidateAndMapFilters(dto: GetUsersDto): FindFilters {
     const filters: FindFilters = {};
 
-    // Pagination (expected validated by DTO, but always enforce limits domain-side)
+    
     const page = dto.pagination?.page ?? 1;
     let pageSize = dto.pagination?.pageSize ?? 20;
     pageSize = Math.min(Math.max(pageSize, 1), 100);
 
-    // Calculate offset and set limit for repository filters
     filters.offset = (page - 1) * pageSize;
     filters.limit = pageSize;
 
-    // Domain business logic: status must be one of the domain enum values,
     if (dto.filter) {
       const filter = dto.filter;
-        filters.status = UserFilterDto.getDomainStatus(filter.status);
-      
+      filters.status = UserFilterDto.getDomainStatus(filter.status);
 
-      // Domain-level: business logic for role, email, search etc. could be imposed here if needed
       if (typeof filter.email === "string" && filter.email.trim().length > 0) {
         filters.email = filter.email.trim();
       }
@@ -69,28 +76,32 @@ export default class GetUsersUseCaseImpl {
         filters.role = filter.role.trim();
       }
 
-      if (typeof filter.search === "string" && filter.search.trim().length > 0) {
+      if (
+        typeof filter.search === "string" &&
+        filter.search.trim().length > 0
+      ) {
         filters.search = filter.search.trim();
       }
     } else {
-      // If not provided, could use business default, eg. filters.status = User.UserStatus.ACTIVE;
     }
-    
 
     if (dto.sort) {
       const sort = dto.sort;
       if (typeof sort.field === "string" && sort.field.trim()) {
         const field = sort.field.trim();
         if (!this.isDomainSortField(field)) {
-          this.logger.error("Sort field not allowed by domain", { field, allowed: DOMAIN_USER_FIELDS });
+          this.logger.error("Sort field not allowed by domain", {
+            field,
+            allowed: DOMAIN_USER_FIELDS,
+          });
           throw new BadRequestException(
-            `Sort field must be one of: ${DOMAIN_USER_FIELDS.join(", ")}`
+            `Sort field must be one of: ${DOMAIN_USER_FIELDS.join(", ")}`,
           );
         }
         filters.sortField = field;
       }
       if (typeof sort.order === "string") {
-       filters.sortOrder =  SortOptionDto.getGrpcOrderString(sort.order)
+        filters.sortOrder = SortOptionDto.getGrpcOrderString(sort.order);
       }
     }
 

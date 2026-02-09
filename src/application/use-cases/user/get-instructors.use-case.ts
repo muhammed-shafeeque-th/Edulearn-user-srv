@@ -19,7 +19,6 @@ export default class GetInstructorsUseCaseImpl {
       "GetInstructorsUseCaseImpl.execute",
       async (span) => {
         this.logger.info(`Executing GetInstructorsUseCaseImpl `);
-        // Checks instructors with limit and offset
 
         const page = dto.pagination?.page ?? 1;
         let pageSize = dto.pagination?.pageSize ?? 20;

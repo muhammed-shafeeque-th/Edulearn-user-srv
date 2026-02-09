@@ -6,7 +6,7 @@ import {
   UserSocials,
 } from "src/domain/entities/user-socials.entity";
 import { UpdatedUserEvent } from "src/domain/events/update-user.event";
-import { UserNotFoundException } from "src/domain/exceptions/domain.exceptions";
+import { UserNotFoundException } from "src/domain/exceptions";
 import { IUserRepository } from "src/domain/repositories/user.repository";
 import { KafkaService } from "src/infrastructure/kafka/kafka.service";
 import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
@@ -36,7 +36,6 @@ export default class UpdateUserUseCaseImpl {
         );
         // Checks whether user exist with provided userId
         const user = await this.userRepository.findById(dto.userId);
-        this.logger.info("use-case entity " + JSON.stringify(dto, null, 2));
 
         // Throws an error if user NOT exist with given userId
         if (!user) throw new UserNotFoundException(dto.userId);
