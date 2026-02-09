@@ -2,7 +2,7 @@ import { Controller } from "@nestjs/common";
 import { GrpcMethod } from "@nestjs/microservices";
 import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
 import { TracingService } from "src/infrastructure/observability/tracing/trace.service";
-import { DomainException } from "src/domain/exceptions/domain.exceptions";
+import { DomainException } from "src/domain/exceptions";
 import { GetUserWalletUseCase } from "src/application/use-cases/wallet/get-user-wallet.use-case";
 import { GetWalletTransactionsUseCase } from "src/application/use-cases/wallet/get-wallet-transactions.use-case";
 import { Error } from "src/infrastructure/grpc/generated/user/common";

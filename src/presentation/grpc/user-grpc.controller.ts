@@ -4,7 +4,7 @@ import { GrpcMethod } from "@nestjs/microservices";
 import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
 import { TracingService } from "src/infrastructure/observability/tracing/trace.service";
 
-import { DomainException } from "src/domain/exceptions/domain.exceptions";
+import { DomainException } from "src/domain/exceptions";
 import GetInstructorsUseCaseImpl from "src/application/use-cases/user/get-instructors.use-case";
 import GetUsersUseCaseImpl from "src/application/use-cases/user/get-users.usecase";
 import CurrentUserUseCaseImpl from "src/application/use-cases/user/current-user.usecase";
@@ -33,7 +33,7 @@ import {
   ListUsersResponse,
   EmailExist,
 } from "src/infrastructure/grpc/generated/user/types/user_types";
-import User from "src/domain/entities/user-entity";
+import User from "src/domain/entities/user.entity";
 import RegisterInstructorUseCase from "src/application/use-cases/user/register-instructor.usecase";
 import GetUsersByIdsDto from "./dtos/get-users-by-ids.dto";
 import GetUsersByIdsUseCase from "src/application/use-cases/user/get-users-by-ids.usecase";
