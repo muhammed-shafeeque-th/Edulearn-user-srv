@@ -9,7 +9,7 @@ import {
   ValidateNested,
 } from "class-validator";
 import { Type, plainToInstance } from "class-transformer";
-import { UserStatus as UserDomainStatus } from "src/domain/entities/user.entity";
+import { UserStatus as UserDomainStatus } from "src/domain/entities/user-entity";
 import {
   PaginationRequest,
   SortOrder as GrpcSortOrder,
@@ -82,7 +82,7 @@ export class UserFilterDto {
     return GrpcUserStatus.USER_STATUS_UNSPECIFIED;
   }
   /** Maps gRPC UserStatus to Domain UserStatus */
-  static getDomainStatus(status: UserStatus): UserDomainStatus {
+  static getDomainStatus(status: UserStatus): UserDomainStatus | null {
     switch (status) {
       case UserStatus.ACTIVE:
         return UserDomainStatus.ACTIVE;
@@ -92,7 +92,7 @@ export class UserFilterDto {
         return UserDomainStatus.DELETED;
       case UserStatus.USER_STATUS_UNSPECIFIED:
       default:
-        return UserDomainStatus.ACTIVE;
+        return null;
     }
   }
 
@@ -123,7 +123,6 @@ export default class GetUsersDto implements ListUsersRequest {
   @Type(() => SortOptionDto)
   sort: SortOptionDto;
 
-  /** Helper to map this DTO to a gRPC-ready ListUsersRequest */
   toGrpcRequest(): ListUsersRequest {
     return {
       pagination: this.pagination
