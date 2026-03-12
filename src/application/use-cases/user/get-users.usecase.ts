@@ -29,6 +29,7 @@ export default class GetUsersUseCaseImpl {
       async (span) => {
         this.logger.info(`Executing GetUsersUseCaseImpl`, { dto });
 
+
         const filterObj = this.domainValidateAndMapFilters(dto);
 
         span.setAttributes({
@@ -56,10 +57,10 @@ export default class GetUsersUseCaseImpl {
   private domainValidateAndMapFilters(dto: GetUsersDto): FindFilters {
     const filters: FindFilters = {};
 
-    
     const page = dto.pagination?.page ?? 1;
     let pageSize = dto.pagination?.pageSize ?? 20;
-    pageSize = Math.min(Math.max(pageSize, 1), 100);
+    // Allow fetching up to 1000 records for client-side pagination scenarios
+    pageSize = Math.min(Math.max(pageSize, 1), 1000);
 
     filters.offset = (page - 1) * pageSize;
     filters.limit = pageSize;
@@ -89,6 +90,7 @@ export default class GetUsersUseCaseImpl {
       const sort = dto.sort;
       if (typeof sort.field === "string" && sort.field.trim()) {
         const field = sort.field.trim();
+        console.log("sort.field", field);
         if (!this.isDomainSortField(field)) {
           this.logger.error("Sort field not allowed by domain", {
             field,
@@ -109,9 +111,9 @@ export default class GetUsersUseCaseImpl {
   }
 
   private isDomainSortField(field: string): field is UserSortField {
-    if (!DOMAIN_USER_FIELDS.includes(field as UserSortField)) {
-      return false;
+    if (DOMAIN_USER_FIELDS.includes(field as UserSortField)) {
+      return true;
     }
-    true;
+    return false;
   }
 }
