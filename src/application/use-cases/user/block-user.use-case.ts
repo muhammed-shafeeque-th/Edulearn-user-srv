@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import User from "src/domain/entities/user.entity";
+import User from "src/domain/entities/user-entity";
 import { UserNotFoundException } from "src/domain/exceptions";
 import { IUserRepository } from "src/domain/repositories/user.repository";
 import { KafkaService } from "src/infrastructure/kafka/kafka.service";
@@ -7,7 +7,7 @@ import { LoggingService } from "src/infrastructure/observability/logging/logging
 import { TracingService } from "src/infrastructure/observability/tracing/trace.service";
 import BlockUserDto from "src/presentation/grpc/dtos/block-user.dto";
 import { KafkaTopics } from "src/shared/events";
-import { UserStatus } from "../../../domain/entities/user.entity";
+import { UserStatus } from "../../../domain/entities/user-entity";
 import { v4 as uuidV4 } from "uuid";
 import { UserBlockedEvent } from "src/domain/events/user-block.event";
 
