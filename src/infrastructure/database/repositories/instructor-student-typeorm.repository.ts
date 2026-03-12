@@ -80,7 +80,7 @@ export class TypeOrmInstructorStudentRepository
     instructorId: string;
     pagination: Pagination;
   }): Promise<{ data: InstructorStudent[]; total: number }> {
-    const { page, limit } = input.pagination;
+    const { offset, limit } = input.pagination;
 
     const [rows, total] = await this.repo.findAndCount({
       where: {
@@ -89,7 +89,7 @@ export class TypeOrmInstructorStudentRepository
       },
       order: { createdAt: "DESC" },
       take: limit,
-      skip: page * limit,
+      skip: offset,
     });
 
     return {
@@ -102,7 +102,7 @@ export class TypeOrmInstructorStudentRepository
     studentId: string;
     pagination: Pagination;
   }): Promise<{ data: InstructorStudent[]; total: number }> {
-    const { page, limit } = input.pagination;
+    const { offset, limit } = input.pagination;
 
     const [rows, total] = await this.repo.findAndCount({
       where: {
@@ -111,7 +111,7 @@ export class TypeOrmInstructorStudentRepository
       },
       order: { createdAt: "DESC" },
       take: limit,
-      skip: page * limit,
+      skip: offset,
     });
 
     return {
