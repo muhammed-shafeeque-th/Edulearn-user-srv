@@ -13,14 +13,14 @@ export default class ListStudentsOfInstructorUseCase {
     private readonly userRepository: IUserRepository,
     private readonly logger: LoggingService,
     private readonly tracer: TracingService,
-  ) { }
+  ) {}
 
   /**
-   * Lists the instructors of a student with pagination.
+   * Lists the instructors of a student.
    * @param dto - The request DTO containing instructorId and pagination info.
    */
   async execute(
-    dto: ListStudentsOfInstructorRequest
+    dto: ListStudentsOfInstructorRequest,
   ): Promise<{ students: UserDto[]; total: number }> {
     return this.tracer.startActiveSpan(
       "ListStudentsOfInstructorUseCase.execute",
@@ -33,7 +33,6 @@ export default class ListStudentsOfInstructorUseCase {
             pageSize: dto.pagination?.pageSize,
           });
 
-
           const page = pagination?.page ?? 1;
           let pageSize = pagination?.pageSize ?? 20;
           pageSize = Math.min(Math.max(pageSize, 1), 100);
@@ -42,29 +41,40 @@ export default class ListStudentsOfInstructorUseCase {
           const limit = pageSize;
 
           const { data, total } =
-            await this.instructorStudentRepository.getStudentsOfInstructor({ instructorId, pagination: { page, limit } });
+            await this.instructorStudentRepository.getStudentsOfInstructor({
+              instructorId,
+              pagination: { offset, limit },
+            });
 
           const studentIds = data.map((item) => item.studentId);
+          if (studentIds.length === 0) {
+            return {
+              students: [],
+              total: 0,
+            };
+          }
 
-          const instructors = await this.userRepository.findUsersByIds(studentIds);
+          const instructors =
+            await this.userRepository.findUsersByIds(studentIds);
 
-          this.logger.info(
-            "ListStudentsOfInstructorUseCase succeeded.",
-            {
-              instructorId,
-              totalInstructors: total,
-            }
-          );
+          this.logger.info("ListStudentsOfInstructorUseCase succeeded.", {
+            instructorId,
+            totalInstructors: total,
+          });
 
           return {
             students: instructors.map(UserDto.fromDomain),
             total,
           };
         } catch (error) {
-          this.logger.error("Error in ListStudentsOfInstructorUseCase: " + (error?.message || error), error);
+          this.logger.error(
+            "Error in ListStudentsOfInstructorUseCase: " +
+              (error?.message || error),
+            error,
+          );
           throw error;
         }
-      }
+      },
     );
   }
 }
