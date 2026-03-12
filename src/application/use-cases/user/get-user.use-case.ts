@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { UserDto } from "src/application/dtos/user.dto";
-import User from "src/domain/entities/user.entity";
+import User from "src/domain/entities/user-entity";
 import { UserNotFoundException } from "src/domain/exceptions";
 import { IUserRepository } from "src/domain/repositories/user.repository";
 import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
