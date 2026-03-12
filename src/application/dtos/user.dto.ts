@@ -11,7 +11,7 @@ import {
   SocialProvider,
   UserSocials,
 } from "src/domain/entities/user-socials.entity";
-import User, { UserRoles, UserStatus } from "src/domain/entities/user.entity";
+import User, { UserRoles, UserStatus } from "src/domain/entities/user-entity";
 import { InstructorMeta } from "src/infrastructure/grpc/generated/user/types/instructor_types";
 
 export class UserProfileDto {
@@ -241,19 +241,19 @@ export class UserDto {
       avatar: this.avatar,
       createdAt: this.createdAt.toISOString(),
       lastLogin: this.lastLoginAt?.toISOString(),
-      bio: this.instructorProfile.bio,
-      education: this.instructorProfile.education,
-      experience: this.instructorProfile.experience,
-      expertise: this.instructorProfile.expertise,
-      headline: this.instructorProfile.headline,
-      joinedAt: this.instructorProfile.joinedAt?.toISOString(),
-      language: this.profile.language,
-      rating: this.instructorProfile.rating,
-      tags: this.instructorProfile.tags.slice(),
-      totalCourses: this.instructorProfile.totalCourses,
-      totalRatings: this.instructorProfile.totalRatings,
-      totalStudents: this.instructorProfile.totalStudents,
-      website: this.profile.website,
+      bio: this.instructorProfile?.bio,
+      education: this.instructorProfile?.education,
+      experience: this.instructorProfile?.experience,
+      expertise: this.instructorProfile?.expertise,
+      headline: this.instructorProfile?.headline,
+      joinedAt: this.instructorProfile?.joinedAt?.toISOString(),
+      language: this.profile?.language,
+      rating: this.instructorProfile?.rating,
+      tags: this.instructorProfile?.tags.slice(),
+      totalCourses: this.instructorProfile?.totalCourses,
+      totalRatings: this.instructorProfile?.totalRatings,
+      totalStudents: this.instructorProfile?.totalStudents,
+      website: this.profile?.website,
 
     };
   };
