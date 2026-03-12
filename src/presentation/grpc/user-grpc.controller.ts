@@ -33,7 +33,7 @@ import {
   ListUsersResponse,
   EmailExist,
 } from "src/infrastructure/grpc/generated/user/types/user_types";
-import User from "src/domain/entities/user.entity";
+import User from "src/domain/entities/user-entity";
 import RegisterInstructorUseCase from "src/application/use-cases/user/register-instructor.usecase";
 import GetUsersByIdsDto from "./dtos/get-users-by-ids.dto";
 import GetUsersByIdsUseCase from "src/application/use-cases/user/get-users-by-ids.usecase";
@@ -47,7 +47,6 @@ import {
 import {
   GetInstructorByNameRequest,
   GetInstructorByNameResponse,
-  GetInstructorsRequest,
   ListInstructorsRequest,
   ListInstructorsResponse,
   RegisterInstructorRequest,
@@ -63,11 +62,17 @@ import {
   ListStudentsOfInstructorRequest,
 } from "src/infrastructure/grpc/generated/user/types/instructor_student";
 import {
+  GetInstructorsGrowthTrendRequest,
+  GetInstructorsGrowthTrendResponse,
   GetInstructorsStatsResponse,
+  GetUsersGrowthTrendRequest,
+  GetUsersGrowthTrendResponse,
   GetUsersStatsResponse,
 } from "src/infrastructure/grpc/generated/user/types/stats_types";
 import GetUsersStatsUseCase from "src/application/use-cases/user/get-users-stats.use-case";
 import GetInstructorsStatsUseCase from "src/application/use-cases/user/get-instructors-stats.use-case";
+import GetUsersGrowthTrendUseCase from "src/application/use-cases/user/get-users-growth-trend.use-case";
+import GetInstructorsGrowthTrendUseCase from "src/application/use-cases/user/get-instructors-growth-trend.use-case";
 
 @Controller()
 export class UserGrpcController {
@@ -79,7 +84,9 @@ export class UserGrpcController {
     private readonly listStudentsOfInstructorUseCase: ListStudentsOfInstructorUseCase,
     private readonly isStudentOfInstructorUseCase: IsStudentOfInstructorUseCase,
     private readonly getUsersStatsUseCase: GetUsersStatsUseCase,
+    private readonly getUsersGrowthTrendUseCase: GetUsersGrowthTrendUseCase,
     private readonly getInstructorsStatsUseCase: GetInstructorsStatsUseCase,
+    private readonly getInstructorsGrowthTrendUseCase: GetInstructorsGrowthTrendUseCase,
     private readonly currentUserUseCase: CurrentUserUseCaseImpl,
     private readonly detailedUserUseCase: GetUserUseCaseImpl,
     private readonly getInstructorByUsernameUseCase: GetInstructorByUsernameUseCaseImpl,
@@ -191,6 +198,7 @@ export class UserGrpcController {
             ctx: UserGrpcController.name,
           });
 
+
           const { total, instructors } =
             await this.getInstructorsUseCase.execute(data);
 
@@ -274,11 +282,6 @@ export class UserGrpcController {
           // await validateDto(userDto);
 
           const userEmails = await this.getEmailsUseCase.execute();
-          // const userResponse = new ResponseMapper<{ email: string }, { email: string }>({
-          //   fields: {
-          //     email: 'email',
-          //   },
-          // }).toResponseList(userEmails);
 
           this.logger.info(
             "GetUsersEmails request has been successfully completed",
@@ -576,6 +579,11 @@ export class UserGrpcController {
           const { total, instructors } =
             await this.listInstructorsOfStudentUseCase.execute(data);
 
+          console.log(
+            "Instructors of student: " +
+              JSON.stringify({ total, instructors }, null, 2),
+          );
+
           const paginationResponse: PaginationResponse = {
             totalItems: total,
           };
@@ -621,6 +629,11 @@ export class UserGrpcController {
 
           const { total, students } =
             await this.listStudentsOfInstructorUseCase.execute(data);
+
+          console.log(
+            "Students of instructor: " +
+              JSON.stringify({ total, students }, null, 2),
+          );
 
           const paginationResponse: PaginationResponse = {
             totalItems: total,
@@ -698,6 +711,70 @@ export class UserGrpcController {
 
           this.logger.info(
             "GetUsersStats request has been successfully completed",
+          );
+
+          return {
+            success: stats,
+          };
+        },
+      );
+    } catch (error) {
+      this.logger.error("Error processing gRPC request `GetUsersStats`", {
+        error,
+      });
+      return { error: this.createErrorResponse(error) };
+    }
+  }
+  @GrpcMethod("UserService", "GetUsersGrowthTrend")
+  async getUsersGrowthTrend(
+    data: GetUsersGrowthTrendRequest,
+  ): Promise<GetUsersGrowthTrendResponse> {
+    try {
+      return await this.tracer.startActiveSpan(
+        "UserGrpcController.getUsersGrowthTrend",
+        async (span) => {
+          this.logger.info("Handling `GetUsersGrowthTrend` request ", {
+            ctx: UserGrpcController.name,
+          });
+
+          const stats = await this.getUsersGrowthTrendUseCase.execute(
+            data.year,
+          );
+
+          this.logger.info(
+            "GetUsersGrowthTrend request has been successfully completed",
+          );
+
+          return {
+            success: stats,
+          };
+        },
+      );
+    } catch (error) {
+      this.logger.error("Error processing gRPC request `GetUsersStats`", {
+        error,
+      });
+      return { error: this.createErrorResponse(error) };
+    }
+  }
+  @GrpcMethod("UserService", "GetInstructorsGrowthTrend")
+  async getInstructorsGrowthTrend(
+    data: GetInstructorsGrowthTrendRequest,
+  ): Promise<GetInstructorsGrowthTrendResponse> {
+    try {
+      return await this.tracer.startActiveSpan(
+        "UserGrpcController.getInstructorsGrowthTrend",
+        async (span) => {
+          this.logger.info("Handling `GetInstructorsGrowthTrend` request ", {
+            ctx: UserGrpcController.name,
+          });
+
+          const stats = await this.getInstructorsGrowthTrendUseCase.execute(
+            data.year,
+          );
+
+          this.logger.info(
+            "GetInstructorsGrowthTrend request has been successfully completed",
           );
 
           return {
