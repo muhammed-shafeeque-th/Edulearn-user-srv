@@ -1,4 +1,4 @@
-import User from "src/domain/entities/user.entity";
+import User from "src/domain/entities/user-entity";
 import { UserOrmEntity } from "../entities/user.orm-entity";
 import { Wallet, WalletCurrency } from "src/domain/entities/user-wallet.entity";
 import { WalletOrmEntity } from "../entities/wallet.orm-entity";
@@ -21,13 +21,17 @@ import { Wishlist } from "src/domain/entities/wishlist.entity";
 import { WishlistOrmEntity } from "../entities/wishlist.orm-entity";
 import { WishlistItem } from "src/domain/entities/wishlist-item.entity";
 import { WishlistItemOrmEntity } from "../entities/wishlist-item.orm-entity";
-import { InstructorStudent, RelationshipStatus } from "src/domain/entities/instructor-student.entity";
-import { InstructorStudentOrmEntity, RelationshipStatusOrm } from "../entities/instructor-student.orm-entity";
+import {
+  InstructorStudent,
+  RelationshipStatus,
+} from "src/domain/entities/instructor-student.entity";
+import {
+  InstructorStudentOrmEntity,
+  RelationshipStatusOrm,
+} from "../entities/instructor-student.orm-entity";
 
 export class EntityMapper {
-
-
-  // --- User Mapping ---
+  //  User Mapping
   static toDomainUser(user: UserOrmEntity): User {
     const domainUser = User.fromPrimitives({
       createdAt: user.createdAt,
@@ -79,7 +83,7 @@ export class EntityMapper {
           provider: social.provider as SocialProvider,
           userId: social.userId,
           providerUserId: social.providerUserId,
-        })
+        }),
       ),
       lastLoginAt: user.lastLoginAt,
     });
@@ -153,10 +157,10 @@ export class EntityMapper {
     return ormEntity;
   }
 
-  // --- Wallet Mapping ---
+  //  Wallet Mapping
   static toDomainWallet(
     wallet: WalletOrmEntity,
-    transactions: WalletTransactionOrmEntity[]
+    transactions: WalletTransactionOrmEntity[],
   ): Wallet {
     const txs = transactions.map(EntityMapper.toDomainWalletTransaction);
     return Wallet.fromPrimitives({
@@ -182,7 +186,7 @@ export class EntityMapper {
   }
 
   static toDomainWalletTransaction(
-    tx: WalletTransactionOrmEntity
+    tx: WalletTransactionOrmEntity,
   ): WalletTransaction {
     return WalletTransaction.fromPrimitives({
       id: tx.id,
@@ -197,7 +201,7 @@ export class EntityMapper {
   }
 
   static toOrmWalletTransaction(
-    tx: WalletTransaction
+    tx: WalletTransaction,
   ): WalletTransactionOrmEntity {
     const ormEntity = new WalletTransactionOrmEntity();
     ormEntity.id = tx.id;
@@ -213,7 +217,7 @@ export class EntityMapper {
   }
 
   static toPartialOrmWallet(
-    payload: Partial<Wallet>
+    payload: Partial<Wallet>,
   ): Partial<WalletOrmEntity> {
     // Only map allowed updatable fields
     const partial: Partial<WalletOrmEntity> = {};
@@ -224,7 +228,7 @@ export class EntityMapper {
     return partial;
   }
 
-    // --- Cart Mapping ---
+  //  Cart Mapping
   static toOrmCart(cart: Cart): CartOrmEntity {
     const ormEntity = new CartOrmEntity();
     ormEntity.id = cart.id;
@@ -254,7 +258,7 @@ export class EntityMapper {
             courseId: item.courseId,
             cartId: item.cartId,
             addedAt: item.addedAt,
-          })
+          }),
         )
       : [];
 
@@ -267,7 +271,7 @@ export class EntityMapper {
     });
   }
 
-  // ------ Wishlist Mapping -----------
+  //  Wishlist Mapping --
   static toOrmWishlist(wishlist: Wishlist): WishlistOrmEntity {
     const ormEntity = new WishlistOrmEntity();
     ormEntity.id = wishlist.id;
@@ -279,9 +283,7 @@ export class EntityMapper {
     return ormEntity;
   }
 
-  static toOrmWishlistItem(
-    wishlistItem: WishlistItem
-  ): WishlistItemOrmEntity {
+  static toOrmWishlistItem(wishlistItem: WishlistItem): WishlistItemOrmEntity {
     const ormEntity = new WishlistItemOrmEntity();
     ormEntity.id = wishlistItem.id;
     ormEntity.courseId = wishlistItem.courseId;
@@ -299,7 +301,7 @@ export class EntityMapper {
             courseId: item.courseId,
             wishlistId: item.wishlistId,
             addedAt: item.addedAt,
-          })
+          }),
         )
       : [];
 
@@ -312,7 +314,9 @@ export class EntityMapper {
     });
   }
 
-  static toInstructorStudentDomain(entity: InstructorStudentOrmEntity): InstructorStudent {
+  static toInstructorStudentDomain(
+    entity: InstructorStudentOrmEntity,
+  ): InstructorStudent {
     return InstructorStudent.create({
       id: entity.id,
       instructorId: entity.instructorId,
