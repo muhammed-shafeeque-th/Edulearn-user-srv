@@ -1,4 +1,4 @@
-import { UserRoles, UserStatus } from "../entities/user.entity";
+import { UserRoles, UserStatus } from "../entities/user-entity";
 import { BaseEvent } from "./base-event";
 
 export interface InstructorRegisterEvent extends BaseEvent<{
