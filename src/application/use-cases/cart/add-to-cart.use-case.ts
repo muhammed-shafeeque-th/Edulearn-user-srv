@@ -19,7 +19,7 @@ export class AddToCartUseCase {
     private readonly kafkaProducer: KafkaService,
     private readonly logger: LoggingService,
     private readonly tracer: TracingService,
-    private readonly courseServiceClient: CourseClient
+    private readonly courseServiceClient: CourseClient,
   ) {}
 
   async execute(userId: string, courseId: string): Promise<CartItemDto> {
@@ -32,14 +32,14 @@ export class AddToCartUseCase {
         });
         this.logger.log(
           `Adding item to cart by user ${userId} for course ${courseId}`,
-          { ctx: AddToCartUseCase.name }
+          { ctx: AddToCartUseCase.name },
         );
 
         const { cart: existCart } =
           await this.cartRepository.findByUserId(userId);
         if (!existCart) {
           throw new CartItemNotFoundException(
-            `cart not found for user ${userId}`
+            `cart not found for user ${userId}`,
           );
         }
 
@@ -47,27 +47,42 @@ export class AddToCartUseCase {
         const existCartItem =
           await this.cartRepository.findItemByUserIdAndCourseId(
             userId,
-            courseId
+            courseId,
           );
         if (existCartItem) {
           throw new CartItemAlreadyExistException(
-            `course ${courseId} already exist in cart`
+            `course ${courseId} already exist in cart`,
+          );
+        }
+
+        const courseResponse = await promiseTimeout(
+          () => this.courseServiceClient.getCourse(courseId),
+          `Timeout while fetching course details for course ${courseId}`,
+        );
+
+        if (!courseResponse || !courseResponse.course) {
+          throw new BadRequestException("Course not found");
+        }
+
+        if (courseResponse.course.instructorId === userId) {
+          throw new BadRequestException(
+            "You cannot add your own course to cart",
           );
         }
 
         const enrollmentResult = await promiseTimeout(
           () =>
             this.courseServiceClient.checkCourseEnrollment(courseId, userId),
-          `Timeout while checking course enrollment for course ${courseId}`
+          `Timeout while checking course enrollment for course ${courseId}`,
         );
 
         if (enrollmentResult?.isEnrolled) {
           this.logger.warn(
             `User ${userId} is already enrolled in course ${courseId}, not adding to cart.`,
-            { userId, courseId }
+            { userId, courseId },
           );
           throw new BadRequestException(
-            "User is already enrolled in this course"
+            "User is already enrolled in this course",
           );
         }
 
@@ -80,7 +95,7 @@ export class AddToCartUseCase {
         await this.cartRepository.addItem(cartItem);
 
         return CartItemDto.fromDomain(cartItem);
-      }
+      },
     );
   }
 }
