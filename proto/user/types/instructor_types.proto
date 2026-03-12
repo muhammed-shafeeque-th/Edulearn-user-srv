@@ -6,11 +6,7 @@ import "user/types/user_types.proto";
 
 
 
-// ===================================
-//          Instructor Models
-// ===================================
-
-// Expanded InstructorMeta model with relevant instructor info for listing instructors (best practice: include stats/teaser data).
+// Instructor Models
 message InstructorMeta {
   string id = 1;
   string email = 2;
@@ -38,10 +34,7 @@ message InstructorMeta {
 }
 
 
-// ===================================
-//      Instructor Requests
-// ===================================
-
+//  Instructor Requests
 message GetInstructorByNameRequest {
   string username = 1;
 }
@@ -63,22 +56,20 @@ message RegisterInstructorRequest {
 }
 
 
-message GetInstructorsRequest {
-  PaginationRequest pagination = 1;
-}
-
 message ListInstructorsRequest {
   PaginationRequest pagination = 1;
+  UserFilter filter = 2;
+  SortOption sort = 3;
 }
 
+/* message ListInstructorsRequest {
+  PaginationRequest pagination = 1;
+}
+*/
 
 
-// =====================================
-//     Instructor Responses
-// =====================================
 
-
-
+// Instructor Responses
 message InstructorSuccessResponse {
   UserData user = 1;
 }

@@ -3,9 +3,7 @@ package user_service;
 
 import "user/common.proto";
 
-// =======================================
-//            ENUMS
-// =======================================
+// ENUMS
 
 enum UserStatus {
   USER_STATUS_UNSPECIFIED = 0;
@@ -14,9 +12,7 @@ enum UserStatus {
   DELETED = 3;
 }
 
-// =======================================
-//           FILTERS
-// =======================================
+//FILTERS
 
 message UserFilter {
   optional UserStatus status = 1;
@@ -25,9 +21,7 @@ message UserFilter {
   optional string search = 4;
 }
 
-// =======================================
-//           USER MODELS
-// =======================================
+//USER MODELS
 
 message UserProfileData {
   optional string bio = 1;
@@ -79,7 +73,6 @@ message UserData {
   string created_at = 15;
 }
 
-// This message is intended for listing multiple users and includes only essential metadata.
 message UserMeta {
   string id = 1;
   string email = 2;
@@ -99,9 +92,7 @@ message UserMeta {
 }
 
 
-// =======================================
-//           USER REQUESTS
-// =======================================
+//USER REQUESTS
 
 message ListUsersRequest {
   PaginationRequest pagination = 1;
@@ -158,9 +149,7 @@ message ChangePasswordRequest {
   string new_password = 3;
 }
 
-// =======================================
 //          USER RESPONSES
-// =======================================
 
 message UserEmailsSuccess {
   repeated string emails = 1;
