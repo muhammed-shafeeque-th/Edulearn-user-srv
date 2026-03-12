@@ -1,7 +1,7 @@
 import { InstructorStudent, RelationshipStatus } from "../entities/instructor-student.entity";
 
 export type Pagination = {
-    page: number;
+    offset: number;
     limit: number;
 };
 
