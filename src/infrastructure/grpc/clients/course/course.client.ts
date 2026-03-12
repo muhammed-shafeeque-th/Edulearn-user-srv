@@ -8,27 +8,68 @@ import {
 import { ClientGrpc } from "@nestjs/microservices";
 import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
 import { GRPC_COURSE_CLIENT_TOKEN } from "./constants";
-import { EnrollmentServiceClient } from "src/infrastructure/grpc/generated/course_service";
+import {
+  EnrollmentServiceClient,
+  CourseServiceClient,
+} from "src/infrastructure/grpc/generated/course_service";
 import { ClientServiceException } from "src/domain/exceptions";
 import { CheckEnrollmentResponse } from "../../generated/course/types/enrollment";
+import { CourseResponse } from "../../generated/course/types/course";
 
 @Injectable()
 export class CourseClient implements OnModuleDestroy, OnModuleInit {
   private enrollmentService!: EnrollmentServiceClient;
+  private courseService!: CourseServiceClient;
 
   constructor(
     @Inject(GRPC_COURSE_CLIENT_TOKEN) private readonly client: ClientGrpc,
-    private readonly logger: LoggingService
+    private readonly logger: LoggingService,
   ) {}
 
   onModuleInit(): void {
     this.enrollmentService =
       this.client.getService<EnrollmentServiceClient>("EnrollmentService");
+    this.courseService =
+      this.client.getService<CourseServiceClient>("CourseService");
     this.logger.info("Course gRPC client initialized");
   }
 
   onModuleDestroy(): void {
     this.logger.info("Course gRPC client destroyed");
+  }
+
+  async getCourse(courseId: string): Promise<CourseResponse> {
+    if (typeof courseId !== "string" || !courseId.trim()) {
+      throw new BadRequestException("Invalid or missing courseId");
+    }
+
+    try {
+      const response = await new Promise<CourseResponse>((resolve, reject) => {
+        const observable = this.courseService.getCourse({ courseId });
+        const subscription = observable.subscribe({
+          next: (res: CourseResponse) => resolve(res),
+          error: (error: any) =>
+            reject(
+              new ClientServiceException(
+                error?.message || "Failed to fetch course",
+              ),
+            ),
+          complete: () => subscription.unsubscribe(),
+        });
+      });
+
+      if (response.error) {
+        throw new ClientServiceException(
+          response.error.message ||
+            "Failed to fetch course from course service",
+        );
+      }
+
+      return response;
+    } catch (err: any) {
+      this.logger.error("Error in getCourse", { error: err, courseId });
+      throw err;
+    }
   }
 
   /**
@@ -37,7 +78,7 @@ export class CourseClient implements OnModuleDestroy, OnModuleInit {
    */
   async checkCourseEnrollment(
     courseId: string,
-    userId: string
+    userId: string,
   ): Promise<{ isEnrolled: boolean }> {
     // Input validation
     if (typeof courseId !== "string" || !courseId.trim()) {
@@ -67,38 +108,38 @@ export class CourseClient implements OnModuleDestroy, OnModuleInit {
               if (res.error) {
                 this.logger.warn(
                   "Received error from enrollmentService.checkCourseEnrollment",
-                  { error: res.error }
+                  { error: res.error },
                 );
                 return reject(
                   new ClientServiceException(
-                    res.error.message || "Unknown error from course service"
-                  )
+                    res.error.message || "Unknown error from course service",
+                  ),
                 );
               }
               // Best practice: Always log status
               this.logger.debug(
-                `Checked enrollment for userId=${userId} in courseId=${courseId}: isEnrolled=${res.enrolled}`
+                `Checked enrollment for userId=${userId} in courseId=${courseId}: isEnrolled=${res.enrolled}`,
               );
               resolve(res);
             },
             error: (error: any) => {
               this.logger.error(
                 `Failed to check course enrollment for userId=${userId}, courseId=${courseId}: ${error?.message ?? error}`,
-                { error }
+                { error },
               );
               reject(
                 new ClientServiceException(
                   error?.details ||
                     error?.message ||
-                    "Error while checking course enrollment"
-                )
+                    "Error while checking course enrollment",
+                ),
               );
             },
             complete: () => {
               subscription.unsubscribe();
             },
           });
-        }
+        },
       );
 
       // Defensive: Ensure the response shape is as expected
