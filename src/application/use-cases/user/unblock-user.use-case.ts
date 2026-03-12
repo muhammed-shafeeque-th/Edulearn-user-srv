@@ -6,7 +6,7 @@ import { LoggingService } from "src/infrastructure/observability/logging/logging
 import { TracingService } from "src/infrastructure/observability/tracing/trace.service";
 import UnBlockUserDto from "src/presentation/grpc/dtos/unblock-user.dto";
 import { KafkaTopics } from "src/shared/events";
-import { UserStatus } from "../../../domain/entities/user.entity";
+import { UserStatus } from "../../../domain/entities/user-entity";
 import { UserDto } from "src/application/dtos/user.dto";
 import { v4 as uuidV4 } from "uuid";
 import { UserUnblockedEvent } from "src/domain/events/user-unblock.event";
