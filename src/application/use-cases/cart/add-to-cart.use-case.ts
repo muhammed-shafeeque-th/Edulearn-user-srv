@@ -1,15 +1,17 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import {  Injectable } from "@nestjs/common";
 import { CartItemDto } from "src/application/dtos/cart.dto";
 import { CartItem } from "src/domain/entities/cart-item.entity";
 import {
   CartItemAlreadyExistException,
   CartItemNotFoundException,
+  CartNotFoundException,
 } from "src/domain/exceptions";
 import { ICartRepository } from "src/domain/repositories/cart.repository";
 import { CourseClient } from "src/infrastructure/grpc/clients/course/course.client";
 import { KafkaService } from "src/infrastructure/kafka/kafka.service";
 import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
 import { TracingService } from "src/infrastructure/observability/tracing/trace.service";
+import { BadRequestException } from "src/shared/exceptions/infra.exceptions";
 import { promiseTimeout } from "src/shared/utils/promise-timeout";
 
 @Injectable()
@@ -38,7 +40,7 @@ export class AddToCartUseCase {
         const { cart: existCart } =
           await this.cartRepository.findByUserId(userId);
         if (!existCart) {
-          throw new CartItemNotFoundException(
+          throw new CartNotFoundException(
             `cart not found for user ${userId}`,
           );
         }
