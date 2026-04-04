@@ -31,6 +31,7 @@ message InstructorMeta {
   string joined_at = 23;
   string education = 24;
   string experience = 25;
+  map<string, string> role_status = 26;
 }
 
 
@@ -67,7 +68,34 @@ message ListInstructorsRequest {
 }
 */
 
+message BlockInstructorResponse {
+  oneof result {
+    BlockInstructorSuccess success = 1;
+    Error error = 2;
+  }
+}
 
+
+message BlockInstructorRequest {
+  string instructor_id = 1;
+}
+
+message UnBlockInstructorRequest {
+  string instructor_id = 1;
+}
+
+message UnBlockInstructorResponse {
+  oneof result {
+    UnBlockInstructorSuccess success = 1;
+    Error error = 2;
+  }
+}
+message BlockInstructorSuccess {
+  bool updated = 1;
+}
+message UnBlockInstructorSuccess {
+  bool updated = 1;
+}
 
 // Instructor Responses
 message InstructorSuccessResponse {
