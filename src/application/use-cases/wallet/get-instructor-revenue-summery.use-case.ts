@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
+import {  UserWalletNotFoundException } from "src/domain/exceptions";
 import { IWalletRepository } from "src/domain/repositories/wallet.repository";
 import {
   GetInstructorRevenueSummeryRequest,
@@ -6,6 +7,7 @@ import {
 } from "src/infrastructure/grpc/generated/user/types/stats_types";
 import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
 import { TracingService } from "src/infrastructure/observability/tracing/trace.service";
+import { BadRequestException } from "src/shared/exceptions/infra.exceptions";
 
 
 @Injectable()
@@ -32,7 +34,7 @@ export class GetInstructorRevenueSummeryUseCase {
             this.logger.warn("Missing instructorId in request object", {
               ctx: GetInstructorRevenueSummeryUseCase.name,
             });
-            throw new NotFoundException("InstructorId is required");
+            throw new BadRequestException("InstructorId is required");
           }
 
           span.setAttributes({
@@ -53,7 +55,7 @@ export class GetInstructorRevenueSummeryUseCase {
               `Revenue summary not found for instructorId=${instructorId}`,
               { ctx: GetInstructorRevenueSummeryUseCase.name }
             );
-            throw new NotFoundException(
+            throw new UserWalletNotFoundException(
               `Revenue summary for instructor ${instructorId} not found`
             );
           }

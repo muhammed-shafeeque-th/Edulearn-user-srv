@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { WalletDto } from "src/application/dtos/wallet.dto";
+import { UserWalletNotFoundException } from "src/domain/exceptions";
 import { IWalletRepository } from "src/domain/repositories/wallet.repository";
 import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
 import { TracingService } from "src/infrastructure/observability/tracing/trace.service";
@@ -50,7 +51,7 @@ export class GetUserWalletUseCase {
             this.logger.warn(`Wallet not found for userId=${userId}`, {
               ctx: GetUserWalletUseCase.name,
             });
-            throw new NotFoundException(
+            throw new UserWalletNotFoundException(
               `Wallet associated with user ${userId} not found`
             );
           }
