@@ -1,5 +1,6 @@
-import { Injectable, BadRequestException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { UserDto } from "src/application/dtos/user.dto";
+import { BadRequestException } from "src/shared/exceptions/infra.exceptions";
 import {
   IUserRepository,
   FindFilters,
