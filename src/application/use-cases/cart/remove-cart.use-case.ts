@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { CartItemNotFoundException } from "src/domain/exceptions";
+import { CartItemNotFoundException, CartNotFoundException } from "src/domain/exceptions";
 import { ICartRepository } from "src/domain/repositories/cart.repository";
 
 import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
@@ -28,7 +28,7 @@ export class RemoveFromCartUseCase {
         const { cart: cartExist } =
           await this.cartRepository.findByUserId(userId);
         if (!cartExist) {
-          throw new CartItemNotFoundException(`cart not found for ${userId}`);
+          throw new CartNotFoundException(`cart not found for ${userId}`);
         }
 
         const cart = await this.cartRepository.findItemByUserIdAndCourseId(
