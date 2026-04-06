@@ -1,29 +1,34 @@
-import { DomainException } from "./base.exception";
+import { ErrorCode } from "src/shared/exceptions/error-codes";
+import { DomainException } from "./domain.exception";
+import { status as GrpcStatus, ServiceError } from "@grpc/grpc-js";
 
 export class UserNotFoundException extends DomainException {
-  errorCode: string = "USER_NOT_FOUND_EXCEPTION";
   constructor(message?: string) {
-    super(message || `User with  not found`);
-  }
-
-  serializeError(): { message: string; field?: string }[] {
-    return [{ message: this.message }];
+    super(
+      ErrorCode.NOT_FOUND,
+      message || `User with  not found`,
+      "USER_NOT_FOUND",
+    );
   }
 }
 export class UserAlreadyExistException extends DomainException {
-  errorCode: string = "USER_ALREADY_EXIST_EXCEPTION";
   constructor(message?: string) {
-    super(message || `user with email already exist`);
+    super(
+      ErrorCode.ALREADY_EXISTS,
+      message || `user with email already exist`,
+      "USER_ALREADY_EXIST",
+    );
   }
+
   serializeError(): { message: string; field?: string }[] {
     return [{ message: this.message }];
   }
 }
 export class UserDomainException extends DomainException {
-  errorCode: string = "USER_DOMAIN_EXCEPTION";
   constructor(message: string) {
-    super(message);
+    super(ErrorCode.NOT_FOUND, message, "USER_DOMAIN_EXCEPTION");
   }
+
   serializeError(): { message: string; field?: string }[] {
     return [{ message: this.message }];
   }
