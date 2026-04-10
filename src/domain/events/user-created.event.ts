@@ -1,17 +1,17 @@
-import { UserRoles, UserStatus } from "../entities/user.entity";
+import { UserRoles, UserStatus } from "../entities/user-entity";
 import { BaseEvent } from "./base-event";
 
 
 export const USER_EVENT_TYPES = {
-  CREATED: 'UserCreatedEvent'
+  CREATED: 'UserAccountCreatedEvent'
 } as const;
 
 
 
-export interface UserCreatedEvent extends BaseEvent<{
+export interface UserAccountCreatedEvent extends BaseEvent<{
   userId: string;
   email: string;
-  role: UserRoles;
+  roles: UserRoles[];
   firstName?: string;
   lastName?: string;
   avatar?: string;

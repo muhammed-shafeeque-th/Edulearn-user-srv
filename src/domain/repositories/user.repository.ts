@@ -1,4 +1,4 @@
-import User from "../entities/user.entity";
+import User from "../entities/user-entity";
 
 export type UserSortField =
   | "id"
@@ -8,18 +8,25 @@ export type UserSortField =
   | "role"
   | "status"
   | "createdAt"
-  | "updatedAt";
+  | "updatedAt"
+  | "email"
+  | "name";
 
+export interface GrowthTrend {
+  trend: { month: number; count: number }[];
+}
 
 export const DOMAIN_USER_FIELDS: UserSortField[] = [
   "id",
   "email",
+  "createdAt",
   "firstName",
   "lastName",
   "role",
   "status",
-  "createdAt",
   "updatedAt",
+  "email",
+  "name",
 ];
 
 /**
@@ -100,8 +107,7 @@ export abstract class IUserRepository {
    * @returns An object containing the array of instructor users and total instructor count.
    */
   abstract findInstructors(
-    offset: FindFilters["offset"],
-    limit: FindFilters["limit"]
+    filters: FindFilters,
   ): Promise<{ instructors: User[]; totalInstructors: number }>;
 
   /**
@@ -110,7 +116,7 @@ export abstract class IUserRepository {
    * @returns An object containing users and total user count.
    */
   abstract findUsers(
-    filter: FindFilters
+    filter: FindFilters,
   ): Promise<{ users: User[]; totalUsers: number }>;
 
   /**
@@ -128,7 +134,7 @@ export abstract class IUserRepository {
    */
   abstract findAllUsersEmail(
     limit?: number,
-    offset?: number
+    offset?: number,
   ): Promise<string[]>;
 
   /**
@@ -156,6 +162,16 @@ export abstract class IUserRepository {
     inactive: number;
     blocked: number;
   }>;
+  /**
+   * Retrieves users joining trend.
+   * @returns An object containing the total number of users and instructors.
+   */
+  abstract getUsersGrowthTrend(year: number): Promise<GrowthTrend>;
+  /**
+   * Retrieves instructors joining trend.
+   * @returns An object containing the total number of users and instructors.
+   */
+  abstract getInstructorsGrowthTrend(year: number): Promise<GrowthTrend>;
 
   /**
    * Retrieves statistics specifically about instructors.
@@ -168,6 +184,4 @@ export abstract class IUserRepository {
     blocked: number;
     newThisMonth: number;
   }>;
-
-
 }

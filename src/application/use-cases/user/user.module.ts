@@ -2,15 +2,19 @@ import { Module } from "@nestjs/common";
 import { DatabaseRepositoryModule } from "src/infrastructure/database/database-repository.module";
 import { RedisModule } from "src/infrastructure/redis/redis.module";
 import { KafkaModule } from "src/infrastructure/kafka/kafka.module";
-import BlockUserUserCaseImpl from "./block-user.use-case";
+// import BlockUserUserCaseImpl from "./_block-user.use-case";
 import CurrentUserUseCaseImpl from "./current-user.usecase";
 import CheckEmailExistUseCaseImpl from "./email-exist.use-case";
 import GetAllEmailsUseCaseImpl from "./get-emails.use-case";
 import GetAllUsersUseCaseImpl from "./get-users.usecase";
 import GetUserUseCaseImpl from "./get-user.use-case";
-import UnBlockUserUserCaseImpl from "./unblock-user.use-case";
+// import UnBlockUserUserCaseImpl from "./_unblock-user.use-case";
 import UpdateUserUseCaseImpl from "./update-user.use-case";
 import GetAllInstructorsUseCaseImpl from "./get-instructors.use-case";
+import BlockUserAccountUseCaseImpl from "./block-user-account.use-case";
+import UnBlockUserAccountUseCaseImpl from "./unblock-user-account.use-case";
+import BlockInstructorRoleUseCaseImpl from "./block-instructor.use-case";
+import UnBlockInstructorRoleUseCaseImpl from "./unblock-instructor.use-case";
 import CreateUserUseCaseImpl from "./create-user.use-case";
 import RegisterInstructorUseCase from "./register-instructor.usecase";
 import GetUsersByIdsUseCase from "./get-users-by-ids.usecase";
@@ -22,11 +26,13 @@ import CourseCreatedUseCase from "./course-created.use-case";
 import CourseEnrolledUseCase from "./course-enrolled.use-case";
 import GetUsersStatsUseCase from "./get-users-stats.use-case";
 import GetInstructorsStatsUseCase from "./get-instructors-stats.use-case";
+import GetUsersGrowthTrendUseCase from "./get-users-growth-trend.use-case";
+import GetInstructorsGrowthTrendUseCase from "./get-instructors-growth-trend.use-case";
 
 @Module({
   imports: [DatabaseRepositoryModule, RedisModule, KafkaModule],
   providers: [
-    BlockUserUserCaseImpl,
+    // BlockUserUserCaseImpl,
     CurrentUserUseCaseImpl,
     GetInstructorByUsernameUseCaseImpl,
     CheckEmailExistUseCaseImpl,
@@ -35,7 +41,11 @@ import GetInstructorsStatsUseCase from "./get-instructors-stats.use-case";
     GetAllInstructorsUseCaseImpl,
     GetUserUseCaseImpl,
     GetUsersByIdsUseCase,
-    UnBlockUserUserCaseImpl,
+    // UnBlockUserUserCaseImpl,
+    BlockUserAccountUseCaseImpl,
+    UnBlockUserAccountUseCaseImpl,
+    BlockInstructorRoleUseCaseImpl,
+    UnBlockInstructorRoleUseCaseImpl,
     UpdateUserUseCaseImpl,
     CreateUserUseCaseImpl,
     CourseCreatedUseCase,
@@ -45,10 +55,12 @@ import GetInstructorsStatsUseCase from "./get-instructors-stats.use-case";
     RegisterInstructorUseCase,
     CourseEnrolledUseCase,
     GetUsersStatsUseCase,
+    GetUsersGrowthTrendUseCase,
+    GetInstructorsGrowthTrendUseCase,
     GetInstructorsStatsUseCase
   ],
   exports: [
-    BlockUserUserCaseImpl,
+    // BlockUserUserCaseImpl,
     GetUsersByIdsUseCase,
     CurrentUserUseCaseImpl,
     GetInstructorByUsernameUseCaseImpl,
@@ -58,7 +70,11 @@ import GetInstructorsStatsUseCase from "./get-instructors-stats.use-case";
     GetAllInstructorsUseCaseImpl,
     RegisterInstructorUseCase,
     GetUserUseCaseImpl,
-    UnBlockUserUserCaseImpl,
+    // UnBlockUserUserCaseImpl,
+    BlockUserAccountUseCaseImpl,
+    UnBlockUserAccountUseCaseImpl,
+    BlockInstructorRoleUseCaseImpl,
+    UnBlockInstructorRoleUseCaseImpl,
     CreateUserUseCaseImpl,
     CourseCreatedUseCase,
     ListStudentsOfInstructorUseCase,
@@ -66,6 +82,8 @@ import GetInstructorsStatsUseCase from "./get-instructors-stats.use-case";
     IsStudentOfInstructorUseCase,
     UpdateUserUseCaseImpl,
     CourseEnrolledUseCase,
+    GetUsersGrowthTrendUseCase,
+    GetInstructorsGrowthTrendUseCase,
     GetUsersStatsUseCase,
     GetInstructorsStatsUseCase,
   ],

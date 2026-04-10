@@ -77,7 +77,7 @@ export default class RegisterInstructorUseCase {
             eventVersion: "0.0.1",
             payload: {
               email: updatedUser.email,
-              role: UserRoles.INSTRUCTOR,
+              roles: [UserRoles.STUDENT, UserRoles.INSTRUCTOR],
               username: updatedUser.username,
               userId: updatedUser.id,
               avatar: updatedUser.avatar,

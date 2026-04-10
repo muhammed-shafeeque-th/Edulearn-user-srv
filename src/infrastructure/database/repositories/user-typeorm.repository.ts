@@ -1,25 +1,20 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { Repository, Brackets } from "typeorm";
 import { UserOrmEntity } from "../entities/user.orm-entity";
 import {
   FindFilters,
+  GrowthTrend,
   IUserRepository,
 } from "src/domain/repositories/user.repository";
 import { RedisService } from "src/infrastructure/redis/redis.service";
 import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
 import { TracingService } from "src/infrastructure/observability/tracing/trace.service";
 import { MetricsService } from "src/infrastructure/observability/metrics/metrics.service";
-import User, { UserRoles, UserStatus } from "src/domain/entities/user.entity";
+import User, { UserRoles, UserStatus } from "src/domain/entities/user-entity";
 import { InstructorProfileOrmEntity } from "../entities/instructor-profile.orm-entity";
 import { UserProfileOrmEntity } from "../entities/user-profile-orm.entiry";
 import { UserSocialOrmEntity } from "../entities/socials.orm-entity";
-import { UserProfile } from "src/domain/entities/user-profile.entity";
-import { InstructorProfile } from "src/domain/entities/instructor-profile.entity";
-import {
-  SocialProvider,
-  UserSocials,
-} from "src/domain/entities/user-socials.entity";
 import { EntityMapper } from "../mapper/entity-mapper";
 
 Injectable();
@@ -30,8 +25,8 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
     private readonly cache: RedisService,
     private readonly logger: LoggingService,
     private readonly tracer: TracingService,
-    private readonly metrics: MetricsService
-  ) { }
+    private readonly metrics: MetricsService,
+  ) {}
 
   public async save(user: User): Promise<User> {
     return await this.tracer.startActiveSpan(
@@ -43,7 +38,7 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
         });
 
         this.logger.debug(
-          `Creating user in database with email: ${user.email}`
+          `Creating user in database with email: ${user.email}`,
         );
         try {
           const ormUser = EntityMapper.toOrmUser(user);
@@ -52,29 +47,29 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
 
           if (savedUser) {
             this.logger.debug(
-              `User created successfully with ID: ${savedUser.id}`
+              `User created successfully with ID: ${savedUser.id}`,
             );
             span.setAttribute("User.created", true);
             await Promise.allSettled([
               this.cache.set(`db:user:${savedUser.id}`, savedUser, 3600),
               ...(savedUser.slug
                 ? [
-                  this.cache.set(
-                    `db:user:slug:${savedUser.slug}`,
-                    savedUser,
-                    3600
-                  ),
-                ]
+                    this.cache.set(
+                      `db:user:slug:${savedUser.slug}`,
+                      savedUser,
+                      3600,
+                    ),
+                  ]
                 : []),
               this.cache.set(
                 `db:user:email:${savedUser.email}`,
                 savedUser,
-                3600
+                3600,
               ),
             ]);
           } else {
             this.logger.debug(
-              `Failed to create user with email: ${user.email}`
+              `Failed to create user with email: ${user.email}`,
             );
             span.setAttribute("User.created", false);
           }
@@ -85,7 +80,7 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
           });
           throw error;
         }
-      }
+      },
     );
   }
 
@@ -115,11 +110,11 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
 
           // Fetch from db if not in cache
           this.logger.debug(
-            "Querying database for user data with ID: " + userId
+            "Querying database for user data with ID: " + userId,
           );
           const endTimer = this.metrics.measureDBOperationDuration(
             "findById",
-            "SELECT"
+            "SELECT",
           );
           this.metrics.incrementDBRequestCounter("SELECT");
           const user = await this.repo.findOne({
@@ -136,7 +131,7 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
             span.setAttribute("User.found", false);
           }
           return user ? EntityMapper.toDomainUser(user) : null;
-        }
+        },
       );
     } catch (error) {
       this.logger.warn(`Error fetching user ${userId}`, { error });
@@ -169,11 +164,11 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
 
           // Fetch from db if not in cache
           this.logger.debug(
-            "Querying database for user data with name: " + slug
+            "Querying database for user data with name: " + slug,
           );
           const endTimer = this.metrics.measureDBOperationDuration(
             "findByUserSlug",
-            "SELECT"
+            "SELECT",
           );
           this.metrics.incrementDBRequestCounter("SELECT");
           const user = await this.repo.findOne({
@@ -190,7 +185,7 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
             span.setAttribute("User.found", false);
           }
           return user ? EntityMapper.toDomainUser(user) : null;
-        }
+        },
       );
     } catch (error) {
       this.logger.warn(`Error fetching user ${slug}`, { error });
@@ -221,11 +216,11 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
 
           // Fetch from db if not in cache
           this.logger.debug(
-            "Querying database for user data with ID: " + userId
+            "Querying database for user data with ID: " + userId,
           );
           const endTimer = this.metrics.measureDBOperationDuration(
             "findWithRelations",
-            "SELECT"
+            "SELECT",
           );
           this.metrics.incrementDBRequestCounter("SELECT");
           const user = await this.repo.findOne({
@@ -249,7 +244,7 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
             span.setAttribute("User.found", false);
           }
           return user ? EntityMapper.toDomainUser(user) : null;
-        }
+        },
       );
     } catch (error) {
       this.logger.warn(`Error fetching user ${userId}`, { error });
@@ -276,7 +271,7 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
 
           const endTimer = this.metrics.measureDBOperationDuration(
             "findByEmail",
-            "SELECT"
+            "SELECT",
           );
           this.metrics.incrementDBRequestCounter("SELECT");
           const user = await this.repo.findOne({
@@ -294,7 +289,7 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
             span.setAttribute("User.found", false);
           }
           return user ? EntityMapper.toDomainUser(user) : null;
-        }
+        },
       );
     } catch (error) {
       this.logger.warn(`Error fetching user with email: ${email}`, {
@@ -377,7 +372,7 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
 
           const endTimer = this.metrics.measureDBOperationDuration(
             "update",
-            "UPDATE"
+            "UPDATE",
           );
           this.metrics.incrementDBRequestCounter("UPDATE");
 
@@ -402,7 +397,7 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
               {
                 conflictPaths: ["userId"],
                 skipUpdateIfNoValuesChanged: true,
-              }
+              },
             );
           }
 
@@ -432,17 +427,17 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
               this.cache.set(`db:user:${userId}`, updatedUser, 3600),
               ...(updatedUser.slug
                 ? [
-                  this.cache.set(
-                    `db:user:slug:${updatedUser.slug}`,
-                    updatedUser,
-                    3600
-                  ),
-                ]
+                    this.cache.set(
+                      `db:user:slug:${updatedUser.slug}`,
+                      updatedUser,
+                      3600,
+                    ),
+                  ]
                 : []),
               this.cache.set(
                 `db:user:email:${updatedUser.email}`,
                 updatedUser,
-                3600
+                3600,
               ),
             ]);
           } else {
@@ -450,7 +445,7 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
             span.setAttribute("User.updated", false);
           }
           return updatedUser ? EntityMapper.toDomainUser(updatedUser) : null;
-        }
+        },
       );
     } catch (error) {
       this.logger.warn(`Error updating user with ID: ${userId}`, { error });
@@ -469,7 +464,7 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
           this.logger.debug("Fetching all user emails from database");
           const endTimer = this.metrics.measureDBOperationDuration(
             "getAllUserEmails",
-            "SELECT"
+            "SELECT",
           );
           this.metrics.incrementDBRequestCounter("SELECT");
           const emails = await this.repo.find({ select: ["email"] });
@@ -478,7 +473,7 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
           this.logger.debug("Fetched all user emails successfully");
           span.setAttribute("UserEmails.found", true);
           return emails.map((user) => user.email);
-        }
+        },
       );
     } catch (error) {
       this.logger.warn("Error fetching all user emails", { error });
@@ -487,9 +482,13 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
   }
 
   public async findInstructors(
-    offset: number,
-    limit: number,
+    filters: FindFilters,
   ): Promise<{ instructors: User[]; totalInstructors: number }> {
+    const offset = filters.offset ?? 0;
+    const limit = filters.limit ?? 12;
+    const sortField = filters.sortField || "createdAt";
+    const sortOrder = filters.sortOrder || "DESC";
+
     try {
       return await this.tracer.startActiveSpan(
         "PostgresUserRepository.getAllInstructors",
@@ -499,67 +498,111 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
             "query.limit": limit,
             "query.offset": offset,
           });
+
+          // Build cache key based on all filters
+          const cacheKeyParts = [
+            `db:instructors`,
+            `limit:${limit}`,
+            `offset:${offset}`,
+            `sort:${sortField}:${sortOrder}`,
+          ];
+          if (filters.search) cacheKeyParts.push(`search:${filters.search}`);
+          if (filters.status) cacheKeyParts.push(`status:${filters.status}`);
+
+          const cacheKey = cacheKeyParts.join("|");
+
           this.logger.debug(
-            `Redis cache hit for instructors with limit: ${limit}, offset: ${offset}`
+            `Redis cache hit for instructors with limit: ${limit}, offset: ${offset}`,
           );
-          const cacheKey = `db:instructors:limit${limit}:offset:${offset}`;
+
           const cacheResult = await this.cache.get<{
             instructors: UserOrmEntity[];
             totalInstructors: number;
           }>(cacheKey);
-          const {
-            instructors: cachedInstructors,
-            totalInstructors: totalInstructorsCache,
-          } = cacheResult || {};
-          if (cachedInstructors) {
+
+          if (cacheResult) {
             this.logger.debug(
-              `Redis cache hit for instructors with limit: ${limit}, offset: ${offset}`
+              `Redis cache hit for instructors with limit: ${limit}, offset: ${offset}`,
             );
             span.setAttribute("cache.hit", true);
             return {
-              instructors: cachedInstructors.map(EntityMapper.toDomainUser),
-              totalInstructors: totalInstructorsCache,
+              instructors: cacheResult.instructors.map(
+                EntityMapper.toDomainUser,
+              ),
+              totalInstructors: cacheResult.totalInstructors,
             };
           }
           this.logger.debug(
-            `Redis cache miss for instructors with limit: ${limit}, offset: ${offset}`
+            `Redis cache miss for instructors with limit: ${limit}, offset: ${offset}`,
           );
           span.setAttribute("cache.hit", false);
 
           const endTimer = this.metrics.measureDBOperationDuration(
             "getAllInstructors",
-            "SELECT"
+            "SELECT",
           );
           this.metrics.incrementDBRequestCounter("SELECT");
-          const [instructors, totalInstructors] = await this.repo.findAndCount({
-            where: { role: UserRoles.INSTRUCTOR },
-            skip: offset,
-            take: limit,
-            relations: ["profile", "socials", "instructorProfile"],
-          });
+
+          const qb = this.repo
+            .createQueryBuilder("user")
+            .leftJoinAndSelect("user.profile", "profile")
+            .leftJoinAndSelect("user.socials", "socials")
+            .leftJoinAndSelect("user.instructorProfile", "instructorProfile")
+            .where("user.role = :role", { role: UserRoles.INSTRUCTOR });
+
+          if (filters.status) {
+            qb.andWhere("user.status = :status", { status: filters.status });
+          }
+
+          if (filters.email) {
+            qb.andWhere("user.email ILIKE :email", {
+              email: `%${filters.email}%`,
+            });
+          }
+
+          if (filters.search) {
+            const search = `%${filters.search}%`;
+            qb.andWhere(
+              new Brackets((qb) => {
+                qb.where("user.firstName ILIKE :search", { search })
+                  .orWhere("user.lastName ILIKE :search", { search })
+                  // .orWhere("user.email ILIKE :search", { search })
+                  .orWhere("user.username ILIKE :search", { search });
+              }),
+            );
+          }
+
+          qb.orderBy(`user.${sortField}`, sortOrder as "ASC" | "DESC")
+            .skip(offset)
+            .take(limit);
+
+          const [instructors, totalInstructors] = await qb.getManyAndCount();
+
           endTimer();
 
+          // Cache for 5 minutes
           await this.cache.set(
             cacheKey,
             { instructors, totalInstructors },
-            300
+            300,
           );
+
           this.logger.debug(
-            `Fetched instructors successfully from DB with limit: ${limit}, offset: ${offset}`
+            `Fetched instructors successfully from DB with limit: ${limit}, offset: ${offset}`,
           );
           span.setAttribute("Instructors.found", true);
           return {
             instructors: instructors.map(EntityMapper.toDomainUser),
             totalInstructors,
           };
-        }
+        },
       );
     } catch (error) {
       this.logger.warn(
         `Error fetching instructors with limit: ${limit}, offset: ${offset}`,
         {
           error,
-        }
+        },
       );
       throw error;
     }
@@ -574,7 +617,7 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
             "db.operation": "select",
           });
           this.logger.debug(
-            `Fetching users from database with ids length: ${ids.length}`
+            `Fetching users from database with ids length: ${ids.length}`,
           );
           const cacheKey = `db:users:ids:${ids.join(",")}`;
           const cachedUsers = await this.cache.get<UserOrmEntity[]>(cacheKey);
@@ -585,7 +628,7 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
 
           const endTimer = this.metrics.measureDBOperationDuration(
             "findUsersByIds",
-            "SELECT"
+            "SELECT",
           );
           this.metrics.incrementDBRequestCounter("SELECT");
           const users = await this.repo
@@ -597,11 +640,11 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
 
           await this.cache.set(cacheKey, users, 300);
           this.logger.debug(
-            `Fetched users successfully from DB with length: ${users.length}`
+            `Fetched users successfully from DB with length: ${users.length}`,
           );
           span.setAttribute("Users.found", true);
           return users.map(EntityMapper.toDomainUser);
-        }
+        },
       );
     } catch (error) {
       this.logger.warn(`Error fetching users with length: ${ids.length}`, {
@@ -612,7 +655,7 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
   }
 
   public async findUsers(
-    filters: FindFilters
+    filters: FindFilters,
   ): Promise<{ users: User[]; totalUsers: number }> {
     const offset = filters.offset ?? 0;
     const limit = filters.limit ?? 20;
@@ -627,7 +670,6 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
       filters.role ? `role:${filters.role}` : "",
       filters.email ? `email:${filters.email}` : "",
       filters.search ? `search:${filters.search}` : "",
-      // Optionally include other filters in cache key
     ]
       .filter(Boolean)
       .join("|");
@@ -648,7 +690,7 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
             ...(filters.search && { "query.search": filters.search }),
           });
           this.logger.debug(
-            `Fetching users from database with limit: ${limit}, offset: ${offset}, sort: ${sortField}, order: ${sortOrder}`
+            `Fetching users from database with limit: ${limit}, offset: ${offset}, sort: ${sortField}, order: ${sortOrder}`,
           );
 
           // Try cache first
@@ -659,7 +701,7 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
 
           if (cacheResult && cacheResult.users) {
             this.logger.debug(
-              `Redis cache hit for users with limit: ${limit}, offset: ${offset}`
+              `Redis cache hit for users with limit: ${limit}, offset: ${offset}`,
             );
             span.setAttribute("Redis.users.cache.hit", true);
             return {
@@ -669,13 +711,13 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
           }
 
           this.logger.debug(
-            `Redis cache miss for users with limit: ${limit}, offset: ${offset}`
+            `Redis cache miss for users with limit: ${limit}, offset: ${offset}`,
           );
           span.setAttribute("Redis.users.cache.hit", false);
 
           const endTimer = this.metrics.measureDBOperationDuration(
             "findUsers",
-            "SELECT"
+            "SELECT",
           );
           this.metrics.incrementDBRequestCounter("SELECT");
 
@@ -687,61 +729,58 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
             .leftJoinAndSelect("user.socials", "socials")
             .skip(offset)
             .take(limit);
-          //   .orderBy(`user.${sortField}`, sortOrder as "ASC" | "DESC");
 
-          // // Conditional filters
-          // if (filters.status) {
-          //   qb.andWhere("user.status = :status", { status: filters.status });
-          // }
-          // if (filters.role) {
-          //   qb.andWhere("user.role = :role", { role: filters.role });
-          // }
-          // if (filters.email) {
-          //   qb.andWhere("user.email ILIKE :email", {
-          //     email: `%${filters.email}%`,
-          //   });
-          // }
-          // // Search by multiple fields
-          // if (filters.search) {
-          //   const search = `%${filters.search}%`;
-          //   qb.andWhere(
-          //     `(user.firstName ILIKE :search OR
-          //       user.lastName ILIKE :search OR
-          //       user.username ILIKE :search OR
-          //       user.role ILIKE :search OR
-          //       user.email ILIKE :search OR
-          //       array_to_string(user.tags, ',') ILIKE :search OR
-          //       instructorProfile.expertise ILIKE :search
-          //     )`,
-          //     { search }
-          //   );
-          // }
-          // Optionally handle advanced filtering on tags or expertise array fields.
-          // E.g., if you want to require a tag: qb.andWhere(":tag = ANY(user.tags)", { tag: desiredTag });
+          // Sorting
+          qb.orderBy(`user.${sortField}`, sortOrder as "ASC" | "DESC");
+
+          // Conditional filters
+          if (filters.status) {
+            qb.andWhere("user.status = :status", { status: filters.status });
+          }
+          if (filters.role) {
+            qb.andWhere("user.role = :role", { role: filters.role });
+          }
+          if (filters.email) {
+            qb.andWhere("user.email ILIKE :email", {
+              email: `%${filters.email}%`,
+            });
+          }
+          // Search by multiple fields
+          if (filters.search) {
+            const search = `%${filters.search}%`;
+            qb.andWhere(
+              new Brackets((qb) => {
+                qb.where("user.firstName ILIKE :search", { search })
+                  .orWhere("user.lastName ILIKE :search", { search })
+                  .orWhere("user.username ILIKE :search", { search })
+                  // .orWhere("user.email ILIKE :search", { search });
+              }),
+            );
+          }
 
           // Fetch records with count
           const [users, totalUsers] = await qb.getManyAndCount();
           endTimer();
 
           console.log(
-            JSON.stringify("users data : " + { users, totalUsers }, null, 2)
+            JSON.stringify("users data : " + { users, totalUsers }, null, 2),
           );
 
           // Cache result
           await this.cache.set(cacheKey, { users, totalUsers }, 300);
           this.logger.debug(
-            `Fetched users successfully from DB with limit: ${limit}, offset: ${offset}, total: ${totalUsers}`
+            `Fetched users successfully from DB with limit: ${limit}, offset: ${offset}, total: ${totalUsers}`,
           );
           span.setAttribute("Users.found", true);
           return { users: users.map(EntityMapper.toDomainUser), totalUsers };
-        }
+        },
       );
     } catch (error) {
       this.logger.warn(
         `Error fetching users with limit: ${filters.limit}, offset: ${filters.offset}`,
         {
           error,
-        }
+        },
       );
       throw error;
     }
@@ -755,40 +794,90 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
     newThisMonth: number;
   }> {
     try {
-      return await this.tracer.startActiveSpan("UserTypeOrmRepositoryImpl.getInstructorsStats", async (span) => {
-        const now = new Date();
-        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      return await this.tracer.startActiveSpan(
+        "UserTypeOrmRepositoryImpl.getInstructorsStats",
+        async (span) => {
+          const now = new Date();
+          const firstDayOfMonth = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            1,
+          );
 
-        const qb = this.repo.createQueryBuilder("user")
-          .select([
-            'COUNT("user"."id") as total',
-            `SUM(CASE WHEN "user"."status" IN (:...activeStatuses) THEN 1 ELSE 0 END) as active`,
-            'SUM(CASE WHEN "user"."status" = :inactive THEN 1 ELSE 0 END) as inactive',
-            'SUM(CASE WHEN "user"."status" = :blocked THEN 1 ELSE 0 END) as blocked',
-            'SUM(CASE WHEN "user"."createdAt" >= :firstDayOfMonth THEN 1 ELSE 0 END) as "newThisMonth"',
-          ])
-          .where("user.role = :role", { role: UserRoles.INSTRUCTOR })
-          .setParameters({
-            activeStatuses: [UserStatus.ACTIVE, UserStatus.VERIFIED],
-            inactive: UserStatus.NOT_ACTIVE,
-            blocked: UserStatus.BLOCKED,
-            firstDayOfMonth,
-          });
+          const qb = this.repo
+            .createQueryBuilder("user")
+            .select([
+              'COUNT("user"."id") as total',
+              `SUM(CASE WHEN "user"."status" IN (:...activeStatuses) THEN 1 ELSE 0 END) as active`,
+              'SUM(CASE WHEN "user"."status" = :inactive THEN 1 ELSE 0 END) as inactive',
+              'SUM(CASE WHEN "user"."status" = :blocked THEN 1 ELSE 0 END) as blocked',
+              'SUM(CASE WHEN "user"."createdAt" >= :firstDayOfMonth THEN 1 ELSE 0 END) as "newThisMonth"',
+            ])
+            .where("user.role = :role", { role: UserRoles.INSTRUCTOR })
+            .setParameters({
+              activeStatuses: [UserStatus.ACTIVE, UserStatus.VERIFIED],
+              inactive: UserStatus.NOT_ACTIVE,
+              blocked: UserStatus.BLOCKED,
+              firstDayOfMonth,
+            });
 
-        const row = await qb.getRawOne();
-
-        console.log("instructors stats: " + JSON.stringify(row, null, 2));
-
-        return {
-          total: Number(row.total) || 0,
-          active: Number(row.active) || 0,
-          inactive: Number(row.inactive) || 0,
-          blocked: Number(row.blocked) || 0,
-          newThisMonth: Number(row.newThisMonth) || 0,
-        };
-      });
+          const row = await qb.getRawOne();
+          return {
+            total: Number(row.total) || 0,
+            active: Number(row.active) || 0,
+            inactive: Number(row.inactive) || 0,
+            blocked: Number(row.blocked) || 0,
+            newThisMonth: Number(row.newThisMonth) || 0,
+          };
+        },
+      );
     } catch (error) {
       this.logger.error("Failed to get instructor stats", { error });
+      throw error;
+    }
+  }
+
+  async getInstructorsGrowthTrend(year: number): Promise<GrowthTrend> {
+    try {
+      const raw = await this.repo
+        .createQueryBuilder("user")
+        .select('EXTRACT(MONTH FROM "user"."createdAt")', "month")
+        .addSelect('COUNT("user"."id")', "count")
+        .where('EXTRACT(YEAR FROM "user"."createdAt") = :year', { year })
+        .andWhere('"user"."role" = :role', { role: UserRoles.INSTRUCTOR })
+        .groupBy("month")
+        .getRawMany();
+
+      return {
+        trend: raw.map((row) => ({
+          month: Number(row.month) - 1,
+          count: Number(row.count),
+        })),
+      };
+    } catch (error) {
+      this.logger.error("Failed to get instructor growth trend", { error });
+      throw error;
+    }
+  }
+
+  async getUsersGrowthTrend(year: number): Promise<GrowthTrend> {
+    try {
+      const raw = await this.repo
+        .createQueryBuilder("user")
+        .select('EXTRACT(MONTH FROM "user"."createdAt")', "month")
+        .addSelect('COUNT("user"."id")', "count")
+        .where('EXTRACT(YEAR FROM "user"."createdAt") = :year', { year })
+        .groupBy("month")
+        .getRawMany();
+
+      return {
+        trend: raw.map((row) => ({
+          month: Number(row.month) - 1,
+          count: Number(row.count),
+        })),
+      };
+    } catch (error) {
+      this.logger.error("Failed to get user growth trend", { error });
       throw error;
     }
   }
@@ -800,30 +889,34 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
     blocked: number;
   }> {
     try {
-      return await this.tracer.startActiveSpan("UserTypeOrmRepositoryImpl.getUsersStats", async (span) => {
-        const qb = this.repo.createQueryBuilder("user")
-          .select([
-            "COUNT(user.id) as total",
-            `SUM(CASE WHEN "user"."status" IN (:...activeStatuses) THEN 1 ELSE 0 END) as active`,
-            "SUM(CASE WHEN user.status = :inactive THEN 1 ELSE 0 END) as inactive",
-            "SUM(CASE WHEN user.status = :blocked THEN 1 ELSE 0 END) as blocked",
-          ])
-          .setParameters({
-            activeStatuses: [UserStatus.ACTIVE, UserStatus.VERIFIED],
-            inactive: UserStatus.NOT_ACTIVE,
-            blocked: UserStatus.BLOCKED,
-          });
+      return await this.tracer.startActiveSpan(
+        "UserTypeOrmRepositoryImpl.getUsersStats",
+        async (span) => {
+          const qb = this.repo
+            .createQueryBuilder("user")
+            .select([
+              "COUNT(user.id) as total",
+              `SUM(CASE WHEN "user"."status" IN (:...activeStatuses) THEN 1 ELSE 0 END) as active`,
+              "SUM(CASE WHEN user.status = :inactive THEN 1 ELSE 0 END) as inactive",
+              "SUM(CASE WHEN user.status = :blocked THEN 1 ELSE 0 END) as blocked",
+            ])
+            .setParameters({
+              activeStatuses: [UserStatus.ACTIVE, UserStatus.VERIFIED],
+              inactive: UserStatus.NOT_ACTIVE,
+              blocked: UserStatus.BLOCKED,
+            });
 
-        const row = await qb.getRawOne();
-        console.log("users stats : " + JSON.stringify(row, null, 2));
+          const row = await qb.getRawOne();
+          console.log("users stats : " + JSON.stringify(row, null, 2));
 
-        return {
-          total: Number(row.total) || 0,
-          active: Number(row.active) || 0,
-          inactive: Number(row.inactive) || 0,
-          blocked: Number(row.blocked) || 0,
-        };
-      });
+          return {
+            total: Number(row.total) || 0,
+            active: Number(row.active) || 0,
+            inactive: Number(row.inactive) || 0,
+            blocked: Number(row.blocked) || 0,
+          };
+        },
+      );
     } catch (error) {
       this.logger.error("Failed to get user stats", { error });
       throw error;

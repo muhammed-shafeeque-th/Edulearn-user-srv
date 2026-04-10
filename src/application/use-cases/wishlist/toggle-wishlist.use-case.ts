@@ -6,13 +6,16 @@ import { IWishlistRepository } from "src/domain/repositories/wishlist.repository
 import { KafkaService } from "src/infrastructure/kafka/kafka.service";
 import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
 import { TracingService } from "src/infrastructure/observability/tracing/trace.service";
+import { CourseClient } from "src/infrastructure/grpc/clients/course/course.client";
+import { BadRequestException } from "@nestjs/common";
 
 @Injectable()
 export class ToggleWishlistUseCase {
   constructor(
     private readonly wishlistRepository: IWishlistRepository,
     private readonly logger: LoggingService,
-    private readonly tracer: TracingService
+    private readonly tracer: TracingService,
+    private readonly courseClient: CourseClient,
   ) {}
 
   async execute(userId: string, courseId: string): Promise<WishlistItemDto> {
@@ -30,7 +33,7 @@ export class ToggleWishlistUseCase {
           await this.wishlistRepository.findByUserId(userId);
         if (!userWishlist) {
           throw new WishlistItemNotFoundException(
-            `wishlist for user ${userId} not found`
+            `wishlist for user ${userId} not found`,
           );
         }
 
@@ -40,11 +43,17 @@ export class ToggleWishlistUseCase {
         wishlistItem =
           await this.wishlistRepository.findItemByUserIdAndCourseId(
             userId,
-            courseId
+            courseId,
           );
         if (wishlistItem) {
           await this.wishlistRepository.removeItem(userWishlist.id, courseId);
         } else {
+          const courseResponse = await this.courseClient.getCourse(courseId);
+          if (courseResponse?.course?.instructorId === userId) {
+            throw new BadRequestException(
+              "You cannot add your own course to wishlist",
+            );
+          }
           wishlistItem = WishlistItem.create({
             courseId,
             wishlistId: userWishlist.id,
@@ -52,7 +61,7 @@ export class ToggleWishlistUseCase {
           await this.wishlistRepository.addItem(wishlistItem);
         }
         return WishlistItemDto.fromDomain(wishlistItem);
-      }
+      },
     );
   }
 }

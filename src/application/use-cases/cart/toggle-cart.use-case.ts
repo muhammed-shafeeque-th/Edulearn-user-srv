@@ -3,8 +3,7 @@ import { CartItemDto } from "src/application/dtos/cart.dto";
 import { CartItem } from "src/domain/entities/cart-item.entity";
 import { Cart } from "src/domain/entities/cart.entity";
 import {
-  CartItemAlreadyExistException,
-  CartItemNotFoundException,
+  CartNotFoundException,
 } from "src/domain/exceptions";
 import { ICartRepository } from "src/domain/repositories/cart.repository";
 import { KafkaService } from "src/infrastructure/kafka/kafka.service";
@@ -36,7 +35,7 @@ export class ToggleCartUseCase {
         const { cart: existCart } =
           await this.cartRepository.findByUserId(userId);
         if (!existCart) {
-          throw new CartItemNotFoundException(
+          throw new CartNotFoundException(
             `cart not found for user ${userId}`
           );
         }

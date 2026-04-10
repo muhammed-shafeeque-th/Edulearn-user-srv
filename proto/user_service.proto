@@ -29,8 +29,10 @@ service UserService {
   rpc CheckUserEmailExist(CheckUserByEmailRequest) returns (CheckUserByEmailResponse);
 
   // Block/Unblock
-  rpc BlockUser(BlockUserRequest) returns (BlockUserResponse);
-  rpc UnBlockUser(UnBlockUserRequest) returns (UnBlockUserResponse);
+  rpc BlockAccount(BlockAccountRequest) returns (BlockAccountResponse);
+  rpc UnBlockAccount(UnBlockAccountRequest) returns (UnBlockAccountResponse);
+  rpc BlockInstructor(BlockInstructorRequest) returns (BlockInstructorResponse);
+  rpc UnBlockInstructor(UnBlockInstructorRequest) returns (UnBlockInstructorResponse);
 
   
   // Instructor Student relations
@@ -41,6 +43,8 @@ service UserService {
   // Stats
   rpc GetUsersStats(Empty) returns (GetUsersStatsResponse);
   rpc GetInstructorsStats(Empty) returns (GetInstructorsStatsResponse);
+  rpc GetInstructorsGrowthTrend(GetInstructorsGrowthTrendRequest) returns (GetInstructorsGrowthTrendResponse);
+  rpc GetUsersGrowthTrend(GetUsersGrowthTrendRequest) returns (GetUsersGrowthTrendResponse);
 
 
 }

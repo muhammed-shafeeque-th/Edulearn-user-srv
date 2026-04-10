@@ -1,9 +1,9 @@
-import { ErrorCode } from "src/shared/exceptions/error-codes";
-import { DomainException } from "./domain.exception";
+import { DomainException } from "./base.exception";
 
 export class UserWalletNotFoundException extends DomainException {
+  errorCode: string = "USER_WALLET_NOT_FOUND_EXCEPTION";
   constructor(message?: string) {
-    super(ErrorCode.NOT_FOUND, message || `User Wallet  not found`, 'USER_WALLET_NOT_FOUND');
+    super(message || `User Wallet  not found`);
   }
 
   serializeError(): { message: string; field?: string }[] {
@@ -11,11 +11,10 @@ export class UserWalletNotFoundException extends DomainException {
   }
 }
 export class UserWalletAlreadyExistException extends DomainException {
+  errorCode: string = "USER_WALLET_ALREADY_EXIST_EXCEPTION";
   constructor(message?: string) {
-    super(ErrorCode.ALREADY_EXISTS, message || `user wallet already exist`, 'USER_WALLET_ALREADY_EXIST');
+    super(message || `user wallet already exist`);
   }
-
-  
   serializeError(): { message: string; field?: string }[] {
     return [{ message: this.message }];
   }

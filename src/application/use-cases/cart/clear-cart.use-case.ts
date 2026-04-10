@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { CartItemNotFoundException } from "src/domain/exceptions";
+import { CartNotFoundException } from "src/domain/exceptions";
 import { ICartRepository } from "src/domain/repositories/cart.repository";
 import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
 import { TracingService } from "src/infrastructure/observability/tracing/trace.service";
@@ -28,7 +28,7 @@ export class ClearCartUseCase {
           this.logger.warn(`Cart not found for user ${userId}`, {
             ctx: ClearCartUseCase.name,
           });
-          throw new CartItemNotFoundException(`cart not found for ${userId}`);
+          throw new CartNotFoundException(`cart not found for ${userId}`);
         }
 
         await this.cartRepository.clearCart(userId);

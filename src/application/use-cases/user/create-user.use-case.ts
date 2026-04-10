@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import User, { UserStatus } from "src/domain/entities/user.entity";
+import User, { UserStatus } from "src/domain/entities/user-entity";
 import { Cart } from "src/domain/entities/cart.entity";
 import { Wishlist } from "src/domain/entities/wishlist.entity";
 import { UserAlreadyExistException } from "src/domain/exceptions";
@@ -11,7 +11,7 @@ import { TracingService } from "src/infrastructure/observability/tracing/trace.s
 import CreateUserDto from "src/presentation/grpc/dtos/create-user.dto";
 import { Wallet } from "src/domain/entities/user-wallet.entity";
 import { IWalletRepository } from "src/domain/repositories/wallet.repository";
-import { UserCreatedEvent } from "src/domain/events/user-created.event";
+import { UserAccountCreatedEvent } from "src/domain/events/user-created.event";
 
 @Injectable()
 export default class CreateUserUseCase {
@@ -24,7 +24,7 @@ export default class CreateUserUseCase {
     private readonly tracer: TracingService
   ) { }
 
-  public async execute(dto: UserCreatedEvent): Promise<User> {
+  public async execute(dto: UserAccountCreatedEvent): Promise<User> {
     return this.tracer.startActiveSpan(
       "CreateUserUseCase.execute",
       async (span) => {
@@ -52,7 +52,7 @@ export default class CreateUserUseCase {
           lastName: payload.lastName,
           avatar: payload.avatar,
           status: UserStatus.VERIFIED,
-          role: payload.role,
+          roles: payload.roles,
           createdAt: payload.createdAt,
         });
 
@@ -95,11 +95,11 @@ export default class CreateUserUseCase {
           });
           const wallet = Wallet.createInitial(userId, "INR");
 
-          await Promise.all([
-            this.cartRepository.create(cart),
-            this.wishlistRepository.create(wishlist),
-            this.walletRepository.save(wallet),
-          ]);
+          // await Promise.all([
+            await this.cartRepository.create(cart),
+            await this.wishlistRepository.create(wishlist),
+            await this.walletRepository.save(wallet),
+          // ]);
 
           this.logger.debug(
             `Created cart, wishlist, and wallet for user ${userId}`,

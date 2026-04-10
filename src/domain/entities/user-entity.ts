@@ -33,7 +33,7 @@ export interface UserProps {
   profile?: UserProfile;
   instructorProfile?: InstructorProfile;
   socials?: UserSocials[];
-  createdAt: Date;
+  createdAt?: Date;
   updatedAt?: Date;
 }
 

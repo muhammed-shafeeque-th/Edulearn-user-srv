@@ -68,7 +68,6 @@ export default class UpdateUserUseCaseImpl {
             language: dto.language,
             website: dto.website,
 
-            // preferences: dto.preferences,
           });
         }
         const userSocials = user.socials ?? [];
@@ -112,7 +111,7 @@ export default class UpdateUserUseCaseImpl {
             eventVersion: "0.0.1",
             payload: {
               email: updatedUser.email,
-              role: updatedUser.role,
+              roles: updatedUser.roles,
               userId: updatedUser.id,
               avatar: updatedUser.avatar,
               firstName: updatedUser.firstName,
@@ -121,7 +120,7 @@ export default class UpdateUserUseCaseImpl {
             }
           },
           {
-            topic: KafkaTopics.UserUpdated,
+            topic: KafkaTopics.UserAccountUpdated,
             key: updatedUser.id,
           }
         );

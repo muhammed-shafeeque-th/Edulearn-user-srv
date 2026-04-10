@@ -3,9 +3,7 @@ package user_service;
 
 import "user/common.proto";
 
-// =======================================
-//            ENUMS
-// =======================================
+//  ENUMS
 
 enum UserStatus {
   USER_STATUS_UNSPECIFIED = 0;
@@ -14,9 +12,7 @@ enum UserStatus {
   DELETED = 3;
 }
 
-// =======================================
-//           FILTERS
-// =======================================
+// FILTERS
 
 message UserFilter {
   optional UserStatus status = 1;
@@ -25,9 +21,7 @@ message UserFilter {
   optional string search = 4;
 }
 
-// =======================================
-//           USER MODELS
-// =======================================
+// USER MODELS
 
 message UserProfileData {
   optional string bio = 1;
@@ -77,9 +71,9 @@ message UserData {
   repeated UserSocialsData socials = 13;
   string updated_at = 14;
   string created_at = 15;
+  map<string, string> role_status = 16;
 }
 
-// This message is intended for listing multiple users and includes only essential metadata.
 message UserMeta {
   string id = 1;
   string email = 2;
@@ -96,12 +90,11 @@ message UserMeta {
   optional string country = 13;
   optional string bio = 14;
   optional string gender = 15;
+  map<string, string> role_status = 16;
 }
 
 
-// =======================================
-//           USER REQUESTS
-// =======================================
+// USER REQUESTS
 
 message ListUsersRequest {
   PaginationRequest pagination = 1;
@@ -129,13 +122,14 @@ message GetCurrentUserRequest {
   string user_id = 1;
 }
 
-message BlockUserRequest {
+message BlockAccountRequest {
   string user_id = 1;
 }
 
-message UnBlockUserRequest {
+message UnBlockAccountRequest {
   string user_id = 1;
 }
+
 
 message UpdateUserDetailsRequest {
   string user_id = 1;
@@ -158,9 +152,7 @@ message ChangePasswordRequest {
   string new_password = 3;
 }
 
-// =======================================
 //          USER RESPONSES
-// =======================================
 
 message UserEmailsSuccess {
   repeated string emails = 1;
@@ -220,24 +212,25 @@ message CheckUserByEmailResponse {
     Error error = 2;
   }
 }
-message BlockUserResponse {
+message BlockAccountResponse {
   oneof result {
-    BlockUserSuccess success = 1;
+    BlockAccountSuccess success = 1;
     Error error = 2;
   }
 }
-message UnBlockUserResponse {
+message UnBlockAccountResponse {
   oneof result {
-    UnBlockUserSuccess success = 1;
+    UnBlockAccountSuccess success = 1;
     Error error = 2;
   }
 }
-message BlockUserSuccess {
+message BlockAccountSuccess {
   bool updated = 1;
 }
-message UnBlockUserSuccess {
+message UnBlockAccountSuccess {
   bool updated = 1;
 }
+
 message UpdateUserDetailsResponse {
   oneof result {
     UserData user = 1;

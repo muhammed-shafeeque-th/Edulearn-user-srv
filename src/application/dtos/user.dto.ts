@@ -11,7 +11,7 @@ import {
   SocialProvider,
   UserSocials,
 } from "src/domain/entities/user-socials.entity";
-import User, { UserRoles, UserStatus } from "src/domain/entities/user.entity";
+import User, { RoleStatus, UserRoles, UserStatus } from "src/domain/entities/user-entity";
 import { InstructorMeta } from "src/infrastructure/grpc/generated/user/types/instructor_types";
 
 export class UserProfileDto {
@@ -57,7 +57,6 @@ export class UserProfileDto {
       phone: this.phone,
       preference: this.preferences?.toString(),
       website: this.website,
-
     };
   }
 }
@@ -145,7 +144,7 @@ export class UserSocialsDto {
 export class UserDto {
   id: string;
   email: string;
-  role: UserRoles;
+  roles: UserRoles[];
   status: UserStatus;
   username?: string;
   slug?: string;
@@ -158,6 +157,7 @@ export class UserDto {
   socials?: UserSocialsDto[];
   createdAt: Date;
   updatedAt?: Date;
+  roleStatus: Record<UserRoles, RoleStatus>;
 
   static fromDomain(user: User): UserDto {
     const dto = new UserDto();
@@ -172,11 +172,16 @@ export class UserDto {
     dto.id = user.id;
     dto.lastLoginAt = user.lastLoginAt;
     dto.lastName = user.lastName;
-    dto.role = user.role;
+    dto.roles = user.roles;
     dto.slug = user.slug;
-    dto.profile = user.profile ? UserProfileDto.fromDomain(user.profile) : undefined;
+    dto.roleStatus = user.roleStatusMap;
+    dto.profile = user.profile
+      ? UserProfileDto.fromDomain(user.profile)
+      : undefined;
     dto.socials = user.socials.map(UserSocialsDto.fromDomain);
-    dto.instructorProfile = user.instructorProfile ? InstructorProfileDto.fromDomain(user.instructorProfile) : undefined;
+    dto.instructorProfile = user.instructorProfile
+      ? InstructorProfileDto.fromDomain(user.instructorProfile)
+      : undefined;
 
     return dto;
   }
@@ -188,7 +193,7 @@ export class UserDto {
       slug: this.slug,
       username: this.username,
       id: this.id,
-      role: this.role,
+      role: this.getUserRole(),
       socials: this.socials
         ? this.socials.map((social) => social.toGrpcResponse())
         : [],
@@ -200,20 +205,19 @@ export class UserDto {
         : undefined,
       lastLogin: this.lastLoginAt?.toISOString(),
       lastName: this.lastName,
-      profile: this.profile
-        ? this.profile.toGrpcResponse()
-        : undefined,
+      profile: this.profile ? this.profile.toGrpcResponse() : undefined,
       updatedAt: this.updatedAt.toISOString(),
+      roleStatus: this.roleStatus,
     };
   };
-  
+
   public toGrpcMetaResponse = (): UserMeta => {
     return {
       email: this.email,
       updatedAt: this.updatedAt?.toISOString(),
       firstName: this.firstName,
       id: this.id,
-      role: this.role,
+      role: this.getUserRole(),
       status: this.status,
       avatar: this.avatar,
       createdAt: this.createdAt.toISOString(),
@@ -224,11 +228,10 @@ export class UserDto {
       country: this.profile?.country,
       gender: this.profile?.gender,
       phone: this.profile?.phone,
-      
-
+      roleStatus: this.roleStatus,
     };
   };
-  
+
   public toGrpcInstructorMetaResponse = (): InstructorMeta => {
     return {
       email: this.email,
@@ -236,28 +239,30 @@ export class UserDto {
       slug: this.slug,
       username: this.username,
       id: this.id,
-      role: this.role,
+      role: this.getUserRole(),
       status: this.status,
       avatar: this.avatar,
       createdAt: this.createdAt.toISOString(),
       lastLogin: this.lastLoginAt?.toISOString(),
-      bio: this.instructorProfile.bio,
-      education: this.instructorProfile.education,
-      experience: this.instructorProfile.experience,
-      expertise: this.instructorProfile.expertise,
-      headline: this.instructorProfile.headline,
-      joinedAt: this.instructorProfile.joinedAt?.toISOString(),
-      language: this.profile.language,
-      rating: this.instructorProfile.rating,
-      tags: this.instructorProfile.tags.slice(),
-      totalCourses: this.instructorProfile.totalCourses,
-      totalRatings: this.instructorProfile.totalRatings,
-      totalStudents: this.instructorProfile.totalStudents,
-      website: this.profile.website,
-
+      bio: this.instructorProfile?.bio,
+      education: this.instructorProfile?.education,
+      experience: this.instructorProfile?.experience,
+      expertise: this.instructorProfile?.expertise,
+      headline: this.instructorProfile?.headline,
+      joinedAt: this.instructorProfile?.joinedAt?.toISOString(),
+      language: this.profile?.language,
+      rating: this.instructorProfile?.rating,
+      tags: this.instructorProfile?.tags.slice(),
+      totalCourses: this.instructorProfile?.totalCourses,
+      totalRatings: this.instructorProfile?.totalRatings,
+      totalStudents: this.instructorProfile?.totalStudents,
+      website: this.profile?.website,
+      roleStatus: this.roleStatus,
     };
   };
 
-
-
+  private getUserRole = () =>
+    this.roles.includes(UserRoles.INSTRUCTOR)
+      ? UserRoles.INSTRUCTOR
+      : UserRoles.STUDENT;
 }

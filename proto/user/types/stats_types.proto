@@ -8,6 +8,38 @@ message GetInstructorRevenueSummeryRequest {
     string instructor_id = 1;
 }
 
+message GetInstructorsGrowthTrendRequest {
+    int32 year = 1;
+}
+
+message GetUsersGrowthTrendRequest {
+    int32 year = 1;
+}
+
+message GetInstructorsGrowthTrendResponse {
+    oneof result {
+       GrowthTrendSuccess success = 1;
+        Error error = 2;
+    }
+}
+
+message GetUsersGrowthTrendResponse {
+    oneof result {
+        GrowthTrendSuccess success = 1;
+        Error error = 2;
+    }
+}
+
+
+
+message GrowthTrend {
+    int32 month = 1;
+    int32 count = 2;
+}
+message GrowthTrendSuccess {
+    repeated GrowthTrend trend = 1;
+}
+
 message InstructorRevenueSummery {
     int32 total_earnings = 1;
     int32 this_month_earnings = 2;
