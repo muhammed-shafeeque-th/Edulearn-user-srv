@@ -73,6 +73,12 @@ export interface UserData {
   socials: UserSocialsData[];
   updatedAt: string;
   createdAt: string;
+  roleStatus: { [key: string]: string };
+}
+
+export interface UserData_RoleStatusEntry {
+  key: string;
+  value: string;
 }
 
 export interface UserMeta {
@@ -91,6 +97,12 @@ export interface UserMeta {
   country?: string | undefined;
   bio?: string | undefined;
   gender?: string | undefined;
+  roleStatus: { [key: string]: string };
+}
+
+export interface UserMeta_RoleStatusEntry {
+  key: string;
+  value: string;
 }
 
 export interface ListUsersRequest {
@@ -118,11 +130,11 @@ export interface GetCurrentUserRequest {
   userId: string;
 }
 
-export interface BlockUserRequest {
+export interface BlockAccountRequest {
   userId: string;
 }
 
-export interface UnBlockUserRequest {
+export interface UnBlockAccountRequest {
   userId: string;
 }
 
@@ -195,21 +207,21 @@ export interface CheckUserByEmailResponse {
   error?: Error | undefined;
 }
 
-export interface BlockUserResponse {
-  success?: BlockUserSuccess | undefined;
+export interface BlockAccountResponse {
+  success?: BlockAccountSuccess | undefined;
   error?: Error | undefined;
 }
 
-export interface UnBlockUserResponse {
-  success?: UnBlockUserSuccess | undefined;
+export interface UnBlockAccountResponse {
+  success?: UnBlockAccountSuccess | undefined;
   error?: Error | undefined;
 }
 
-export interface BlockUserSuccess {
+export interface BlockAccountSuccess {
   updated: boolean;
 }
 
-export interface UnBlockUserSuccess {
+export interface UnBlockAccountSuccess {
   updated: boolean;
 }
 
@@ -660,6 +672,7 @@ function createBaseUserData(): UserData {
     socials: [],
     updatedAt: "",
     createdAt: "",
+    roleStatus: {},
   };
 }
 
@@ -710,6 +723,9 @@ export const UserData: MessageFns<UserData> = {
     if (message.createdAt !== "") {
       writer.uint32(122).string(message.createdAt);
     }
+    globalThis.Object.entries(message.roleStatus).forEach(([key, value]: [string, string]) => {
+      UserData_RoleStatusEntry.encode({ key: key as any, value }, writer.uint32(130).fork()).join();
+    });
     return writer;
   },
 
@@ -840,6 +856,65 @@ export const UserData: MessageFns<UserData> = {
           message.createdAt = reader.string();
           continue;
         }
+        case 16: {
+          if (tag !== 130) {
+            break;
+          }
+
+          const entry16 = UserData_RoleStatusEntry.decode(reader, reader.uint32());
+          if (entry16.value !== undefined) {
+            message.roleStatus[entry16.key] = entry16.value;
+          }
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseUserData_RoleStatusEntry(): UserData_RoleStatusEntry {
+  return { key: "", value: "" };
+}
+
+export const UserData_RoleStatusEntry: MessageFns<UserData_RoleStatusEntry> = {
+  encode(message: UserData_RoleStatusEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.key !== "") {
+      writer.uint32(10).string(message.key);
+    }
+    if (message.value !== "") {
+      writer.uint32(18).string(message.value);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): UserData_RoleStatusEntry {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseUserData_RoleStatusEntry();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.key = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.value = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -862,6 +937,7 @@ function createBaseUserMeta(): UserMeta {
     lastLogin: "",
     updatedAt: "",
     createdAt: "",
+    roleStatus: {},
   };
 }
 
@@ -912,6 +988,9 @@ export const UserMeta: MessageFns<UserMeta> = {
     if (message.gender !== undefined) {
       writer.uint32(122).string(message.gender);
     }
+    globalThis.Object.entries(message.roleStatus).forEach(([key, value]: [string, string]) => {
+      UserMeta_RoleStatusEntry.encode({ key: key as any, value }, writer.uint32(130).fork()).join();
+    });
     return writer;
   },
 
@@ -1040,6 +1119,65 @@ export const UserMeta: MessageFns<UserMeta> = {
           }
 
           message.gender = reader.string();
+          continue;
+        }
+        case 16: {
+          if (tag !== 130) {
+            break;
+          }
+
+          const entry16 = UserMeta_RoleStatusEntry.decode(reader, reader.uint32());
+          if (entry16.value !== undefined) {
+            message.roleStatus[entry16.key] = entry16.value;
+          }
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseUserMeta_RoleStatusEntry(): UserMeta_RoleStatusEntry {
+  return { key: "", value: "" };
+}
+
+export const UserMeta_RoleStatusEntry: MessageFns<UserMeta_RoleStatusEntry> = {
+  encode(message: UserMeta_RoleStatusEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.key !== "") {
+      writer.uint32(10).string(message.key);
+    }
+    if (message.value !== "") {
+      writer.uint32(18).string(message.value);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): UserMeta_RoleStatusEntry {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseUserMeta_RoleStatusEntry();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.key = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.value = reader.string();
           continue;
         }
       }
@@ -1285,22 +1423,22 @@ export const GetCurrentUserRequest: MessageFns<GetCurrentUserRequest> = {
   },
 };
 
-function createBaseBlockUserRequest(): BlockUserRequest {
+function createBaseBlockAccountRequest(): BlockAccountRequest {
   return { userId: "" };
 }
 
-export const BlockUserRequest: MessageFns<BlockUserRequest> = {
-  encode(message: BlockUserRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const BlockAccountRequest: MessageFns<BlockAccountRequest> = {
+  encode(message: BlockAccountRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.userId !== "") {
       writer.uint32(10).string(message.userId);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): BlockUserRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): BlockAccountRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseBlockUserRequest();
+    const message = createBaseBlockAccountRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1322,22 +1460,22 @@ export const BlockUserRequest: MessageFns<BlockUserRequest> = {
   },
 };
 
-function createBaseUnBlockUserRequest(): UnBlockUserRequest {
+function createBaseUnBlockAccountRequest(): UnBlockAccountRequest {
   return { userId: "" };
 }
 
-export const UnBlockUserRequest: MessageFns<UnBlockUserRequest> = {
-  encode(message: UnBlockUserRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const UnBlockAccountRequest: MessageFns<UnBlockAccountRequest> = {
+  encode(message: UnBlockAccountRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.userId !== "") {
       writer.uint32(10).string(message.userId);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): UnBlockUserRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): UnBlockAccountRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseUnBlockUserRequest();
+    const message = createBaseUnBlockAccountRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -2034,14 +2172,14 @@ export const CheckUserByEmailResponse: MessageFns<CheckUserByEmailResponse> = {
   },
 };
 
-function createBaseBlockUserResponse(): BlockUserResponse {
+function createBaseBlockAccountResponse(): BlockAccountResponse {
   return {};
 }
 
-export const BlockUserResponse: MessageFns<BlockUserResponse> = {
-  encode(message: BlockUserResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const BlockAccountResponse: MessageFns<BlockAccountResponse> = {
+  encode(message: BlockAccountResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.success !== undefined) {
-      BlockUserSuccess.encode(message.success, writer.uint32(10).fork()).join();
+      BlockAccountSuccess.encode(message.success, writer.uint32(10).fork()).join();
     }
     if (message.error !== undefined) {
       Error.encode(message.error, writer.uint32(18).fork()).join();
@@ -2049,10 +2187,10 @@ export const BlockUserResponse: MessageFns<BlockUserResponse> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): BlockUserResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): BlockAccountResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseBlockUserResponse();
+    const message = createBaseBlockAccountResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -2061,7 +2199,7 @@ export const BlockUserResponse: MessageFns<BlockUserResponse> = {
             break;
           }
 
-          message.success = BlockUserSuccess.decode(reader, reader.uint32());
+          message.success = BlockAccountSuccess.decode(reader, reader.uint32());
           continue;
         }
         case 2: {
@@ -2082,14 +2220,14 @@ export const BlockUserResponse: MessageFns<BlockUserResponse> = {
   },
 };
 
-function createBaseUnBlockUserResponse(): UnBlockUserResponse {
+function createBaseUnBlockAccountResponse(): UnBlockAccountResponse {
   return {};
 }
 
-export const UnBlockUserResponse: MessageFns<UnBlockUserResponse> = {
-  encode(message: UnBlockUserResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const UnBlockAccountResponse: MessageFns<UnBlockAccountResponse> = {
+  encode(message: UnBlockAccountResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.success !== undefined) {
-      UnBlockUserSuccess.encode(message.success, writer.uint32(10).fork()).join();
+      UnBlockAccountSuccess.encode(message.success, writer.uint32(10).fork()).join();
     }
     if (message.error !== undefined) {
       Error.encode(message.error, writer.uint32(18).fork()).join();
@@ -2097,10 +2235,10 @@ export const UnBlockUserResponse: MessageFns<UnBlockUserResponse> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): UnBlockUserResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): UnBlockAccountResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseUnBlockUserResponse();
+    const message = createBaseUnBlockAccountResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -2109,7 +2247,7 @@ export const UnBlockUserResponse: MessageFns<UnBlockUserResponse> = {
             break;
           }
 
-          message.success = UnBlockUserSuccess.decode(reader, reader.uint32());
+          message.success = UnBlockAccountSuccess.decode(reader, reader.uint32());
           continue;
         }
         case 2: {
@@ -2130,22 +2268,22 @@ export const UnBlockUserResponse: MessageFns<UnBlockUserResponse> = {
   },
 };
 
-function createBaseBlockUserSuccess(): BlockUserSuccess {
+function createBaseBlockAccountSuccess(): BlockAccountSuccess {
   return { updated: false };
 }
 
-export const BlockUserSuccess: MessageFns<BlockUserSuccess> = {
-  encode(message: BlockUserSuccess, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const BlockAccountSuccess: MessageFns<BlockAccountSuccess> = {
+  encode(message: BlockAccountSuccess, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.updated !== false) {
       writer.uint32(8).bool(message.updated);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): BlockUserSuccess {
+  decode(input: BinaryReader | Uint8Array, length?: number): BlockAccountSuccess {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseBlockUserSuccess();
+    const message = createBaseBlockAccountSuccess();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -2167,22 +2305,22 @@ export const BlockUserSuccess: MessageFns<BlockUserSuccess> = {
   },
 };
 
-function createBaseUnBlockUserSuccess(): UnBlockUserSuccess {
+function createBaseUnBlockAccountSuccess(): UnBlockAccountSuccess {
   return { updated: false };
 }
 
-export const UnBlockUserSuccess: MessageFns<UnBlockUserSuccess> = {
-  encode(message: UnBlockUserSuccess, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const UnBlockAccountSuccess: MessageFns<UnBlockAccountSuccess> = {
+  encode(message: UnBlockAccountSuccess, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.updated !== false) {
       writer.uint32(8).bool(message.updated);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): UnBlockUserSuccess {
+  decode(input: BinaryReader | Uint8Array, length?: number): UnBlockAccountSuccess {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseUnBlockUserSuccess();
+    const message = createBaseUnBlockAccountSuccess();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
