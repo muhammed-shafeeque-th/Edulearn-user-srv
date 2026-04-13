@@ -1,4 +1,4 @@
-import { Controller } from "@nestjs/common";
+import { Controller, UseFilters } from "@nestjs/common";
 import { GrpcMethod } from "@nestjs/microservices";
 import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
 import { TracingService } from "src/infrastructure/observability/tracing/trace.service";
@@ -26,8 +26,10 @@ import {
   PaginationResponse,
 } from "src/infrastructure/grpc/generated/user/common";
 import { ClearCartUseCase } from "src/application/use-cases/cart/clear-cart.use-case";
+import { GrpcExceptionFilter } from "src/infrastructure/filters/grpc-exception.filter";
 
 @Controller()
+@UseFilters(GrpcExceptionFilter)
 export class CartGrpcController {
   constructor(
     private readonly addToCartUseCase: AddToCartUseCase,
@@ -37,12 +39,12 @@ export class CartGrpcController {
     private readonly getCartByUserUseCase: GetCartByUserUseCase,
 
     private readonly tracer: TracingService,
-    private readonly logger: LoggingService
+    private readonly logger: LoggingService,
   ) {}
 
   private createErrorResponse(error: DomainException): Error {
     return {
-      code: error.errorCode,
+      code: error.code,
       message: error.message,
       details:
         "serializeError" in error && typeof error.serializeError === "function"
@@ -66,7 +68,7 @@ export class CartGrpcController {
 
           const cartItem = await this.addToCartUseCase.execute(
             userId,
-            courseId
+            courseId,
           );
 
           this.logger.info("AddToCart request has been successfully completed");
@@ -74,19 +76,19 @@ export class CartGrpcController {
           return {
             item: cartItem.toGrpcResponse(),
           };
-        }
+        },
       );
     } catch (error) {
       this.logger.error("Error processing gRPC request `AddToCart`", {
         error,
       });
-      return { error: this.createErrorResponse(error) };
+      throw error;
     }
   }
 
   @GrpcMethod("CartService", "ToggleCartItem")
   async toggleCart(
-    data: ToggleCartItemRequest
+    data: ToggleCartItemRequest,
   ): Promise<ToggleCartItemResponse> {
     try {
       return await this.tracer.startActiveSpan(
@@ -101,28 +103,28 @@ export class CartGrpcController {
 
           const cartItem = await this.toggleCartItemUseCase.execute(
             userId,
-            courseId
+            courseId,
           );
 
           this.logger.info(
-            "ToggleCartItem request has been successfully completed"
+            "ToggleCartItem request has been successfully completed",
           );
 
           return {
             item: cartItem.toGrpcResponse(),
           };
-        }
+        },
       );
     } catch (error) {
       this.logger.error("Error processing gRPC request `AddToCart`", {
         error,
       });
-      return { error: this.createErrorResponse(error) };
+      throw error;
     }
   }
   @GrpcMethod("CartService", "RemoveFromCart")
   async removeFromCart(
-    data: RemoveFromCartRequest
+    data: RemoveFromCartRequest,
   ): Promise<RemoveFromCartResponse> {
     try {
       return await this.tracer.startActiveSpan(
@@ -137,23 +139,23 @@ export class CartGrpcController {
 
           const cart = await this.removeFromCartUseCase.execute(
             userId,
-            courseId
+            courseId,
           );
 
           this.logger.info(
-            "RemoveFromCart request has been successfully completed"
+            "RemoveFromCart request has been successfully completed",
           );
 
           return {
             success: { removed: true },
           };
-        }
+        },
       );
     } catch (error) {
       this.logger.error("Error processing gRPC request `RemoveFromCart`", {
         error,
       });
-      return { error: this.createErrorResponse(error) };
+      throw error;
     }
   }
   @GrpcMethod("CartService", "ClearCart")
@@ -176,13 +178,13 @@ export class CartGrpcController {
           return {
             success: { removed: true },
           };
-        }
+        },
       );
     } catch (error) {
       this.logger.error("Error processing gRPC request `RemoveFromCart`", {
         error,
       });
-      return { error: this.createErrorResponse(error) };
+      throw error;
     }
   }
   @GrpcMethod("CartService", "ListUserCart")
@@ -201,11 +203,11 @@ export class CartGrpcController {
           const { cart, total } = await this.getCartByUserUseCase.execute(
             userId,
             pagination.page,
-            pagination.pageSize
+            pagination.pageSize,
           );
 
           this.logger.info(
-            "ListUserCart request has been successfully completed"
+            "ListUserCart request has been successfully completed",
           );
           const paginationResponse: PaginationResponse = {
             totalItems: total, // Replace with actual total items if available
@@ -217,13 +219,13 @@ export class CartGrpcController {
               pagination: paginationResponse,
             },
           };
-        }
+        },
       );
     } catch (error) {
       this.logger.error("Error processing gRPC request `ListUserCart`", {
         error,
       });
-      return { error: this.createErrorResponse(error) };
+      throw error;
     }
   }
 
