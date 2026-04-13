@@ -548,7 +548,7 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
             .leftJoinAndSelect("user.profile", "profile")
             .leftJoinAndSelect("user.socials", "socials")
             .leftJoinAndSelect("user.instructorProfile", "instructorProfile")
-            .where("user.role = :role", { role: UserRoles.INSTRUCTOR });
+            .where(":role = ANY(user.roles)", { role: UserRoles.INSTRUCTOR });
 
           if (filters.status) {
             qb.andWhere("user.status = :status", { status: filters.status });
@@ -738,7 +738,7 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
             qb.andWhere("user.status = :status", { status: filters.status });
           }
           if (filters.role) {
-            qb.andWhere("user.role = :role", { role: filters.role });
+            qb.andWhere(":role = ANY(user.roles)", { role: filters.role });
           }
           if (filters.email) {
             qb.andWhere("user.email ILIKE :email", {
@@ -808,16 +808,16 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
             .createQueryBuilder("user")
             .select([
               'COUNT("user"."id") as total',
-              `SUM(CASE WHEN "user"."status" IN (:...activeStatuses) THEN 1 ELSE 0 END) as active`,
-              'SUM(CASE WHEN "user"."status" = :inactive THEN 1 ELSE 0 END) as inactive',
-              'SUM(CASE WHEN "user"."status" = :blocked THEN 1 ELSE 0 END) as blocked',
+              `SUM(CASE WHEN "user"."roleStatusMap"->>'instructor' = :active THEN 1 ELSE 0 END) as active`,
+              `SUM(CASE WHEN "user"."roleStatusMap"->>'instructor' = :suspended THEN 1 ELSE 0 END) as inactive`,
+              `SUM(CASE WHEN "user"."roleStatusMap"->>'instructor' = :blocked THEN 1 ELSE 0 END) as blocked`,
               'SUM(CASE WHEN "user"."createdAt" >= :firstDayOfMonth THEN 1 ELSE 0 END) as "newThisMonth"',
             ])
-            .where("user.role = :role", { role: UserRoles.INSTRUCTOR })
+            .where(":role = ANY(user.roles)", { role: UserRoles.INSTRUCTOR })
             .setParameters({
-              activeStatuses: [UserStatus.ACTIVE, UserStatus.VERIFIED],
-              inactive: UserStatus.NOT_ACTIVE,
-              blocked: UserStatus.BLOCKED,
+              active: 'active',
+              suspended: 'suspended',
+              blocked: 'blocked',
               firstDayOfMonth,
             });
 
@@ -844,7 +844,7 @@ export default class UserTypeOrmRepositoryImpl implements IUserRepository {
         .select('EXTRACT(MONTH FROM "user"."createdAt")', "month")
         .addSelect('COUNT("user"."id")', "count")
         .where('EXTRACT(YEAR FROM "user"."createdAt") = :year', { year })
-        .andWhere('"user"."role" = :role', { role: UserRoles.INSTRUCTOR })
+        .andWhere(":role = ANY(user.roles)", { role: UserRoles.INSTRUCTOR })
         .groupBy("month")
         .getRawMany();
 
