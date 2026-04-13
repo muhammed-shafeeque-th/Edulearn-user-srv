@@ -40,7 +40,8 @@ export class EntityMapper {
       lastName: user.lastName,
       id: user.id,
       username: user.username,
-      role: user.role,
+      roles: user.roles,
+      roleStatus: user.roleStatusMap as any,
       status: user.status,
       updatedAt: user.updatedAt,
       slug: user.slug,
@@ -100,7 +101,8 @@ export class EntityMapper {
     ormEntity.username = user.username;
     ormEntity.slug = user.slug;
     ormEntity.email = user.email;
-    ormEntity.role = user.role;
+    ormEntity.roles = user.roles;
+    ormEntity.roleStatusMap = user.roleStatusMap as any;
     ormEntity.firstName = user.firstName;
     ormEntity.lastName = user.lastName;
     ormEntity.avatarUrl = user.avatar;
