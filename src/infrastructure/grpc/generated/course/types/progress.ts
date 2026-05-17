@@ -24,13 +24,9 @@ export interface EnrollmentProgressData {
 export interface LessonProgress {
   lessonId: string;
   completed: boolean;
-  completedAt?:
-    | string
-    | undefined;
+  completedAt?: string | undefined;
   /** seconds */
-  watchTime?:
-    | number
-    | undefined;
+  watchTime?: number | undefined;
   /** seconds */
   duration?: number | undefined;
   progressPercent?: number | undefined;
@@ -192,7 +188,10 @@ function createBaseEnrollmentProgressData(): EnrollmentProgressData {
 }
 
 export const EnrollmentProgressData: MessageFns<EnrollmentProgressData> = {
-  encode(message: EnrollmentProgressData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: EnrollmentProgressData,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.enrollmentId !== "") {
       writer.uint32(10).string(message.enrollmentId);
     }
@@ -220,8 +219,12 @@ export const EnrollmentProgressData: MessageFns<EnrollmentProgressData> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): EnrollmentProgressData {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): EnrollmentProgressData {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseEnrollmentProgressData();
     while (reader.pos < end) {
@@ -306,7 +309,10 @@ function createBaseLessonProgress(): LessonProgress {
 }
 
 export const LessonProgress: MessageFns<LessonProgress> = {
-  encode(message: LessonProgress, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: LessonProgress,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.lessonId !== "") {
       writer.uint32(10).string(message.lessonId);
     }
@@ -329,7 +335,8 @@ export const LessonProgress: MessageFns<LessonProgress> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): LessonProgress {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseLessonProgress();
     while (reader.pos < end) {
@@ -398,7 +405,10 @@ function createBaseQuizProgress(): QuizProgress {
 }
 
 export const QuizProgress: MessageFns<QuizProgress> = {
-  encode(message: QuizProgress, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: QuizProgress,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.quizId !== "") {
       writer.uint32(10).string(message.quizId);
     }
@@ -421,7 +431,8 @@ export const QuizProgress: MessageFns<QuizProgress> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): QuizProgress {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseQuizProgress();
     while (reader.pos < end) {
@@ -490,7 +501,10 @@ function createBaseMilestone(): Milestone {
 }
 
 export const Milestone: MessageFns<Milestone> = {
-  encode(message: Milestone, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: Milestone,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -504,7 +518,8 @@ export const Milestone: MessageFns<Milestone> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): Milestone {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseMilestone();
     while (reader.pos < end) {
@@ -548,163 +563,202 @@ function createBaseUpdateLessonProgressResponseData(): UpdateLessonProgressRespo
   return { completed: false, progressPercent: 0 };
 }
 
-export const UpdateLessonProgressResponseData: MessageFns<UpdateLessonProgressResponseData> = {
-  encode(message: UpdateLessonProgressResponseData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.completed !== false) {
-      writer.uint32(8).bool(message.completed);
-    }
-    if (message.progressPercent !== 0) {
-      writer.uint32(16).int32(message.progressPercent);
-    }
-    if (message.milestone !== undefined) {
-      Milestone.encode(message.milestone, writer.uint32(26).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): UpdateLessonProgressResponseData {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseUpdateLessonProgressResponseData();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 8) {
-            break;
-          }
-
-          message.completed = reader.bool();
-          continue;
-        }
-        case 2: {
-          if (tag !== 16) {
-            break;
-          }
-
-          message.progressPercent = reader.int32();
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.milestone = Milestone.decode(reader, reader.uint32());
-          continue;
-        }
+export const UpdateLessonProgressResponseData: MessageFns<UpdateLessonProgressResponseData> =
+  {
+    encode(
+      message: UpdateLessonProgressResponseData,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.completed !== false) {
+        writer.uint32(8).bool(message.completed);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.progressPercent !== 0) {
+        writer.uint32(16).int32(message.progressPercent);
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      if (message.milestone !== undefined) {
+        Milestone.encode(message.milestone, writer.uint32(26).fork()).join();
+      }
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): UpdateLessonProgressResponseData {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseUpdateLessonProgressResponseData();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
+
+            message.completed = reader.bool();
+            continue;
+          }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.progressPercent = reader.int32();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.milestone = Milestone.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
 
 function createBaseUpdateLessonProgressResponse(): UpdateLessonProgressResponse {
   return {};
 }
 
-export const UpdateLessonProgressResponse: MessageFns<UpdateLessonProgressResponse> = {
-  encode(message: UpdateLessonProgressResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.progress !== undefined) {
-      UpdateLessonProgressResponseData.encode(message.progress, writer.uint32(10).fork()).join();
-    }
-    if (message.error !== undefined) {
-      Error.encode(message.error, writer.uint32(18).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): UpdateLessonProgressResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseUpdateLessonProgressResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.progress = UpdateLessonProgressResponseData.decode(reader, reader.uint32());
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.error = Error.decode(reader, reader.uint32());
-          continue;
-        }
+export const UpdateLessonProgressResponse: MessageFns<UpdateLessonProgressResponse> =
+  {
+    encode(
+      message: UpdateLessonProgressResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.progress !== undefined) {
+        UpdateLessonProgressResponseData.encode(
+          message.progress,
+          writer.uint32(10).fork(),
+        ).join();
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.error !== undefined) {
+        Error.encode(message.error, writer.uint32(18).fork()).join();
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): UpdateLessonProgressResponse {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseUpdateLessonProgressResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.progress = UpdateLessonProgressResponseData.decode(
+              reader,
+              reader.uint32(),
+            );
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.error = Error.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
 
 function createBaseSubmitQuizAttemptResponse(): SubmitQuizAttemptResponse {
   return {};
 }
 
-export const SubmitQuizAttemptResponse: MessageFns<SubmitQuizAttemptResponse> = {
-  encode(message: SubmitQuizAttemptResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.progress !== undefined) {
-      QuizAttemptResponseData.encode(message.progress, writer.uint32(10).fork()).join();
-    }
-    if (message.error !== undefined) {
-      Error.encode(message.error, writer.uint32(18).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): SubmitQuizAttemptResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseSubmitQuizAttemptResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.progress = QuizAttemptResponseData.decode(reader, reader.uint32());
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.error = Error.decode(reader, reader.uint32());
-          continue;
-        }
+export const SubmitQuizAttemptResponse: MessageFns<SubmitQuizAttemptResponse> =
+  {
+    encode(
+      message: SubmitQuizAttemptResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.progress !== undefined) {
+        QuizAttemptResponseData.encode(
+          message.progress,
+          writer.uint32(10).fork(),
+        ).join();
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.error !== undefined) {
+        Error.encode(message.error, writer.uint32(18).fork()).join();
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): SubmitQuizAttemptResponse {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSubmitQuizAttemptResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.progress = QuizAttemptResponseData.decode(
+              reader,
+              reader.uint32(),
+            );
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.error = Error.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
 
 function createBaseQuizAttemptResponseData(): QuizAttemptResponseData {
   return { score: 0, passed: false, completed: false, attempts: 0 };
 }
 
 export const QuizAttemptResponseData: MessageFns<QuizAttemptResponseData> = {
-  encode(message: QuizAttemptResponseData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: QuizAttemptResponseData,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.score !== 0) {
       writer.uint32(8).int32(message.score);
     }
@@ -723,8 +777,12 @@ export const QuizAttemptResponseData: MessageFns<QuizAttemptResponseData> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): QuizAttemptResponseData {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): QuizAttemptResponseData {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseQuizAttemptResponseData();
     while (reader.pos < end) {
@@ -781,103 +839,127 @@ export const QuizAttemptResponseData: MessageFns<QuizAttemptResponseData> = {
 };
 
 function createBaseUpdateLessonProgressRequest(): UpdateLessonProgressRequest {
-  return { enrollmentId: "", userId: "", lessonId: "", currentTime: 0, duration: 0, event: "" };
+  return {
+    enrollmentId: "",
+    userId: "",
+    lessonId: "",
+    currentTime: 0,
+    duration: 0,
+    event: "",
+  };
 }
 
-export const UpdateLessonProgressRequest: MessageFns<UpdateLessonProgressRequest> = {
-  encode(message: UpdateLessonProgressRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.enrollmentId !== "") {
-      writer.uint32(34).string(message.enrollmentId);
-    }
-    if (message.userId !== "") {
-      writer.uint32(42).string(message.userId);
-    }
-    if (message.lessonId !== "") {
-      writer.uint32(50).string(message.lessonId);
-    }
-    if (message.currentTime !== 0) {
-      writer.uint32(8).int32(message.currentTime);
-    }
-    if (message.duration !== 0) {
-      writer.uint32(16).int32(message.duration);
-    }
-    if (message.event !== "") {
-      writer.uint32(26).string(message.event);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): UpdateLessonProgressRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseUpdateLessonProgressRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 4: {
-          if (tag !== 34) {
-            break;
-          }
-
-          message.enrollmentId = reader.string();
-          continue;
-        }
-        case 5: {
-          if (tag !== 42) {
-            break;
-          }
-
-          message.userId = reader.string();
-          continue;
-        }
-        case 6: {
-          if (tag !== 50) {
-            break;
-          }
-
-          message.lessonId = reader.string();
-          continue;
-        }
-        case 1: {
-          if (tag !== 8) {
-            break;
-          }
-
-          message.currentTime = reader.int32();
-          continue;
-        }
-        case 2: {
-          if (tag !== 16) {
-            break;
-          }
-
-          message.duration = reader.int32();
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.event = reader.string();
-          continue;
-        }
+export const UpdateLessonProgressRequest: MessageFns<UpdateLessonProgressRequest> =
+  {
+    encode(
+      message: UpdateLessonProgressRequest,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.enrollmentId !== "") {
+        writer.uint32(34).string(message.enrollmentId);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.userId !== "") {
+        writer.uint32(42).string(message.userId);
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      if (message.lessonId !== "") {
+        writer.uint32(50).string(message.lessonId);
+      }
+      if (message.currentTime !== 0) {
+        writer.uint32(8).int32(message.currentTime);
+      }
+      if (message.duration !== 0) {
+        writer.uint32(16).int32(message.duration);
+      }
+      if (message.event !== "") {
+        writer.uint32(26).string(message.event);
+      }
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): UpdateLessonProgressRequest {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseUpdateLessonProgressRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.enrollmentId = reader.string();
+            continue;
+          }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.userId = reader.string();
+            continue;
+          }
+          case 6: {
+            if (tag !== 50) {
+              break;
+            }
+
+            message.lessonId = reader.string();
+            continue;
+          }
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
+
+            message.currentTime = reader.int32();
+            continue;
+          }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.duration = reader.int32();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.event = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
 
 function createBaseSubmitQuizAttemptRequest(): SubmitQuizAttemptRequest {
-  return { enrollmentId: "", userId: "", quizId: "", answers: [], timeSpent: 0 };
+  return {
+    enrollmentId: "",
+    userId: "",
+    quizId: "",
+    answers: [],
+    timeSpent: 0,
+  };
 }
 
 export const SubmitQuizAttemptRequest: MessageFns<SubmitQuizAttemptRequest> = {
-  encode(message: SubmitQuizAttemptRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: SubmitQuizAttemptRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.enrollmentId !== "") {
       writer.uint32(34).string(message.enrollmentId);
     }
@@ -896,8 +978,12 @@ export const SubmitQuizAttemptRequest: MessageFns<SubmitQuizAttemptRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): SubmitQuizAttemptRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): SubmitQuizAttemptRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseSubmitQuizAttemptRequest();
     while (reader.pos < end) {
@@ -958,7 +1044,10 @@ function createBaseQuizAnswers(): QuizAnswers {
 }
 
 export const QuizAnswers: MessageFns<QuizAnswers> = {
-  encode(message: QuizAnswers, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: QuizAnswers,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.questionId !== "") {
       writer.uint32(10).string(message.questionId);
     }
@@ -969,7 +1058,8 @@ export const QuizAnswers: MessageFns<QuizAnswers> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): QuizAnswers {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseQuizAnswers();
     while (reader.pos < end) {
@@ -1006,7 +1096,10 @@ function createBaseCreateProgressRequest(): CreateProgressRequest {
 }
 
 export const CreateProgressRequest: MessageFns<CreateProgressRequest> = {
-  encode(message: CreateProgressRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: CreateProgressRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.enrollmentId !== "") {
       writer.uint32(10).string(message.enrollmentId);
     }
@@ -1019,8 +1112,12 @@ export const CreateProgressRequest: MessageFns<CreateProgressRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CreateProgressRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): CreateProgressRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCreateProgressRequest();
     while (reader.pos < end) {
@@ -1064,64 +1161,79 @@ function createBaseGetEnrollmentDetailsRequest(): GetEnrollmentDetailsRequest {
   return { enrollmentId: "", userId: "" };
 }
 
-export const GetEnrollmentDetailsRequest: MessageFns<GetEnrollmentDetailsRequest> = {
-  encode(message: GetEnrollmentDetailsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.enrollmentId !== "") {
-      writer.uint32(10).string(message.enrollmentId);
-    }
-    if (message.userId !== "") {
-      writer.uint32(18).string(message.userId);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): GetEnrollmentDetailsRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGetEnrollmentDetailsRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.enrollmentId = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.userId = reader.string();
-          continue;
-        }
+export const GetEnrollmentDetailsRequest: MessageFns<GetEnrollmentDetailsRequest> =
+  {
+    encode(
+      message: GetEnrollmentDetailsRequest,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.enrollmentId !== "") {
+        writer.uint32(10).string(message.enrollmentId);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.userId !== "") {
+        writer.uint32(18).string(message.userId);
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): GetEnrollmentDetailsRequest {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetEnrollmentDetailsRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.enrollmentId = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.userId = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
 
 function createBaseGetProgressRequest(): GetProgressRequest {
   return { progressId: "" };
 }
 
 export const GetProgressRequest: MessageFns<GetProgressRequest> = {
-  encode(message: GetProgressRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetProgressRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.progressId !== "") {
       writer.uint32(10).string(message.progressId);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetProgressRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): GetProgressRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetProgressRequest();
     while (reader.pos < end) {
@@ -1150,7 +1262,10 @@ function createBaseUpdateProgressRequest(): UpdateProgressRequest {
 }
 
 export const UpdateProgressRequest: MessageFns<UpdateProgressRequest> = {
-  encode(message: UpdateProgressRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: UpdateProgressRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.progressId !== "") {
       writer.uint32(10).string(message.progressId);
     }
@@ -1163,8 +1278,12 @@ export const UpdateProgressRequest: MessageFns<UpdateProgressRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): UpdateProgressRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): UpdateProgressRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseUpdateProgressRequest();
     while (reader.pos < end) {
@@ -1209,15 +1328,22 @@ function createBaseDeleteProgressRequest(): DeleteProgressRequest {
 }
 
 export const DeleteProgressRequest: MessageFns<DeleteProgressRequest> = {
-  encode(message: DeleteProgressRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: DeleteProgressRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.progressId !== "") {
       writer.uint32(10).string(message.progressId);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): DeleteProgressRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): DeleteProgressRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseDeleteProgressRequest();
     while (reader.pos < end) {
@@ -1245,56 +1371,75 @@ function createBaseGetProgressByEnrollmentRequest(): GetProgressByEnrollmentRequ
   return { enrollmentId: "", userId: "" };
 }
 
-export const GetProgressByEnrollmentRequest: MessageFns<GetProgressByEnrollmentRequest> = {
-  encode(message: GetProgressByEnrollmentRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.enrollmentId !== "") {
-      writer.uint32(10).string(message.enrollmentId);
-    }
-    if (message.userId !== "") {
-      writer.uint32(18).string(message.userId);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): GetProgressByEnrollmentRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGetProgressByEnrollmentRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.enrollmentId = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.userId = reader.string();
-          continue;
-        }
+export const GetProgressByEnrollmentRequest: MessageFns<GetProgressByEnrollmentRequest> =
+  {
+    encode(
+      message: GetProgressByEnrollmentRequest,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.enrollmentId !== "") {
+        writer.uint32(10).string(message.enrollmentId);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.userId !== "") {
+        writer.uint32(18).string(message.userId);
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): GetProgressByEnrollmentRequest {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetProgressByEnrollmentRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.enrollmentId = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.userId = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
 
 function createBaseProgressData(): ProgressData {
-  return { id: "", enrollmentId: "", lessonId: "", completed: false, completedAt: "", createdAt: "", updatedAt: "" };
+  return {
+    id: "",
+    enrollmentId: "",
+    lessonId: "",
+    completed: false,
+    completedAt: "",
+    createdAt: "",
+    updatedAt: "",
+  };
 }
 
 export const ProgressData: MessageFns<ProgressData> = {
-  encode(message: ProgressData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ProgressData,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -1323,7 +1468,8 @@ export const ProgressData: MessageFns<ProgressData> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): ProgressData {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseProgressData();
     while (reader.pos < end) {
@@ -1408,7 +1554,10 @@ function createBaseProgressResponse(): ProgressResponse {
 }
 
 export const ProgressResponse: MessageFns<ProgressResponse> = {
-  encode(message: ProgressResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ProgressResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.progress !== undefined) {
       ProgressData.encode(message.progress, writer.uint32(10).fork()).join();
     }
@@ -1419,7 +1568,8 @@ export const ProgressResponse: MessageFns<ProgressResponse> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): ProgressResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseProgressResponse();
     while (reader.pos < end) {
@@ -1455,56 +1605,73 @@ function createBaseEnrollmentProgressResponse(): EnrollmentProgressResponse {
   return {};
 }
 
-export const EnrollmentProgressResponse: MessageFns<EnrollmentProgressResponse> = {
-  encode(message: EnrollmentProgressResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.progress !== undefined) {
-      EnrollmentProgressData.encode(message.progress, writer.uint32(10).fork()).join();
-    }
-    if (message.error !== undefined) {
-      Error.encode(message.error, writer.uint32(18).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): EnrollmentProgressResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseEnrollmentProgressResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.progress = EnrollmentProgressData.decode(reader, reader.uint32());
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.error = Error.decode(reader, reader.uint32());
-          continue;
-        }
+export const EnrollmentProgressResponse: MessageFns<EnrollmentProgressResponse> =
+  {
+    encode(
+      message: EnrollmentProgressResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.progress !== undefined) {
+        EnrollmentProgressData.encode(
+          message.progress,
+          writer.uint32(10).fork(),
+        ).join();
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.error !== undefined) {
+        Error.encode(message.error, writer.uint32(18).fork()).join();
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): EnrollmentProgressResponse {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseEnrollmentProgressResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.progress = EnrollmentProgressData.decode(
+              reader,
+              reader.uint32(),
+            );
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.error = Error.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
 
 function createBaseProgressesData(): ProgressesData {
   return { progresses: [] };
 }
 
 export const ProgressesData: MessageFns<ProgressesData> = {
-  encode(message: ProgressesData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ProgressesData,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     for (const v of message.progresses) {
       ProgressData.encode(v!, writer.uint32(10).fork()).join();
     }
@@ -1512,7 +1679,8 @@ export const ProgressesData: MessageFns<ProgressesData> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): ProgressesData {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseProgressesData();
     while (reader.pos < end) {
@@ -1541,9 +1709,15 @@ function createBaseProgressesResponse(): ProgressesResponse {
 }
 
 export const ProgressesResponse: MessageFns<ProgressesResponse> = {
-  encode(message: ProgressesResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ProgressesResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.progresses !== undefined) {
-      ProgressesData.encode(message.progresses, writer.uint32(10).fork()).join();
+      ProgressesData.encode(
+        message.progresses,
+        writer.uint32(10).fork(),
+      ).join();
     }
     if (message.error !== undefined) {
       Error.encode(message.error, writer.uint32(18).fork()).join();
@@ -1551,8 +1725,12 @@ export const ProgressesResponse: MessageFns<ProgressesResponse> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ProgressesResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): ProgressesResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseProgressesResponse();
     while (reader.pos < end) {
@@ -1589,7 +1767,10 @@ function createBaseDeleteProgressResponse(): DeleteProgressResponse {
 }
 
 export const DeleteProgressResponse: MessageFns<DeleteProgressResponse> = {
-  encode(message: DeleteProgressResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: DeleteProgressResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.success !== undefined) {
       DeleteSuccess.encode(message.success, writer.uint32(10).fork()).join();
     }
@@ -1599,8 +1780,12 @@ export const DeleteProgressResponse: MessageFns<DeleteProgressResponse> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): DeleteProgressResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): DeleteProgressResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseDeleteProgressResponse();
     while (reader.pos < end) {

@@ -37,9 +37,7 @@ export interface Pagination {
   /** Number of items per page */
   pageSize: number;
   /** Field to sort by (e.g., "created_at") */
-  sortBy?:
-    | string
-    | undefined;
+  sortBy?: string | undefined;
   /** "ASC" or "DESC" */
   sortOrder?: string | undefined;
 }
@@ -55,7 +53,10 @@ function createBaseError(): Error {
 }
 
 export const Error: MessageFns<Error> = {
-  encode(message: Error, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: Error,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.code !== "") {
       writer.uint32(10).string(message.code);
     }
@@ -69,7 +70,8 @@ export const Error: MessageFns<Error> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): Error {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseError();
     while (reader.pos < end) {
@@ -114,7 +116,10 @@ function createBaseErrorDetail(): ErrorDetail {
 }
 
 export const ErrorDetail: MessageFns<ErrorDetail> = {
-  encode(message: ErrorDetail, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ErrorDetail,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.field !== undefined) {
       writer.uint32(10).string(message.field);
     }
@@ -125,7 +130,8 @@ export const ErrorDetail: MessageFns<ErrorDetail> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): ErrorDetail {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseErrorDetail();
     while (reader.pos < end) {
@@ -162,7 +168,10 @@ function createBaseUser(): User {
 }
 
 export const User: MessageFns<User> = {
-  encode(message: User, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: User,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -179,7 +188,8 @@ export const User: MessageFns<User> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): User {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseUser();
     while (reader.pos < end) {
@@ -232,7 +242,10 @@ function createBasePagination(): Pagination {
 }
 
 export const Pagination: MessageFns<Pagination> = {
-  encode(message: Pagination, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: Pagination,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.page !== 0) {
       writer.uint32(8).int32(message.page);
     }
@@ -249,7 +262,8 @@ export const Pagination: MessageFns<Pagination> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): Pagination {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBasePagination();
     while (reader.pos < end) {
@@ -302,7 +316,10 @@ function createBaseDeleteSuccess(): DeleteSuccess {
 }
 
 export const DeleteSuccess: MessageFns<DeleteSuccess> = {
-  encode(message: DeleteSuccess, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: DeleteSuccess,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.deleted !== false) {
       writer.uint32(8).bool(message.deleted);
     }
@@ -310,7 +327,8 @@ export const DeleteSuccess: MessageFns<DeleteSuccess> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): DeleteSuccess {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseDeleteSuccess();
     while (reader.pos < end) {

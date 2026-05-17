@@ -82,92 +82,109 @@ export interface DeleteReviewResponse {
 export const COURSE_REVIEW_PACKAGE_NAME = "course.review";
 
 function createBaseSubmitCourseReviewRequest(): SubmitCourseReviewRequest {
-  return { rating: 0, comment: "", enrollmentId: "", userId: "", user: undefined };
+  return {
+    rating: 0,
+    comment: "",
+    enrollmentId: "",
+    userId: "",
+    user: undefined,
+  };
 }
 
-export const SubmitCourseReviewRequest: MessageFns<SubmitCourseReviewRequest> = {
-  encode(message: SubmitCourseReviewRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.rating !== 0) {
-      writer.uint32(8).int32(message.rating);
-    }
-    if (message.comment !== "") {
-      writer.uint32(18).string(message.comment);
-    }
-    if (message.enrollmentId !== "") {
-      writer.uint32(26).string(message.enrollmentId);
-    }
-    if (message.userId !== "") {
-      writer.uint32(34).string(message.userId);
-    }
-    if (message.user !== undefined) {
-      User.encode(message.user, writer.uint32(42).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): SubmitCourseReviewRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseSubmitCourseReviewRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 8) {
-            break;
-          }
-
-          message.rating = reader.int32();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.comment = reader.string();
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.enrollmentId = reader.string();
-          continue;
-        }
-        case 4: {
-          if (tag !== 34) {
-            break;
-          }
-
-          message.userId = reader.string();
-          continue;
-        }
-        case 5: {
-          if (tag !== 42) {
-            break;
-          }
-
-          message.user = User.decode(reader, reader.uint32());
-          continue;
-        }
+export const SubmitCourseReviewRequest: MessageFns<SubmitCourseReviewRequest> =
+  {
+    encode(
+      message: SubmitCourseReviewRequest,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.rating !== 0) {
+        writer.uint32(8).int32(message.rating);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.comment !== "") {
+        writer.uint32(18).string(message.comment);
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      if (message.enrollmentId !== "") {
+        writer.uint32(26).string(message.enrollmentId);
+      }
+      if (message.userId !== "") {
+        writer.uint32(34).string(message.userId);
+      }
+      if (message.user !== undefined) {
+        User.encode(message.user, writer.uint32(42).fork()).join();
+      }
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): SubmitCourseReviewRequest {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSubmitCourseReviewRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
+
+            message.rating = reader.int32();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.comment = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.enrollmentId = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.userId = reader.string();
+            continue;
+          }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.user = User.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
 
 function createBaseGetReviewRequest(): GetReviewRequest {
   return { reviewId: "" };
 }
 
 export const GetReviewRequest: MessageFns<GetReviewRequest> = {
-  encode(message: GetReviewRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetReviewRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.reviewId !== "") {
       writer.uint32(10).string(message.reviewId);
     }
@@ -175,7 +192,8 @@ export const GetReviewRequest: MessageFns<GetReviewRequest> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): GetReviewRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetReviewRequest();
     while (reader.pos < end) {
@@ -203,56 +221,67 @@ function createBaseGetReviewByEnrollmentRequest(): GetReviewByEnrollmentRequest 
   return { enrollmentId: "", userId: "" };
 }
 
-export const GetReviewByEnrollmentRequest: MessageFns<GetReviewByEnrollmentRequest> = {
-  encode(message: GetReviewByEnrollmentRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.enrollmentId !== "") {
-      writer.uint32(10).string(message.enrollmentId);
-    }
-    if (message.userId !== "") {
-      writer.uint32(18).string(message.userId);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): GetReviewByEnrollmentRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGetReviewByEnrollmentRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.enrollmentId = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.userId = reader.string();
-          continue;
-        }
+export const GetReviewByEnrollmentRequest: MessageFns<GetReviewByEnrollmentRequest> =
+  {
+    encode(
+      message: GetReviewByEnrollmentRequest,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.enrollmentId !== "") {
+        writer.uint32(10).string(message.enrollmentId);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.userId !== "") {
+        writer.uint32(18).string(message.userId);
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): GetReviewByEnrollmentRequest {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetReviewByEnrollmentRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.enrollmentId = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.userId = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
 
 function createBaseUpdateReviewRequest(): UpdateReviewRequest {
   return { reviewId: "", userId: "", enrollmentId: "", rating: 0, comment: "" };
 }
 
 export const UpdateReviewRequest: MessageFns<UpdateReviewRequest> = {
-  encode(message: UpdateReviewRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: UpdateReviewRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.reviewId !== "") {
       writer.uint32(10).string(message.reviewId);
     }
@@ -271,8 +300,12 @@ export const UpdateReviewRequest: MessageFns<UpdateReviewRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): UpdateReviewRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): UpdateReviewRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseUpdateReviewRequest();
     while (reader.pos < end) {
@@ -333,7 +366,10 @@ function createBaseDeleteReviewRequest(): DeleteReviewRequest {
 }
 
 export const DeleteReviewRequest: MessageFns<DeleteReviewRequest> = {
-  encode(message: DeleteReviewRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: DeleteReviewRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.reviewId !== "") {
       writer.uint32(10).string(message.reviewId);
     }
@@ -346,8 +382,12 @@ export const DeleteReviewRequest: MessageFns<DeleteReviewRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): DeleteReviewRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): DeleteReviewRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseDeleteReviewRequest();
     while (reader.pos < end) {
@@ -391,49 +431,57 @@ function createBaseGetReviewsByCourseRequest(): GetReviewsByCourseRequest {
   return { courseId: "", pagination: undefined };
 }
 
-export const GetReviewsByCourseRequest: MessageFns<GetReviewsByCourseRequest> = {
-  encode(message: GetReviewsByCourseRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.courseId !== "") {
-      writer.uint32(10).string(message.courseId);
-    }
-    if (message.pagination !== undefined) {
-      Pagination.encode(message.pagination, writer.uint32(18).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): GetReviewsByCourseRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGetReviewsByCourseRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.courseId = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.pagination = Pagination.decode(reader, reader.uint32());
-          continue;
-        }
+export const GetReviewsByCourseRequest: MessageFns<GetReviewsByCourseRequest> =
+  {
+    encode(
+      message: GetReviewsByCourseRequest,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.courseId !== "") {
+        writer.uint32(10).string(message.courseId);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.pagination !== undefined) {
+        Pagination.encode(message.pagination, writer.uint32(18).fork()).join();
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): GetReviewsByCourseRequest {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetReviewsByCourseRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.courseId = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.pagination = Pagination.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
 
 function createBaseReviewData(): ReviewData {
   return {
@@ -450,7 +498,10 @@ function createBaseReviewData(): ReviewData {
 }
 
 export const ReviewData: MessageFns<ReviewData> = {
-  encode(message: ReviewData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ReviewData,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -482,7 +533,8 @@ export const ReviewData: MessageFns<ReviewData> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): ReviewData {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseReviewData();
     while (reader.pos < end) {
@@ -575,7 +627,10 @@ function createBaseReviewResponse(): ReviewResponse {
 }
 
 export const ReviewResponse: MessageFns<ReviewResponse> = {
-  encode(message: ReviewResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ReviewResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.review !== undefined) {
       ReviewData.encode(message.review, writer.uint32(10).fork()).join();
     }
@@ -586,7 +641,8 @@ export const ReviewResponse: MessageFns<ReviewResponse> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): ReviewResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseReviewResponse();
     while (reader.pos < end) {
@@ -623,7 +679,10 @@ function createBaseReviewsData(): ReviewsData {
 }
 
 export const ReviewsData: MessageFns<ReviewsData> = {
-  encode(message: ReviewsData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ReviewsData,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     for (const v of message.reviews) {
       ReviewData.encode(v!, writer.uint32(10).fork()).join();
     }
@@ -634,7 +693,8 @@ export const ReviewsData: MessageFns<ReviewsData> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): ReviewsData {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseReviewsData();
     while (reader.pos < end) {
@@ -671,7 +731,10 @@ function createBaseReviewsResponse(): ReviewsResponse {
 }
 
 export const ReviewsResponse: MessageFns<ReviewsResponse> = {
-  encode(message: ReviewsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ReviewsResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.reviews !== undefined) {
       ReviewsData.encode(message.reviews, writer.uint32(10).fork()).join();
     }
@@ -682,7 +745,8 @@ export const ReviewsResponse: MessageFns<ReviewsResponse> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): ReviewsResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseReviewsResponse();
     while (reader.pos < end) {
@@ -719,7 +783,10 @@ function createBaseDeleteReviewResponse(): DeleteReviewResponse {
 }
 
 export const DeleteReviewResponse: MessageFns<DeleteReviewResponse> = {
-  encode(message: DeleteReviewResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: DeleteReviewResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.success !== undefined) {
       DeleteSuccess.encode(message.success, writer.uint32(10).fork()).join();
     }
@@ -729,8 +796,12 @@ export const DeleteReviewResponse: MessageFns<DeleteReviewResponse> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): DeleteReviewResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): DeleteReviewResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseDeleteReviewResponse();
     while (reader.pos < end) {
