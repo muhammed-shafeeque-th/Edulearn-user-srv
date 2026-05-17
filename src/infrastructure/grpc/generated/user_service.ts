@@ -5,7 +5,10 @@
 // source: user_service.proto
 
 /* eslint-disable */
-import type { handleUnaryCall, UntypedServiceImplementation } from "@grpc/grpc-js";
+import type {
+  handleUnaryCall,
+  UntypedServiceImplementation,
+} from "@grpc/grpc-js";
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
 import { Empty } from "./user/common";
@@ -100,43 +103,71 @@ export interface UserServiceClient {
 
   listUsersByIds(request: ListUsersByIdsRequest): Observable<ListUsersResponse>;
 
-  getCurrentUser(request: GetCurrentUserRequest): Observable<GetCurrentUserResponse>;
+  getCurrentUser(
+    request: GetCurrentUserRequest,
+  ): Observable<GetCurrentUserResponse>;
 
-  updateUserDetails(request: UpdateUserDetailsRequest): Observable<UpdateUserDetailsResponse>;
+  updateUserDetails(
+    request: UpdateUserDetailsRequest,
+  ): Observable<UpdateUserDetailsResponse>;
 
-  changePassword(request: ChangePasswordRequest): Observable<ChangePasswordResponse>;
+  changePassword(
+    request: ChangePasswordRequest,
+  ): Observable<ChangePasswordResponse>;
 
   /** Instructor */
 
-  registerInstructor(request: RegisterInstructorRequest): Observable<RegisterInstructorResponse>;
+  registerInstructor(
+    request: RegisterInstructorRequest,
+  ): Observable<RegisterInstructorResponse>;
 
-  getInstructorByName(request: GetInstructorByNameRequest): Observable<GetInstructorByNameResponse>;
+  getInstructorByName(
+    request: GetInstructorByNameRequest,
+  ): Observable<GetInstructorByNameResponse>;
 
-  listInstructors(request: ListInstructorsRequest): Observable<ListInstructorsResponse>;
+  listInstructors(
+    request: ListInstructorsRequest,
+  ): Observable<ListInstructorsResponse>;
 
   /** Email/verification */
 
-  getUserEmails(request: GetUserEmailsRequest): Observable<GetUserEmailsResponse>;
+  getUserEmails(
+    request: GetUserEmailsRequest,
+  ): Observable<GetUserEmailsResponse>;
 
-  checkUserEmailExist(request: CheckUserByEmailRequest): Observable<CheckUserByEmailResponse>;
+  checkUserEmailExist(
+    request: CheckUserByEmailRequest,
+  ): Observable<CheckUserByEmailResponse>;
 
   /** Block/Unblock */
 
   blockAccount(request: BlockAccountRequest): Observable<BlockAccountResponse>;
 
-  unBlockAccount(request: UnBlockAccountRequest): Observable<UnBlockAccountResponse>;
+  unBlockAccount(
+    request: UnBlockAccountRequest,
+  ): Observable<UnBlockAccountResponse>;
 
-  blockInstructor(request: BlockInstructorRequest): Observable<BlockInstructorResponse>;
+  blockInstructor(
+    request: BlockInstructorRequest,
+  ): Observable<BlockInstructorResponse>;
 
-  unBlockInstructor(request: UnBlockInstructorRequest): Observable<UnBlockInstructorResponse>;
+  unBlockInstructor(
+    request: UnBlockInstructorRequest,
+  ): Observable<UnBlockInstructorResponse>;
 
   /** Instructor Student relations */
 
-  listInstructorsOfStudent(request: ListInstructorsOfStudentRequest): Observable<ListInstructorsResponse>;
+  listInstructorsOfStudent(
+    request: ListInstructorsOfStudentRequest,
+  ): Observable<ListInstructorsResponse>;
 
-  listStudentsOfInstructor(request: ListStudentsOfInstructorRequest): Observable<ListUsersResponse>;
+  listStudentsOfInstructor(
+    request: ListStudentsOfInstructorRequest,
+  ): Observable<ListUsersResponse>;
 
-  isStudentOfInstructor(request: IsStudentOfInstructorRequest): Observable<IsStudentOfInstructorResponse>;
+  isStudentOfInstructor(
+    request: IsStudentOfInstructorRequest,
+  ): Observable<IsStudentOfInstructorResponse>;
 
   /** Stats */
 
@@ -144,99 +175,164 @@ export interface UserServiceClient {
 
   getInstructorsStats(request: Empty): Observable<GetInstructorsStatsResponse>;
 
-  getInstructorsGrowthTrend(request: GetInstructorsGrowthTrendRequest): Observable<GetInstructorsGrowthTrendResponse>;
+  getInstructorsGrowthTrend(
+    request: GetInstructorsGrowthTrendRequest,
+  ): Observable<GetInstructorsGrowthTrendResponse>;
 
-  getUsersGrowthTrend(request: GetUsersGrowthTrendRequest): Observable<GetUsersGrowthTrendResponse>;
+  getUsersGrowthTrend(
+    request: GetUsersGrowthTrendRequest,
+  ): Observable<GetUsersGrowthTrendResponse>;
 }
 
 export interface UserServiceController {
   /** User operations */
 
-  getUser(request: GetUserRequest): Promise<GetUserResponse> | Observable<GetUserResponse> | GetUserResponse;
+  getUser(
+    request: GetUserRequest,
+  ): Promise<GetUserResponse> | Observable<GetUserResponse> | GetUserResponse;
 
-  listUsers(request: ListUsersRequest): Promise<ListUsersResponse> | Observable<ListUsersResponse> | ListUsersResponse;
+  listUsers(
+    request: ListUsersRequest,
+  ):
+    | Promise<ListUsersResponse>
+    | Observable<ListUsersResponse>
+    | ListUsersResponse;
 
   listUsersByIds(
     request: ListUsersByIdsRequest,
-  ): Promise<ListUsersResponse> | Observable<ListUsersResponse> | ListUsersResponse;
+  ):
+    | Promise<ListUsersResponse>
+    | Observable<ListUsersResponse>
+    | ListUsersResponse;
 
   getCurrentUser(
     request: GetCurrentUserRequest,
-  ): Promise<GetCurrentUserResponse> | Observable<GetCurrentUserResponse> | GetCurrentUserResponse;
+  ):
+    | Promise<GetCurrentUserResponse>
+    | Observable<GetCurrentUserResponse>
+    | GetCurrentUserResponse;
 
   updateUserDetails(
     request: UpdateUserDetailsRequest,
-  ): Promise<UpdateUserDetailsResponse> | Observable<UpdateUserDetailsResponse> | UpdateUserDetailsResponse;
+  ):
+    | Promise<UpdateUserDetailsResponse>
+    | Observable<UpdateUserDetailsResponse>
+    | UpdateUserDetailsResponse;
 
   changePassword(
     request: ChangePasswordRequest,
-  ): Promise<ChangePasswordResponse> | Observable<ChangePasswordResponse> | ChangePasswordResponse;
+  ):
+    | Promise<ChangePasswordResponse>
+    | Observable<ChangePasswordResponse>
+    | ChangePasswordResponse;
 
   /** Instructor */
 
   registerInstructor(
     request: RegisterInstructorRequest,
-  ): Promise<RegisterInstructorResponse> | Observable<RegisterInstructorResponse> | RegisterInstructorResponse;
+  ):
+    | Promise<RegisterInstructorResponse>
+    | Observable<RegisterInstructorResponse>
+    | RegisterInstructorResponse;
 
   getInstructorByName(
     request: GetInstructorByNameRequest,
-  ): Promise<GetInstructorByNameResponse> | Observable<GetInstructorByNameResponse> | GetInstructorByNameResponse;
+  ):
+    | Promise<GetInstructorByNameResponse>
+    | Observable<GetInstructorByNameResponse>
+    | GetInstructorByNameResponse;
 
   listInstructors(
     request: ListInstructorsRequest,
-  ): Promise<ListInstructorsResponse> | Observable<ListInstructorsResponse> | ListInstructorsResponse;
+  ):
+    | Promise<ListInstructorsResponse>
+    | Observable<ListInstructorsResponse>
+    | ListInstructorsResponse;
 
   /** Email/verification */
 
   getUserEmails(
     request: GetUserEmailsRequest,
-  ): Promise<GetUserEmailsResponse> | Observable<GetUserEmailsResponse> | GetUserEmailsResponse;
+  ):
+    | Promise<GetUserEmailsResponse>
+    | Observable<GetUserEmailsResponse>
+    | GetUserEmailsResponse;
 
   checkUserEmailExist(
     request: CheckUserByEmailRequest,
-  ): Promise<CheckUserByEmailResponse> | Observable<CheckUserByEmailResponse> | CheckUserByEmailResponse;
+  ):
+    | Promise<CheckUserByEmailResponse>
+    | Observable<CheckUserByEmailResponse>
+    | CheckUserByEmailResponse;
 
   /** Block/Unblock */
 
   blockAccount(
     request: BlockAccountRequest,
-  ): Promise<BlockAccountResponse> | Observable<BlockAccountResponse> | BlockAccountResponse;
+  ):
+    | Promise<BlockAccountResponse>
+    | Observable<BlockAccountResponse>
+    | BlockAccountResponse;
 
   unBlockAccount(
     request: UnBlockAccountRequest,
-  ): Promise<UnBlockAccountResponse> | Observable<UnBlockAccountResponse> | UnBlockAccountResponse;
+  ):
+    | Promise<UnBlockAccountResponse>
+    | Observable<UnBlockAccountResponse>
+    | UnBlockAccountResponse;
 
   blockInstructor(
     request: BlockInstructorRequest,
-  ): Promise<BlockInstructorResponse> | Observable<BlockInstructorResponse> | BlockInstructorResponse;
+  ):
+    | Promise<BlockInstructorResponse>
+    | Observable<BlockInstructorResponse>
+    | BlockInstructorResponse;
 
   unBlockInstructor(
     request: UnBlockInstructorRequest,
-  ): Promise<UnBlockInstructorResponse> | Observable<UnBlockInstructorResponse> | UnBlockInstructorResponse;
+  ):
+    | Promise<UnBlockInstructorResponse>
+    | Observable<UnBlockInstructorResponse>
+    | UnBlockInstructorResponse;
 
   /** Instructor Student relations */
 
   listInstructorsOfStudent(
     request: ListInstructorsOfStudentRequest,
-  ): Promise<ListInstructorsResponse> | Observable<ListInstructorsResponse> | ListInstructorsResponse;
+  ):
+    | Promise<ListInstructorsResponse>
+    | Observable<ListInstructorsResponse>
+    | ListInstructorsResponse;
 
   listStudentsOfInstructor(
     request: ListStudentsOfInstructorRequest,
-  ): Promise<ListUsersResponse> | Observable<ListUsersResponse> | ListUsersResponse;
+  ):
+    | Promise<ListUsersResponse>
+    | Observable<ListUsersResponse>
+    | ListUsersResponse;
 
   isStudentOfInstructor(
     request: IsStudentOfInstructorRequest,
-  ): Promise<IsStudentOfInstructorResponse> | Observable<IsStudentOfInstructorResponse> | IsStudentOfInstructorResponse;
+  ):
+    | Promise<IsStudentOfInstructorResponse>
+    | Observable<IsStudentOfInstructorResponse>
+    | IsStudentOfInstructorResponse;
 
   /** Stats */
 
   getUsersStats(
     request: Empty,
-  ): Promise<GetUsersStatsResponse> | Observable<GetUsersStatsResponse> | GetUsersStatsResponse;
+  ):
+    | Promise<GetUsersStatsResponse>
+    | Observable<GetUsersStatsResponse>
+    | GetUsersStatsResponse;
 
   getInstructorsStats(
     request: Empty,
-  ): Promise<GetInstructorsStatsResponse> | Observable<GetInstructorsStatsResponse> | GetInstructorsStatsResponse;
+  ):
+    | Promise<GetInstructorsStatsResponse>
+    | Observable<GetInstructorsStatsResponse>
+    | GetInstructorsStatsResponse;
 
   getInstructorsGrowthTrend(
     request: GetInstructorsGrowthTrendRequest,
@@ -247,7 +343,10 @@ export interface UserServiceController {
 
   getUsersGrowthTrend(
     request: GetUsersGrowthTrendRequest,
-  ): Promise<GetUsersGrowthTrendResponse> | Observable<GetUsersGrowthTrendResponse> | GetUsersGrowthTrendResponse;
+  ):
+    | Promise<GetUsersGrowthTrendResponse>
+    | Observable<GetUsersGrowthTrendResponse>
+    | GetUsersGrowthTrendResponse;
 }
 
 export function UserServiceControllerMethods() {
@@ -277,13 +376,27 @@ export function UserServiceControllerMethods() {
       "getUsersGrowthTrend",
     ];
     for (const method of grpcMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcMethod("UserService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcMethod("UserService", method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
     const grpcStreamMethods: string[] = [];
     for (const method of grpcStreamMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcStreamMethod("UserService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcStreamMethod("UserService", method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
   };
 }
@@ -297,19 +410,27 @@ export const UserServiceService = {
     path: "/user_service.UserService/GetUser",
     requestStream: false,
     responseStream: false,
-    requestSerialize: (value: GetUserRequest): Buffer => Buffer.from(GetUserRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): GetUserRequest => GetUserRequest.decode(value),
-    responseSerialize: (value: GetUserResponse): Buffer => Buffer.from(GetUserResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): GetUserResponse => GetUserResponse.decode(value),
+    requestSerialize: (value: GetUserRequest): Buffer =>
+      Buffer.from(GetUserRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): GetUserRequest =>
+      GetUserRequest.decode(value),
+    responseSerialize: (value: GetUserResponse): Buffer =>
+      Buffer.from(GetUserResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): GetUserResponse =>
+      GetUserResponse.decode(value),
   },
   listUsers: {
     path: "/user_service.UserService/ListUsers",
     requestStream: false,
     responseStream: false,
-    requestSerialize: (value: ListUsersRequest): Buffer => Buffer.from(ListUsersRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): ListUsersRequest => ListUsersRequest.decode(value),
-    responseSerialize: (value: ListUsersResponse): Buffer => Buffer.from(ListUsersResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): ListUsersResponse => ListUsersResponse.decode(value),
+    requestSerialize: (value: ListUsersRequest): Buffer =>
+      Buffer.from(ListUsersRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): ListUsersRequest =>
+      ListUsersRequest.decode(value),
+    responseSerialize: (value: ListUsersResponse): Buffer =>
+      Buffer.from(ListUsersResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): ListUsersResponse =>
+      ListUsersResponse.decode(value),
   },
   listUsersByIds: {
     path: "/user_service.UserService/ListUsersByIds",
@@ -317,9 +438,12 @@ export const UserServiceService = {
     responseStream: false,
     requestSerialize: (value: ListUsersByIdsRequest): Buffer =>
       Buffer.from(ListUsersByIdsRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): ListUsersByIdsRequest => ListUsersByIdsRequest.decode(value),
-    responseSerialize: (value: ListUsersResponse): Buffer => Buffer.from(ListUsersResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): ListUsersResponse => ListUsersResponse.decode(value),
+    requestDeserialize: (value: Buffer): ListUsersByIdsRequest =>
+      ListUsersByIdsRequest.decode(value),
+    responseSerialize: (value: ListUsersResponse): Buffer =>
+      Buffer.from(ListUsersResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): ListUsersResponse =>
+      ListUsersResponse.decode(value),
   },
   getCurrentUser: {
     path: "/user_service.UserService/GetCurrentUser",
@@ -327,10 +451,12 @@ export const UserServiceService = {
     responseStream: false,
     requestSerialize: (value: GetCurrentUserRequest): Buffer =>
       Buffer.from(GetCurrentUserRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): GetCurrentUserRequest => GetCurrentUserRequest.decode(value),
+    requestDeserialize: (value: Buffer): GetCurrentUserRequest =>
+      GetCurrentUserRequest.decode(value),
     responseSerialize: (value: GetCurrentUserResponse): Buffer =>
       Buffer.from(GetCurrentUserResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): GetCurrentUserResponse => GetCurrentUserResponse.decode(value),
+    responseDeserialize: (value: Buffer): GetCurrentUserResponse =>
+      GetCurrentUserResponse.decode(value),
   },
   updateUserDetails: {
     path: "/user_service.UserService/UpdateUserDetails",
@@ -338,10 +464,12 @@ export const UserServiceService = {
     responseStream: false,
     requestSerialize: (value: UpdateUserDetailsRequest): Buffer =>
       Buffer.from(UpdateUserDetailsRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): UpdateUserDetailsRequest => UpdateUserDetailsRequest.decode(value),
+    requestDeserialize: (value: Buffer): UpdateUserDetailsRequest =>
+      UpdateUserDetailsRequest.decode(value),
     responseSerialize: (value: UpdateUserDetailsResponse): Buffer =>
       Buffer.from(UpdateUserDetailsResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): UpdateUserDetailsResponse => UpdateUserDetailsResponse.decode(value),
+    responseDeserialize: (value: Buffer): UpdateUserDetailsResponse =>
+      UpdateUserDetailsResponse.decode(value),
   },
   changePassword: {
     path: "/user_service.UserService/ChangePassword",
@@ -349,10 +477,12 @@ export const UserServiceService = {
     responseStream: false,
     requestSerialize: (value: ChangePasswordRequest): Buffer =>
       Buffer.from(ChangePasswordRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): ChangePasswordRequest => ChangePasswordRequest.decode(value),
+    requestDeserialize: (value: Buffer): ChangePasswordRequest =>
+      ChangePasswordRequest.decode(value),
     responseSerialize: (value: ChangePasswordResponse): Buffer =>
       Buffer.from(ChangePasswordResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): ChangePasswordResponse => ChangePasswordResponse.decode(value),
+    responseDeserialize: (value: Buffer): ChangePasswordResponse =>
+      ChangePasswordResponse.decode(value),
   },
   /** Instructor */
   registerInstructor: {
@@ -361,10 +491,12 @@ export const UserServiceService = {
     responseStream: false,
     requestSerialize: (value: RegisterInstructorRequest): Buffer =>
       Buffer.from(RegisterInstructorRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): RegisterInstructorRequest => RegisterInstructorRequest.decode(value),
+    requestDeserialize: (value: Buffer): RegisterInstructorRequest =>
+      RegisterInstructorRequest.decode(value),
     responseSerialize: (value: RegisterInstructorResponse): Buffer =>
       Buffer.from(RegisterInstructorResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): RegisterInstructorResponse => RegisterInstructorResponse.decode(value),
+    responseDeserialize: (value: Buffer): RegisterInstructorResponse =>
+      RegisterInstructorResponse.decode(value),
   },
   getInstructorByName: {
     path: "/user_service.UserService/GetInstructorByName",
@@ -372,10 +504,12 @@ export const UserServiceService = {
     responseStream: false,
     requestSerialize: (value: GetInstructorByNameRequest): Buffer =>
       Buffer.from(GetInstructorByNameRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): GetInstructorByNameRequest => GetInstructorByNameRequest.decode(value),
+    requestDeserialize: (value: Buffer): GetInstructorByNameRequest =>
+      GetInstructorByNameRequest.decode(value),
     responseSerialize: (value: GetInstructorByNameResponse): Buffer =>
       Buffer.from(GetInstructorByNameResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): GetInstructorByNameResponse => GetInstructorByNameResponse.decode(value),
+    responseDeserialize: (value: Buffer): GetInstructorByNameResponse =>
+      GetInstructorByNameResponse.decode(value),
   },
   listInstructors: {
     path: "/user_service.UserService/ListInstructors",
@@ -383,21 +517,26 @@ export const UserServiceService = {
     responseStream: false,
     requestSerialize: (value: ListInstructorsRequest): Buffer =>
       Buffer.from(ListInstructorsRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): ListInstructorsRequest => ListInstructorsRequest.decode(value),
+    requestDeserialize: (value: Buffer): ListInstructorsRequest =>
+      ListInstructorsRequest.decode(value),
     responseSerialize: (value: ListInstructorsResponse): Buffer =>
       Buffer.from(ListInstructorsResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): ListInstructorsResponse => ListInstructorsResponse.decode(value),
+    responseDeserialize: (value: Buffer): ListInstructorsResponse =>
+      ListInstructorsResponse.decode(value),
   },
   /** Email/verification */
   getUserEmails: {
     path: "/user_service.UserService/GetUserEmails",
     requestStream: false,
     responseStream: false,
-    requestSerialize: (value: GetUserEmailsRequest): Buffer => Buffer.from(GetUserEmailsRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): GetUserEmailsRequest => GetUserEmailsRequest.decode(value),
+    requestSerialize: (value: GetUserEmailsRequest): Buffer =>
+      Buffer.from(GetUserEmailsRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): GetUserEmailsRequest =>
+      GetUserEmailsRequest.decode(value),
     responseSerialize: (value: GetUserEmailsResponse): Buffer =>
       Buffer.from(GetUserEmailsResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): GetUserEmailsResponse => GetUserEmailsResponse.decode(value),
+    responseDeserialize: (value: Buffer): GetUserEmailsResponse =>
+      GetUserEmailsResponse.decode(value),
   },
   checkUserEmailExist: {
     path: "/user_service.UserService/CheckUserEmailExist",
@@ -405,21 +544,26 @@ export const UserServiceService = {
     responseStream: false,
     requestSerialize: (value: CheckUserByEmailRequest): Buffer =>
       Buffer.from(CheckUserByEmailRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): CheckUserByEmailRequest => CheckUserByEmailRequest.decode(value),
+    requestDeserialize: (value: Buffer): CheckUserByEmailRequest =>
+      CheckUserByEmailRequest.decode(value),
     responseSerialize: (value: CheckUserByEmailResponse): Buffer =>
       Buffer.from(CheckUserByEmailResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): CheckUserByEmailResponse => CheckUserByEmailResponse.decode(value),
+    responseDeserialize: (value: Buffer): CheckUserByEmailResponse =>
+      CheckUserByEmailResponse.decode(value),
   },
   /** Block/Unblock */
   blockAccount: {
     path: "/user_service.UserService/BlockAccount",
     requestStream: false,
     responseStream: false,
-    requestSerialize: (value: BlockAccountRequest): Buffer => Buffer.from(BlockAccountRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): BlockAccountRequest => BlockAccountRequest.decode(value),
+    requestSerialize: (value: BlockAccountRequest): Buffer =>
+      Buffer.from(BlockAccountRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): BlockAccountRequest =>
+      BlockAccountRequest.decode(value),
     responseSerialize: (value: BlockAccountResponse): Buffer =>
       Buffer.from(BlockAccountResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): BlockAccountResponse => BlockAccountResponse.decode(value),
+    responseDeserialize: (value: Buffer): BlockAccountResponse =>
+      BlockAccountResponse.decode(value),
   },
   unBlockAccount: {
     path: "/user_service.UserService/UnBlockAccount",
@@ -427,10 +571,12 @@ export const UserServiceService = {
     responseStream: false,
     requestSerialize: (value: UnBlockAccountRequest): Buffer =>
       Buffer.from(UnBlockAccountRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): UnBlockAccountRequest => UnBlockAccountRequest.decode(value),
+    requestDeserialize: (value: Buffer): UnBlockAccountRequest =>
+      UnBlockAccountRequest.decode(value),
     responseSerialize: (value: UnBlockAccountResponse): Buffer =>
       Buffer.from(UnBlockAccountResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): UnBlockAccountResponse => UnBlockAccountResponse.decode(value),
+    responseDeserialize: (value: Buffer): UnBlockAccountResponse =>
+      UnBlockAccountResponse.decode(value),
   },
   blockInstructor: {
     path: "/user_service.UserService/BlockInstructor",
@@ -438,10 +584,12 @@ export const UserServiceService = {
     responseStream: false,
     requestSerialize: (value: BlockInstructorRequest): Buffer =>
       Buffer.from(BlockInstructorRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): BlockInstructorRequest => BlockInstructorRequest.decode(value),
+    requestDeserialize: (value: Buffer): BlockInstructorRequest =>
+      BlockInstructorRequest.decode(value),
     responseSerialize: (value: BlockInstructorResponse): Buffer =>
       Buffer.from(BlockInstructorResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): BlockInstructorResponse => BlockInstructorResponse.decode(value),
+    responseDeserialize: (value: Buffer): BlockInstructorResponse =>
+      BlockInstructorResponse.decode(value),
   },
   unBlockInstructor: {
     path: "/user_service.UserService/UnBlockInstructor",
@@ -449,10 +597,12 @@ export const UserServiceService = {
     responseStream: false,
     requestSerialize: (value: UnBlockInstructorRequest): Buffer =>
       Buffer.from(UnBlockInstructorRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): UnBlockInstructorRequest => UnBlockInstructorRequest.decode(value),
+    requestDeserialize: (value: Buffer): UnBlockInstructorRequest =>
+      UnBlockInstructorRequest.decode(value),
     responseSerialize: (value: UnBlockInstructorResponse): Buffer =>
       Buffer.from(UnBlockInstructorResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): UnBlockInstructorResponse => UnBlockInstructorResponse.decode(value),
+    responseDeserialize: (value: Buffer): UnBlockInstructorResponse =>
+      UnBlockInstructorResponse.decode(value),
   },
   /** Instructor Student relations */
   listInstructorsOfStudent: {
@@ -465,7 +615,8 @@ export const UserServiceService = {
       ListInstructorsOfStudentRequest.decode(value),
     responseSerialize: (value: ListInstructorsResponse): Buffer =>
       Buffer.from(ListInstructorsResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): ListInstructorsResponse => ListInstructorsResponse.decode(value),
+    responseDeserialize: (value: Buffer): ListInstructorsResponse =>
+      ListInstructorsResponse.decode(value),
   },
   listStudentsOfInstructor: {
     path: "/user_service.UserService/ListStudentsOfInstructor",
@@ -475,8 +626,10 @@ export const UserServiceService = {
       Buffer.from(ListStudentsOfInstructorRequest.encode(value).finish()),
     requestDeserialize: (value: Buffer): ListStudentsOfInstructorRequest =>
       ListStudentsOfInstructorRequest.decode(value),
-    responseSerialize: (value: ListUsersResponse): Buffer => Buffer.from(ListUsersResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): ListUsersResponse => ListUsersResponse.decode(value),
+    responseSerialize: (value: ListUsersResponse): Buffer =>
+      Buffer.from(ListUsersResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): ListUsersResponse =>
+      ListUsersResponse.decode(value),
   },
   isStudentOfInstructor: {
     path: "/user_service.UserService/IsStudentOfInstructor",
@@ -484,31 +637,37 @@ export const UserServiceService = {
     responseStream: false,
     requestSerialize: (value: IsStudentOfInstructorRequest): Buffer =>
       Buffer.from(IsStudentOfInstructorRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): IsStudentOfInstructorRequest => IsStudentOfInstructorRequest.decode(value),
+    requestDeserialize: (value: Buffer): IsStudentOfInstructorRequest =>
+      IsStudentOfInstructorRequest.decode(value),
     responseSerialize: (value: IsStudentOfInstructorResponse): Buffer =>
       Buffer.from(IsStudentOfInstructorResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): IsStudentOfInstructorResponse => IsStudentOfInstructorResponse.decode(value),
+    responseDeserialize: (value: Buffer): IsStudentOfInstructorResponse =>
+      IsStudentOfInstructorResponse.decode(value),
   },
   /** Stats */
   getUsersStats: {
     path: "/user_service.UserService/GetUsersStats",
     requestStream: false,
     responseStream: false,
-    requestSerialize: (value: Empty): Buffer => Buffer.from(Empty.encode(value).finish()),
+    requestSerialize: (value: Empty): Buffer =>
+      Buffer.from(Empty.encode(value).finish()),
     requestDeserialize: (value: Buffer): Empty => Empty.decode(value),
     responseSerialize: (value: GetUsersStatsResponse): Buffer =>
       Buffer.from(GetUsersStatsResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): GetUsersStatsResponse => GetUsersStatsResponse.decode(value),
+    responseDeserialize: (value: Buffer): GetUsersStatsResponse =>
+      GetUsersStatsResponse.decode(value),
   },
   getInstructorsStats: {
     path: "/user_service.UserService/GetInstructorsStats",
     requestStream: false,
     responseStream: false,
-    requestSerialize: (value: Empty): Buffer => Buffer.from(Empty.encode(value).finish()),
+    requestSerialize: (value: Empty): Buffer =>
+      Buffer.from(Empty.encode(value).finish()),
     requestDeserialize: (value: Buffer): Empty => Empty.decode(value),
     responseSerialize: (value: GetInstructorsStatsResponse): Buffer =>
       Buffer.from(GetInstructorsStatsResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): GetInstructorsStatsResponse => GetInstructorsStatsResponse.decode(value),
+    responseDeserialize: (value: Buffer): GetInstructorsStatsResponse =>
+      GetInstructorsStatsResponse.decode(value),
   },
   getInstructorsGrowthTrend: {
     path: "/user_service.UserService/GetInstructorsGrowthTrend",
@@ -529,10 +688,12 @@ export const UserServiceService = {
     responseStream: false,
     requestSerialize: (value: GetUsersGrowthTrendRequest): Buffer =>
       Buffer.from(GetUsersGrowthTrendRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): GetUsersGrowthTrendRequest => GetUsersGrowthTrendRequest.decode(value),
+    requestDeserialize: (value: Buffer): GetUsersGrowthTrendRequest =>
+      GetUsersGrowthTrendRequest.decode(value),
     responseSerialize: (value: GetUsersGrowthTrendResponse): Buffer =>
       Buffer.from(GetUsersGrowthTrendResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): GetUsersGrowthTrendResponse => GetUsersGrowthTrendResponse.decode(value),
+    responseDeserialize: (value: Buffer): GetUsersGrowthTrendResponse =>
+      GetUsersGrowthTrendResponse.decode(value),
   },
 } as const;
 
@@ -541,38 +702,87 @@ export interface UserServiceServer extends UntypedServiceImplementation {
   getUser: handleUnaryCall<GetUserRequest, GetUserResponse>;
   listUsers: handleUnaryCall<ListUsersRequest, ListUsersResponse>;
   listUsersByIds: handleUnaryCall<ListUsersByIdsRequest, ListUsersResponse>;
-  getCurrentUser: handleUnaryCall<GetCurrentUserRequest, GetCurrentUserResponse>;
-  updateUserDetails: handleUnaryCall<UpdateUserDetailsRequest, UpdateUserDetailsResponse>;
-  changePassword: handleUnaryCall<ChangePasswordRequest, ChangePasswordResponse>;
+  getCurrentUser: handleUnaryCall<
+    GetCurrentUserRequest,
+    GetCurrentUserResponse
+  >;
+  updateUserDetails: handleUnaryCall<
+    UpdateUserDetailsRequest,
+    UpdateUserDetailsResponse
+  >;
+  changePassword: handleUnaryCall<
+    ChangePasswordRequest,
+    ChangePasswordResponse
+  >;
   /** Instructor */
-  registerInstructor: handleUnaryCall<RegisterInstructorRequest, RegisterInstructorResponse>;
-  getInstructorByName: handleUnaryCall<GetInstructorByNameRequest, GetInstructorByNameResponse>;
-  listInstructors: handleUnaryCall<ListInstructorsRequest, ListInstructorsResponse>;
+  registerInstructor: handleUnaryCall<
+    RegisterInstructorRequest,
+    RegisterInstructorResponse
+  >;
+  getInstructorByName: handleUnaryCall<
+    GetInstructorByNameRequest,
+    GetInstructorByNameResponse
+  >;
+  listInstructors: handleUnaryCall<
+    ListInstructorsRequest,
+    ListInstructorsResponse
+  >;
   /** Email/verification */
   getUserEmails: handleUnaryCall<GetUserEmailsRequest, GetUserEmailsResponse>;
-  checkUserEmailExist: handleUnaryCall<CheckUserByEmailRequest, CheckUserByEmailResponse>;
+  checkUserEmailExist: handleUnaryCall<
+    CheckUserByEmailRequest,
+    CheckUserByEmailResponse
+  >;
   /** Block/Unblock */
   blockAccount: handleUnaryCall<BlockAccountRequest, BlockAccountResponse>;
-  unBlockAccount: handleUnaryCall<UnBlockAccountRequest, UnBlockAccountResponse>;
-  blockInstructor: handleUnaryCall<BlockInstructorRequest, BlockInstructorResponse>;
-  unBlockInstructor: handleUnaryCall<UnBlockInstructorRequest, UnBlockInstructorResponse>;
+  unBlockAccount: handleUnaryCall<
+    UnBlockAccountRequest,
+    UnBlockAccountResponse
+  >;
+  blockInstructor: handleUnaryCall<
+    BlockInstructorRequest,
+    BlockInstructorResponse
+  >;
+  unBlockInstructor: handleUnaryCall<
+    UnBlockInstructorRequest,
+    UnBlockInstructorResponse
+  >;
   /** Instructor Student relations */
-  listInstructorsOfStudent: handleUnaryCall<ListInstructorsOfStudentRequest, ListInstructorsResponse>;
-  listStudentsOfInstructor: handleUnaryCall<ListStudentsOfInstructorRequest, ListUsersResponse>;
-  isStudentOfInstructor: handleUnaryCall<IsStudentOfInstructorRequest, IsStudentOfInstructorResponse>;
+  listInstructorsOfStudent: handleUnaryCall<
+    ListInstructorsOfStudentRequest,
+    ListInstructorsResponse
+  >;
+  listStudentsOfInstructor: handleUnaryCall<
+    ListStudentsOfInstructorRequest,
+    ListUsersResponse
+  >;
+  isStudentOfInstructor: handleUnaryCall<
+    IsStudentOfInstructorRequest,
+    IsStudentOfInstructorResponse
+  >;
   /** Stats */
   getUsersStats: handleUnaryCall<Empty, GetUsersStatsResponse>;
   getInstructorsStats: handleUnaryCall<Empty, GetInstructorsStatsResponse>;
-  getInstructorsGrowthTrend: handleUnaryCall<GetInstructorsGrowthTrendRequest, GetInstructorsGrowthTrendResponse>;
-  getUsersGrowthTrend: handleUnaryCall<GetUsersGrowthTrendRequest, GetUsersGrowthTrendResponse>;
+  getInstructorsGrowthTrend: handleUnaryCall<
+    GetInstructorsGrowthTrendRequest,
+    GetInstructorsGrowthTrendResponse
+  >;
+  getUsersGrowthTrend: handleUnaryCall<
+    GetUsersGrowthTrendRequest,
+    GetUsersGrowthTrendResponse
+  >;
 }
 
 export interface WalletServiceClient {
   /** Wallet */
 
-  getUserWallet(request: GetUserWalletRequest): Observable<GetUserWalletResponse>;
+  getUserWallet(
+    request: GetUserWalletRequest,
+  ): Observable<GetUserWalletResponse>;
 
-  getWalletTransactions(request: GetWalletTransactionsRequest): Observable<GetWalletTransactionsResponse>;
+  getWalletTransactions(
+    request: GetWalletTransactionsRequest,
+  ): Observable<GetWalletTransactionsResponse>;
 
   /** Stats */
 
@@ -586,11 +796,17 @@ export interface WalletServiceController {
 
   getUserWallet(
     request: GetUserWalletRequest,
-  ): Promise<GetUserWalletResponse> | Observable<GetUserWalletResponse> | GetUserWalletResponse;
+  ):
+    | Promise<GetUserWalletResponse>
+    | Observable<GetUserWalletResponse>
+    | GetUserWalletResponse;
 
   getWalletTransactions(
     request: GetWalletTransactionsRequest,
-  ): Promise<GetWalletTransactionsResponse> | Observable<GetWalletTransactionsResponse> | GetWalletTransactionsResponse;
+  ):
+    | Promise<GetWalletTransactionsResponse>
+    | Observable<GetWalletTransactionsResponse>
+    | GetWalletTransactionsResponse;
 
   /** Stats */
 
@@ -604,15 +820,33 @@ export interface WalletServiceController {
 
 export function WalletServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["getUserWallet", "getWalletTransactions", "getInstructorRevenueSummery"];
+    const grpcMethods: string[] = [
+      "getUserWallet",
+      "getWalletTransactions",
+      "getInstructorRevenueSummery",
+    ];
     for (const method of grpcMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcMethod("WalletService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcMethod("WalletService", method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
     const grpcStreamMethods: string[] = [];
     for (const method of grpcStreamMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcStreamMethod("WalletService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcStreamMethod("WalletService", method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
   };
 }
@@ -626,11 +860,14 @@ export const WalletServiceService = {
     path: "/user_service.WalletService/GetUserWallet",
     requestStream: false,
     responseStream: false,
-    requestSerialize: (value: GetUserWalletRequest): Buffer => Buffer.from(GetUserWalletRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): GetUserWalletRequest => GetUserWalletRequest.decode(value),
+    requestSerialize: (value: GetUserWalletRequest): Buffer =>
+      Buffer.from(GetUserWalletRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): GetUserWalletRequest =>
+      GetUserWalletRequest.decode(value),
     responseSerialize: (value: GetUserWalletResponse): Buffer =>
       Buffer.from(GetUserWalletResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): GetUserWalletResponse => GetUserWalletResponse.decode(value),
+    responseDeserialize: (value: Buffer): GetUserWalletResponse =>
+      GetUserWalletResponse.decode(value),
   },
   getWalletTransactions: {
     path: "/user_service.WalletService/GetWalletTransactions",
@@ -638,10 +875,12 @@ export const WalletServiceService = {
     responseStream: false,
     requestSerialize: (value: GetWalletTransactionsRequest): Buffer =>
       Buffer.from(GetWalletTransactionsRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): GetWalletTransactionsRequest => GetWalletTransactionsRequest.decode(value),
+    requestDeserialize: (value: Buffer): GetWalletTransactionsRequest =>
+      GetWalletTransactionsRequest.decode(value),
     responseSerialize: (value: GetWalletTransactionsResponse): Buffer =>
       Buffer.from(GetWalletTransactionsResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): GetWalletTransactionsResponse => GetWalletTransactionsResponse.decode(value),
+    responseDeserialize: (value: Buffer): GetWalletTransactionsResponse =>
+      GetWalletTransactionsResponse.decode(value),
   },
   /** Stats */
   getInstructorRevenueSummery: {
@@ -662,9 +901,15 @@ export const WalletServiceService = {
 export interface WalletServiceServer extends UntypedServiceImplementation {
   /** Wallet */
   getUserWallet: handleUnaryCall<GetUserWalletRequest, GetUserWalletResponse>;
-  getWalletTransactions: handleUnaryCall<GetWalletTransactionsRequest, GetWalletTransactionsResponse>;
+  getWalletTransactions: handleUnaryCall<
+    GetWalletTransactionsRequest,
+    GetWalletTransactionsResponse
+  >;
   /** Stats */
-  getInstructorRevenueSummery: handleUnaryCall<GetInstructorRevenueSummeryRequest, GetInstructorRevenueSummeryResponse>;
+  getInstructorRevenueSummery: handleUnaryCall<
+    GetInstructorRevenueSummeryRequest,
+    GetInstructorRevenueSummeryResponse
+  >;
 }
 
 export interface CartServiceClient {
@@ -672,9 +917,13 @@ export interface CartServiceClient {
 
   addToCart(request: AddToCartRequest): Observable<AddToCartResponse>;
 
-  toggleCartItem(request: ToggleCartItemRequest): Observable<ToggleCartItemResponse>;
+  toggleCartItem(
+    request: ToggleCartItemRequest,
+  ): Observable<ToggleCartItemResponse>;
 
-  removeFromCart(request: RemoveFromCartRequest): Observable<RemoveFromCartResponse>;
+  removeFromCart(
+    request: RemoveFromCartRequest,
+  ): Observable<RemoveFromCartResponse>;
 
   clearCart(request: ClearCartRequest): Observable<ClearCartResponse>;
 
@@ -684,32 +933,73 @@ export interface CartServiceClient {
 export interface CartServiceController {
   /** Cart */
 
-  addToCart(request: AddToCartRequest): Promise<AddToCartResponse> | Observable<AddToCartResponse> | AddToCartResponse;
+  addToCart(
+    request: AddToCartRequest,
+  ):
+    | Promise<AddToCartResponse>
+    | Observable<AddToCartResponse>
+    | AddToCartResponse;
 
   toggleCartItem(
     request: ToggleCartItemRequest,
-  ): Promise<ToggleCartItemResponse> | Observable<ToggleCartItemResponse> | ToggleCartItemResponse;
+  ):
+    | Promise<ToggleCartItemResponse>
+    | Observable<ToggleCartItemResponse>
+    | ToggleCartItemResponse;
 
   removeFromCart(
     request: RemoveFromCartRequest,
-  ): Promise<RemoveFromCartResponse> | Observable<RemoveFromCartResponse> | RemoveFromCartResponse;
+  ):
+    | Promise<RemoveFromCartResponse>
+    | Observable<RemoveFromCartResponse>
+    | RemoveFromCartResponse;
 
-  clearCart(request: ClearCartRequest): Promise<ClearCartResponse> | Observable<ClearCartResponse> | ClearCartResponse;
+  clearCart(
+    request: ClearCartRequest,
+  ):
+    | Promise<ClearCartResponse>
+    | Observable<ClearCartResponse>
+    | ClearCartResponse;
 
-  listUserCart(request: ListCartRequest): Promise<ListCartResponse> | Observable<ListCartResponse> | ListCartResponse;
+  listUserCart(
+    request: ListCartRequest,
+  ):
+    | Promise<ListCartResponse>
+    | Observable<ListCartResponse>
+    | ListCartResponse;
 }
 
 export function CartServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["addToCart", "toggleCartItem", "removeFromCart", "clearCart", "listUserCart"];
+    const grpcMethods: string[] = [
+      "addToCart",
+      "toggleCartItem",
+      "removeFromCart",
+      "clearCart",
+      "listUserCart",
+    ];
     for (const method of grpcMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcMethod("CartService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcMethod("CartService", method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
     const grpcStreamMethods: string[] = [];
     for (const method of grpcStreamMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcStreamMethod("CartService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcStreamMethod("CartService", method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
   };
 }
@@ -723,10 +1013,14 @@ export const CartServiceService = {
     path: "/user_service.CartService/AddToCart",
     requestStream: false,
     responseStream: false,
-    requestSerialize: (value: AddToCartRequest): Buffer => Buffer.from(AddToCartRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): AddToCartRequest => AddToCartRequest.decode(value),
-    responseSerialize: (value: AddToCartResponse): Buffer => Buffer.from(AddToCartResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): AddToCartResponse => AddToCartResponse.decode(value),
+    requestSerialize: (value: AddToCartRequest): Buffer =>
+      Buffer.from(AddToCartRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): AddToCartRequest =>
+      AddToCartRequest.decode(value),
+    responseSerialize: (value: AddToCartResponse): Buffer =>
+      Buffer.from(AddToCartResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): AddToCartResponse =>
+      AddToCartResponse.decode(value),
   },
   toggleCartItem: {
     path: "/user_service.CartService/ToggleCartItem",
@@ -734,10 +1028,12 @@ export const CartServiceService = {
     responseStream: false,
     requestSerialize: (value: ToggleCartItemRequest): Buffer =>
       Buffer.from(ToggleCartItemRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): ToggleCartItemRequest => ToggleCartItemRequest.decode(value),
+    requestDeserialize: (value: Buffer): ToggleCartItemRequest =>
+      ToggleCartItemRequest.decode(value),
     responseSerialize: (value: ToggleCartItemResponse): Buffer =>
       Buffer.from(ToggleCartItemResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): ToggleCartItemResponse => ToggleCartItemResponse.decode(value),
+    responseDeserialize: (value: Buffer): ToggleCartItemResponse =>
+      ToggleCartItemResponse.decode(value),
   },
   removeFromCart: {
     path: "/user_service.CartService/RemoveFromCart",
@@ -745,36 +1041,52 @@ export const CartServiceService = {
     responseStream: false,
     requestSerialize: (value: RemoveFromCartRequest): Buffer =>
       Buffer.from(RemoveFromCartRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): RemoveFromCartRequest => RemoveFromCartRequest.decode(value),
+    requestDeserialize: (value: Buffer): RemoveFromCartRequest =>
+      RemoveFromCartRequest.decode(value),
     responseSerialize: (value: RemoveFromCartResponse): Buffer =>
       Buffer.from(RemoveFromCartResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): RemoveFromCartResponse => RemoveFromCartResponse.decode(value),
+    responseDeserialize: (value: Buffer): RemoveFromCartResponse =>
+      RemoveFromCartResponse.decode(value),
   },
   clearCart: {
     path: "/user_service.CartService/ClearCart",
     requestStream: false,
     responseStream: false,
-    requestSerialize: (value: ClearCartRequest): Buffer => Buffer.from(ClearCartRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): ClearCartRequest => ClearCartRequest.decode(value),
-    responseSerialize: (value: ClearCartResponse): Buffer => Buffer.from(ClearCartResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): ClearCartResponse => ClearCartResponse.decode(value),
+    requestSerialize: (value: ClearCartRequest): Buffer =>
+      Buffer.from(ClearCartRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): ClearCartRequest =>
+      ClearCartRequest.decode(value),
+    responseSerialize: (value: ClearCartResponse): Buffer =>
+      Buffer.from(ClearCartResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): ClearCartResponse =>
+      ClearCartResponse.decode(value),
   },
   listUserCart: {
     path: "/user_service.CartService/ListUserCart",
     requestStream: false,
     responseStream: false,
-    requestSerialize: (value: ListCartRequest): Buffer => Buffer.from(ListCartRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): ListCartRequest => ListCartRequest.decode(value),
-    responseSerialize: (value: ListCartResponse): Buffer => Buffer.from(ListCartResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): ListCartResponse => ListCartResponse.decode(value),
+    requestSerialize: (value: ListCartRequest): Buffer =>
+      Buffer.from(ListCartRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): ListCartRequest =>
+      ListCartRequest.decode(value),
+    responseSerialize: (value: ListCartResponse): Buffer =>
+      Buffer.from(ListCartResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): ListCartResponse =>
+      ListCartResponse.decode(value),
   },
 } as const;
 
 export interface CartServiceServer extends UntypedServiceImplementation {
   /** Cart */
   addToCart: handleUnaryCall<AddToCartRequest, AddToCartResponse>;
-  toggleCartItem: handleUnaryCall<ToggleCartItemRequest, ToggleCartItemResponse>;
-  removeFromCart: handleUnaryCall<RemoveFromCartRequest, RemoveFromCartResponse>;
+  toggleCartItem: handleUnaryCall<
+    ToggleCartItemRequest,
+    ToggleCartItemResponse
+  >;
+  removeFromCart: handleUnaryCall<
+    RemoveFromCartRequest,
+    RemoveFromCartResponse
+  >;
   clearCart: handleUnaryCall<ClearCartRequest, ClearCartResponse>;
   listUserCart: handleUnaryCall<ListCartRequest, ListCartResponse>;
 }
@@ -782,13 +1094,21 @@ export interface CartServiceServer extends UntypedServiceImplementation {
 export interface WishlistServiceClient {
   /** Wishlist */
 
-  addToWishlist(request: AddToWishlistRequest): Observable<AddToWishlistResponse>;
+  addToWishlist(
+    request: AddToWishlistRequest,
+  ): Observable<AddToWishlistResponse>;
 
-  toggleWishlistItem(request: ToggleWishlistItemRequest): Observable<ToggleWishlistItemResponse>;
+  toggleWishlistItem(
+    request: ToggleWishlistItemRequest,
+  ): Observable<ToggleWishlistItemResponse>;
 
-  removeFromWishlist(request: RemoveFromWishlistRequest): Observable<RemoveFromWishlistResponse>;
+  removeFromWishlist(
+    request: RemoveFromWishlistRequest,
+  ): Observable<RemoveFromWishlistResponse>;
 
-  listUserWishlist(request: ListWishlistRequest): Observable<ListWishlistResponse>;
+  listUserWishlist(
+    request: ListWishlistRequest,
+  ): Observable<ListWishlistResponse>;
 }
 
 export interface WishlistServiceController {
@@ -796,32 +1116,63 @@ export interface WishlistServiceController {
 
   addToWishlist(
     request: AddToWishlistRequest,
-  ): Promise<AddToWishlistResponse> | Observable<AddToWishlistResponse> | AddToWishlistResponse;
+  ):
+    | Promise<AddToWishlistResponse>
+    | Observable<AddToWishlistResponse>
+    | AddToWishlistResponse;
 
   toggleWishlistItem(
     request: ToggleWishlistItemRequest,
-  ): Promise<ToggleWishlistItemResponse> | Observable<ToggleWishlistItemResponse> | ToggleWishlistItemResponse;
+  ):
+    | Promise<ToggleWishlistItemResponse>
+    | Observable<ToggleWishlistItemResponse>
+    | ToggleWishlistItemResponse;
 
   removeFromWishlist(
     request: RemoveFromWishlistRequest,
-  ): Promise<RemoveFromWishlistResponse> | Observable<RemoveFromWishlistResponse> | RemoveFromWishlistResponse;
+  ):
+    | Promise<RemoveFromWishlistResponse>
+    | Observable<RemoveFromWishlistResponse>
+    | RemoveFromWishlistResponse;
 
   listUserWishlist(
     request: ListWishlistRequest,
-  ): Promise<ListWishlistResponse> | Observable<ListWishlistResponse> | ListWishlistResponse;
+  ):
+    | Promise<ListWishlistResponse>
+    | Observable<ListWishlistResponse>
+    | ListWishlistResponse;
 }
 
 export function WishlistServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["addToWishlist", "toggleWishlistItem", "removeFromWishlist", "listUserWishlist"];
+    const grpcMethods: string[] = [
+      "addToWishlist",
+      "toggleWishlistItem",
+      "removeFromWishlist",
+      "listUserWishlist",
+    ];
     for (const method of grpcMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcMethod("WishlistService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcMethod("WishlistService", method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
     const grpcStreamMethods: string[] = [];
     for (const method of grpcStreamMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcStreamMethod("WishlistService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcStreamMethod("WishlistService", method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
   };
 }
@@ -835,11 +1186,14 @@ export const WishlistServiceService = {
     path: "/user_service.WishlistService/AddToWishlist",
     requestStream: false,
     responseStream: false,
-    requestSerialize: (value: AddToWishlistRequest): Buffer => Buffer.from(AddToWishlistRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): AddToWishlistRequest => AddToWishlistRequest.decode(value),
+    requestSerialize: (value: AddToWishlistRequest): Buffer =>
+      Buffer.from(AddToWishlistRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): AddToWishlistRequest =>
+      AddToWishlistRequest.decode(value),
     responseSerialize: (value: AddToWishlistResponse): Buffer =>
       Buffer.from(AddToWishlistResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): AddToWishlistResponse => AddToWishlistResponse.decode(value),
+    responseDeserialize: (value: Buffer): AddToWishlistResponse =>
+      AddToWishlistResponse.decode(value),
   },
   toggleWishlistItem: {
     path: "/user_service.WishlistService/ToggleWishlistItem",
@@ -847,10 +1201,12 @@ export const WishlistServiceService = {
     responseStream: false,
     requestSerialize: (value: ToggleWishlistItemRequest): Buffer =>
       Buffer.from(ToggleWishlistItemRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): ToggleWishlistItemRequest => ToggleWishlistItemRequest.decode(value),
+    requestDeserialize: (value: Buffer): ToggleWishlistItemRequest =>
+      ToggleWishlistItemRequest.decode(value),
     responseSerialize: (value: ToggleWishlistItemResponse): Buffer =>
       Buffer.from(ToggleWishlistItemResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): ToggleWishlistItemResponse => ToggleWishlistItemResponse.decode(value),
+    responseDeserialize: (value: Buffer): ToggleWishlistItemResponse =>
+      ToggleWishlistItemResponse.decode(value),
   },
   removeFromWishlist: {
     path: "/user_service.WishlistService/RemoveFromWishlist",
@@ -858,27 +1214,38 @@ export const WishlistServiceService = {
     responseStream: false,
     requestSerialize: (value: RemoveFromWishlistRequest): Buffer =>
       Buffer.from(RemoveFromWishlistRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): RemoveFromWishlistRequest => RemoveFromWishlistRequest.decode(value),
+    requestDeserialize: (value: Buffer): RemoveFromWishlistRequest =>
+      RemoveFromWishlistRequest.decode(value),
     responseSerialize: (value: RemoveFromWishlistResponse): Buffer =>
       Buffer.from(RemoveFromWishlistResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): RemoveFromWishlistResponse => RemoveFromWishlistResponse.decode(value),
+    responseDeserialize: (value: Buffer): RemoveFromWishlistResponse =>
+      RemoveFromWishlistResponse.decode(value),
   },
   listUserWishlist: {
     path: "/user_service.WishlistService/ListUserWishlist",
     requestStream: false,
     responseStream: false,
-    requestSerialize: (value: ListWishlistRequest): Buffer => Buffer.from(ListWishlistRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): ListWishlistRequest => ListWishlistRequest.decode(value),
+    requestSerialize: (value: ListWishlistRequest): Buffer =>
+      Buffer.from(ListWishlistRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): ListWishlistRequest =>
+      ListWishlistRequest.decode(value),
     responseSerialize: (value: ListWishlistResponse): Buffer =>
       Buffer.from(ListWishlistResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): ListWishlistResponse => ListWishlistResponse.decode(value),
+    responseDeserialize: (value: Buffer): ListWishlistResponse =>
+      ListWishlistResponse.decode(value),
   },
 } as const;
 
 export interface WishlistServiceServer extends UntypedServiceImplementation {
   /** Wishlist */
   addToWishlist: handleUnaryCall<AddToWishlistRequest, AddToWishlistResponse>;
-  toggleWishlistItem: handleUnaryCall<ToggleWishlistItemRequest, ToggleWishlistItemResponse>;
-  removeFromWishlist: handleUnaryCall<RemoveFromWishlistRequest, RemoveFromWishlistResponse>;
+  toggleWishlistItem: handleUnaryCall<
+    ToggleWishlistItemRequest,
+    ToggleWishlistItemResponse
+  >;
+  removeFromWishlist: handleUnaryCall<
+    RemoveFromWishlistRequest,
+    RemoveFromWishlistResponse
+  >;
   listUserWishlist: handleUnaryCall<ListWishlistRequest, ListWishlistResponse>;
 }

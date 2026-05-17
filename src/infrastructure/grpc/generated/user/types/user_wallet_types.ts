@@ -62,11 +62,21 @@ export interface WalletTransactionsSuccess {
 export const USER_SERVICE_PACKAGE_NAME = "user_service";
 
 function createBaseUserWalletData(): UserWalletData {
-  return { userId: "", balance: 0, currency: "", transactions: [], updatedAt: "", createdAt: "" };
+  return {
+    userId: "",
+    balance: 0,
+    currency: "",
+    transactions: [],
+    updatedAt: "",
+    createdAt: "",
+  };
 }
 
 export const UserWalletData: MessageFns<UserWalletData> = {
-  encode(message: UserWalletData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: UserWalletData,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.userId !== "") {
       writer.uint32(10).string(message.userId);
     }
@@ -89,7 +99,8 @@ export const UserWalletData: MessageFns<UserWalletData> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): UserWalletData {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseUserWalletData();
     while (reader.pos < end) {
@@ -124,7 +135,9 @@ export const UserWalletData: MessageFns<UserWalletData> = {
             break;
           }
 
-          message.transactions.push(WalletTransaction.decode(reader, reader.uint32()));
+          message.transactions.push(
+            WalletTransaction.decode(reader, reader.uint32()),
+          );
           continue;
         }
         case 5: {
@@ -154,11 +167,22 @@ export const UserWalletData: MessageFns<UserWalletData> = {
 };
 
 function createBaseWalletTransaction(): WalletTransaction {
-  return { id: "", amount: 0, type: "", status: "", relatedOrder: "", timestamp: "", note: "" };
+  return {
+    id: "",
+    amount: 0,
+    type: "",
+    status: "",
+    relatedOrder: "",
+    timestamp: "",
+    note: "",
+  };
 }
 
 export const WalletTransaction: MessageFns<WalletTransaction> = {
-  encode(message: WalletTransaction, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: WalletTransaction,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -184,7 +208,8 @@ export const WalletTransaction: MessageFns<WalletTransaction> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): WalletTransaction {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseWalletTransaction();
     while (reader.pos < end) {
@@ -261,18 +286,28 @@ function createBaseGetUserWalletRequest(): GetUserWalletRequest {
 }
 
 export const GetUserWalletRequest: MessageFns<GetUserWalletRequest> = {
-  encode(message: GetUserWalletRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetUserWalletRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.userId !== "") {
       writer.uint32(10).string(message.userId);
     }
     if (message.pagination !== undefined) {
-      PaginationRequest.encode(message.pagination, writer.uint32(18).fork()).join();
+      PaginationRequest.encode(
+        message.pagination,
+        writer.uint32(18).fork(),
+      ).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetUserWalletRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): GetUserWalletRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetUserWalletRequest();
     while (reader.pos < end) {
@@ -291,7 +326,10 @@ export const GetUserWalletRequest: MessageFns<GetUserWalletRequest> = {
             break;
           }
 
-          message.pagination = PaginationRequest.decode(reader, reader.uint32());
+          message.pagination = PaginationRequest.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
       }
@@ -309,9 +347,15 @@ function createBaseGetUserWalletResponse(): GetUserWalletResponse {
 }
 
 export const GetUserWalletResponse: MessageFns<GetUserWalletResponse> = {
-  encode(message: GetUserWalletResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetUserWalletResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.success !== undefined) {
-      UserWalletSuccess.encode(message.success, writer.uint32(10).fork()).join();
+      UserWalletSuccess.encode(
+        message.success,
+        writer.uint32(10).fork(),
+      ).join();
     }
     if (message.error !== undefined) {
       Error.encode(message.error, writer.uint32(18).fork()).join();
@@ -319,8 +363,12 @@ export const GetUserWalletResponse: MessageFns<GetUserWalletResponse> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetUserWalletResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): GetUserWalletResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetUserWalletResponse();
     while (reader.pos < end) {
@@ -357,7 +405,10 @@ function createBaseUserWalletSuccess(): UserWalletSuccess {
 }
 
 export const UserWalletSuccess: MessageFns<UserWalletSuccess> = {
-  encode(message: UserWalletSuccess, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: UserWalletSuccess,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.wallet !== undefined) {
       UserWalletData.encode(message.wallet, writer.uint32(10).fork()).join();
     }
@@ -368,7 +419,8 @@ export const UserWalletSuccess: MessageFns<UserWalletSuccess> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): UserWalletSuccess {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseUserWalletSuccess();
     while (reader.pos < end) {
@@ -404,145 +456,183 @@ function createBaseGetWalletTransactionsRequest(): GetWalletTransactionsRequest 
   return { userId: "", pagination: undefined };
 }
 
-export const GetWalletTransactionsRequest: MessageFns<GetWalletTransactionsRequest> = {
-  encode(message: GetWalletTransactionsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.userId !== "") {
-      writer.uint32(10).string(message.userId);
-    }
-    if (message.pagination !== undefined) {
-      PaginationRequest.encode(message.pagination, writer.uint32(18).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): GetWalletTransactionsRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGetWalletTransactionsRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.userId = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.pagination = PaginationRequest.decode(reader, reader.uint32());
-          continue;
-        }
+export const GetWalletTransactionsRequest: MessageFns<GetWalletTransactionsRequest> =
+  {
+    encode(
+      message: GetWalletTransactionsRequest,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.userId !== "") {
+        writer.uint32(10).string(message.userId);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.pagination !== undefined) {
+        PaginationRequest.encode(
+          message.pagination,
+          writer.uint32(18).fork(),
+        ).join();
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): GetWalletTransactionsRequest {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetWalletTransactionsRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.userId = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.pagination = PaginationRequest.decode(
+              reader,
+              reader.uint32(),
+            );
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
 
 function createBaseGetWalletTransactionsResponse(): GetWalletTransactionsResponse {
   return {};
 }
 
-export const GetWalletTransactionsResponse: MessageFns<GetWalletTransactionsResponse> = {
-  encode(message: GetWalletTransactionsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.success !== undefined) {
-      WalletTransactionsSuccess.encode(message.success, writer.uint32(10).fork()).join();
-    }
-    if (message.error !== undefined) {
-      Error.encode(message.error, writer.uint32(18).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): GetWalletTransactionsResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGetWalletTransactionsResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.success = WalletTransactionsSuccess.decode(reader, reader.uint32());
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.error = Error.decode(reader, reader.uint32());
-          continue;
-        }
+export const GetWalletTransactionsResponse: MessageFns<GetWalletTransactionsResponse> =
+  {
+    encode(
+      message: GetWalletTransactionsResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.success !== undefined) {
+        WalletTransactionsSuccess.encode(
+          message.success,
+          writer.uint32(10).fork(),
+        ).join();
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.error !== undefined) {
+        Error.encode(message.error, writer.uint32(18).fork()).join();
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): GetWalletTransactionsResponse {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetWalletTransactionsResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.success = WalletTransactionsSuccess.decode(
+              reader,
+              reader.uint32(),
+            );
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.error = Error.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
 
 function createBaseWalletTransactionsSuccess(): WalletTransactionsSuccess {
   return { transactions: [], total: 0 };
 }
 
-export const WalletTransactionsSuccess: MessageFns<WalletTransactionsSuccess> = {
-  encode(message: WalletTransactionsSuccess, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    for (const v of message.transactions) {
-      WalletTransaction.encode(v!, writer.uint32(10).fork()).join();
-    }
-    if (message.total !== 0) {
-      writer.uint32(16).int32(message.total);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): WalletTransactionsSuccess {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseWalletTransactionsSuccess();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.transactions.push(WalletTransaction.decode(reader, reader.uint32()));
-          continue;
-        }
-        case 2: {
-          if (tag !== 16) {
-            break;
-          }
-
-          message.total = reader.int32();
-          continue;
-        }
+export const WalletTransactionsSuccess: MessageFns<WalletTransactionsSuccess> =
+  {
+    encode(
+      message: WalletTransactionsSuccess,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      for (const v of message.transactions) {
+        WalletTransaction.encode(v!, writer.uint32(10).fork()).join();
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.total !== 0) {
+        writer.uint32(16).int32(message.total);
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): WalletTransactionsSuccess {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseWalletTransactionsSuccess();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.transactions.push(
+              WalletTransaction.decode(reader, reader.uint32()),
+            );
+            continue;
+          }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.total = reader.int32();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
 
 export interface MessageFns<T> {
   encode(message: T, writer?: BinaryWriter): BinaryWriter;
