@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { WalletDto } from "src/application/dtos/wallet.dto";
+import { WalletDto } from "@/application/dtos/wallet.dto";
 import { UserWalletNotFoundException } from "src/domain/exceptions";
 import { IWalletRepository } from "src/domain/repositories/wallet.repository";
 import { ILoggerService } from "src/application/adaptors/logger.service";

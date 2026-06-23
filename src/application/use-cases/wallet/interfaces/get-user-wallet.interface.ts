@@ -1,4 +1,4 @@
-import { WalletDto } from "src/application/dtos/wallet.dto";
+import { WalletDto } from "@/application/dtos/wallet.dto";
 
 export abstract class IGetUserWalletUseCase {
   /**
