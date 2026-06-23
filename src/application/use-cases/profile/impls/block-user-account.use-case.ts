@@ -2,50 +2,53 @@ import { Injectable } from "@nestjs/common";
 import User from "src/domain/entities/user-entity";
 import { UserNotFoundException } from "src/domain/exceptions";
 import { IUserRepository } from "src/domain/repositories/user.repository";
-import { KafkaService } from "src/infrastructure/kafka/kafka.service";
-import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
-import { TracingService } from "src/infrastructure/observability/tracing/trace.service";
+import { ILoggerService } from "src/application/adaptors/logger.service";
+import { ITraceService } from "src/application/adaptors/trace.service";
 import { KafkaTopics } from "src/shared/events";
-import {  UserRoles, UserStatus } from "../../../domain/entities/user-entity";
+import { UserRoles, UserStatus } from "../../../../domain/entities/user-entity";
 import { v4 as uuidV4 } from "uuid";
 import { UserAccountBlockedEvent } from "src/domain/events/user-block.event";
+import { IEventPublisher } from "src/application/adaptors/event-producer";
+import { IBlockUserAccountUseCase } from "../interfaces/block-user-account.interface";
 
 @Injectable()
-export default class BlockUserAccountUseCaseImpl {
+export default class BlockUserAccountUseCaseImpl
+  implements IBlockUserAccountUseCase
+{
   public constructor(
-    private readonly userRepository: IUserRepository,
-    private readonly kafkaProducer: KafkaService,
-    private readonly logger: LoggingService,
-    private readonly tracer: TracingService
-  ) { }
+    private readonly _userRepository: IUserRepository,
+    private readonly _eventPublisher: IEventPublisher,
+    private readonly _logger: ILoggerService,
+    private readonly _tracer: ITraceService,
+  ) {}
   public async execute(dto: { userId: string }): Promise<User> {
-    return await this.tracer.startActiveSpan(
+    return await this._tracer.startActiveSpan(
       "BlockUserAccountUseCaseImpl.execute",
       async (span) => {
         span.setAttributes({
           userId: dto.userId,
         });
 
-        this.logger.info(
-          `Executing BlockUserAccountUseCaseImpl for user : ${dto.userId}`
+        this._logger.debug(
+          `Executing BlockUserAccountUseCaseImpl for user : ${dto.userId}`,
         );
-        const user = await this.userRepository.findById(dto.userId);
+        const user = await this._userRepository.findById(dto.userId);
 
         if (!user) {
           throw new UserNotFoundException(
-            `User not found with Id ${dto.userId}`
+            `User not found with Id ${dto.userId}`,
           );
         }
-        
+
         if (user.isBlocked()) {
           return user;
         }
 
         user.blockAccount();
 
-        await this.userRepository.update(dto.userId, user);
+        await this._userRepository.update(dto.userId, user);
 
-        await this.kafkaProducer.publish<UserAccountBlockedEvent>(
+        await this._eventPublisher.publish<UserAccountBlockedEvent>(
           {
             eventId: uuidV4(),
             eventType: "UserAccountBlockedEvent",
@@ -60,13 +63,13 @@ export default class BlockUserAccountUseCaseImpl {
               avatar: user.avatar,
               firstName: user.firstName,
               status: UserStatus.BLOCKED,
-            }
+            },
           },
-          { topic: KafkaTopics.UserAccountBlocked, key: user.id }
+          { topic: KafkaTopics.UserAccountBlocked, key: user.id },
         );
 
         return user;
-      }
+      },
     );
   }
 }

@@ -3,19 +3,20 @@ import { UserDto } from "src/application/dtos/user.dto";
 import User from "src/domain/entities/user-entity";
 import { UserNotFoundException } from "src/domain/exceptions";
 import { IUserRepository } from "src/domain/repositories/user.repository";
-import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
-import { TracingService } from "src/infrastructure/observability/tracing/trace.service";
+import { ILoggerService } from "src/application/adaptors/logger.service";
+import { ITraceService } from "src/application/adaptors/trace.service";
 import CurrentUserDto from "src/presentation/grpc/dtos/current-user.dto";
+import { ICurrentUserUseCase } from "../interfaces/current-user.interface";
 
 @Injectable()
-export default class CurrentUserUseCaseImpl {
+export default class CurrentUserUseCaseImpl implements ICurrentUserUseCase {
   public constructor(
-    private readonly userRepository: IUserRepository,
-    private readonly logger: LoggingService,
-    private readonly tracer: TracingService
+    private readonly _userRepository: IUserRepository,
+    private readonly _logger: ILoggerService,
+    private readonly _tracer: ITraceService,
   ) {}
   public async execute(dto: CurrentUserDto): Promise<UserDto> {
-    return await this.tracer.startActiveSpan(
+    return await this._tracer.startActiveSpan(
       "CurrentUserUseCaseImpl.execute",
       async (span) => {
         try {
@@ -23,24 +24,24 @@ export default class CurrentUserUseCaseImpl {
             userId: dto.userId,
           });
 
-          this.logger.info(
-            `Executing CurrentUserUseCaseImpl for user : ${dto.userId}`
+          this._logger.debug(
+            `Executing CurrentUserUseCaseImpl for user : ${dto.userId}`,
           );
           // Checks whether user exist with provided email
-          const user = await this.userRepository.findById(dto.userId);
+          const user = await this._userRepository.findById(dto.userId);
 
           // Throws an error if user NOT exist with given email
           if (!user) throw new UserNotFoundException(dto.userId);
 
           return UserDto.fromDomain(user);
         } catch (error) {
-          this.logger.error(
+          this._logger.error(
             `Error while Executing CurrentUserUseCaseImpl for user : ${dto.userId}`,
-            { error }
+            { error },
           );
           throw error;
         }
-      }
+      },
     );
   }
 }

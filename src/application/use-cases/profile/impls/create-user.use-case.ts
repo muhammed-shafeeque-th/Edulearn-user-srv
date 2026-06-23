@@ -6,26 +6,27 @@ import { UserAlreadyExistException } from "src/domain/exceptions";
 import { IUserRepository } from "src/domain/repositories/user.repository";
 import { ICartRepository } from "src/domain/repositories/cart.repository";
 import { IWishlistRepository } from "src/domain/repositories/wishlist.repository";
-import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
-import { TracingService } from "src/infrastructure/observability/tracing/trace.service";
+import { ILoggerService } from "src/application/adaptors/logger.service";
+import { ITraceService } from "src/application/adaptors/trace.service";
 import CreateUserDto from "src/presentation/grpc/dtos/create-user.dto";
 import { Wallet } from "src/domain/entities/user-wallet.entity";
 import { IWalletRepository } from "src/domain/repositories/wallet.repository";
 import { UserAccountCreatedEvent } from "src/domain/events/user-created.event";
+import { ICreateUserUseCase } from "../interfaces/create-user.interface";
 
 @Injectable()
-export default class CreateUserUseCase {
+export default class CreateUserUseCase implements ICreateUserUseCase {
   constructor(
-    private readonly userRepository: IUserRepository,
-    private readonly cartRepository: ICartRepository,
-    private readonly wishlistRepository: IWishlistRepository,
-    private readonly walletRepository: IWalletRepository,
-    private readonly logger: LoggingService,
-    private readonly tracer: TracingService
-  ) { }
+    private readonly _userRepository: IUserRepository,
+    private readonly _cartRepository: ICartRepository,
+    private readonly _wishlistRepository: IWishlistRepository,
+    private readonly _walletRepository: IWalletRepository,
+    private readonly _logger: ILoggerService,
+    private readonly _tracer: ITraceService,
+  ) {}
 
   public async execute(dto: UserAccountCreatedEvent): Promise<User> {
-    return this.tracer.startActiveSpan(
+    return this._tracer.startActiveSpan(
       "CreateUserUseCase.execute",
       async (span) => {
         const { payload } = dto;
@@ -33,15 +34,21 @@ export default class CreateUserUseCase {
         span.setAttribute("user.email", payload.email);
 
         // Check if the user already exists with the provided email
-        const alreadyExist = await this.userRepository.findByEmail(payload.email);
+        const alreadyExist = await this._userRepository.findByEmail(
+          payload.email,
+        );
         if (alreadyExist) {
-          this.logger.debug(`User already exists with the email: ${payload.email}`);
+          this._logger.debug(
+            `User already exists with the email: ${payload.email}`,
+          );
           span.setAttribute("email.exist", true);
           throw new UserAlreadyExistException(
-            `User already exists with ${payload.email}`
+            `User already exists with ${payload.email}`,
           );
         }
-        this.logger.debug(`No existing user found with email: ${payload.email}`);
+        this._logger.debug(
+          `No existing user found with email: ${payload.email}`,
+        );
         span.setAttribute("email.exist", false);
 
         // Create user entity
@@ -56,28 +63,28 @@ export default class CreateUserUseCase {
           createdAt: payload.createdAt,
         });
 
-        this.logger.debug("Saving user data to repository for registration", {
+        this._logger.debug("Saving user data to repository for registration", {
           email: payload.email,
         });
 
         // await Promise.all([
-          await this.userRepository.save(user),
+        await this._userRepository.save(user),
           await this.createInitialUserAssets(user.id),
-        // ]);
+          // ]);
 
-        this.logger.debug("Completed user creation", {
-          email: payload.email,
-          ctx: CreateUserUseCase.name,
-        });
+          this._logger.debug("Completed user creation", {
+            email: payload.email,
+            ctx: CreateUserUseCase.name,
+          });
 
         return user;
-      }
+      },
     );
   }
 
   // Helper to encapsulate setup of initial user assets (cart, wishlist, wallet)
   private async createInitialUserAssets(userId: string): Promise<void> {
-    return this.tracer.startActiveSpan(
+    return this._tracer.startActiveSpan(
       "CreateUserUseCase.createInitialUserAssets",
       async (span) => {
         span.setAttributes({
@@ -96,20 +103,20 @@ export default class CreateUserUseCase {
           const wallet = Wallet.createInitial(userId, "INR");
 
           // await Promise.all([
-            await this.cartRepository.create(cart),
-            await this.wishlistRepository.create(wishlist),
-            await this.walletRepository.save(wallet),
-          // ]);
+          await this._cartRepository.create(cart),
+            await this._wishlistRepository.create(wishlist),
+            await this._walletRepository.save(wallet),
+            // ]);
 
-          this.logger.debug(
-            `Created cart, wishlist, and wallet for user ${userId}`,
-            {
-              userId,
-              cartId: cart.id,
-              wishlistId: wishlist.id,
-              ctx: CreateUserUseCase.name,
-            }
-          );
+            this._logger.debug(
+              `Created cart, wishlist, and wallet for user ${userId}`,
+              {
+                userId,
+                cartId: cart.id,
+                wishlistId: wishlist.id,
+                ctx: CreateUserUseCase.name,
+              },
+            );
 
           span.setAttributes({
             "cart.id": cart.id,
@@ -120,13 +127,13 @@ export default class CreateUserUseCase {
             "wallet.created": true,
           });
         } catch (error) {
-          this.logger.error(
+          this._logger.error(
             `Failed to create cart, wallet, or wishlist for user ${userId}`,
             {
               userId,
               error,
               ctx: CreateUserUseCase.name,
-            }
+            },
           );
           span.setAttributes({
             "cart.created": false,
@@ -135,7 +142,7 @@ export default class CreateUserUseCase {
           });
           throw error;
         }
-      }
+      },
     );
   }
 }

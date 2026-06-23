@@ -3,42 +3,43 @@ import User from "src/domain/entities/user-entity";
 import { CourseCreatedEvent } from "src/domain/events/course.events";
 import { UserNotFoundException } from "src/domain/exceptions";
 import { IUserRepository } from "src/domain/repositories/user.repository";
-import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
-import { TracingService } from "src/infrastructure/observability/tracing/trace.service";
+import { ILoggerService } from "src/application/adaptors/logger.service";
+import { ITraceService } from "src/application/adaptors/trace.service";
+import { ICourseCreatedUseCase } from "../interfaces/course-created.interface";
 
 @Injectable()
-export default class CourseCreatedUseCase {
+export default class CourseCreatedUseCase implements ICourseCreatedUseCase {
   public constructor(
-    private readonly userRepository: IUserRepository,
-    private readonly logger: LoggingService,
-    private readonly tracer: TracingService
+    private readonly _userRepository: IUserRepository,
+    private readonly _logger: ILoggerService,
+    private readonly _tracer: ITraceService,
   ) {}
   public async execute(dto: CourseCreatedEvent): Promise<User | null> {
-    return await this.tracer.startActiveSpan(
+    return await this._tracer.startActiveSpan(
       "CourseCreatedUseCase.execute",
       async (span) => {
-        const {payload} = dto
+        const { payload } = dto;
         span.setAttributes({
           instructorId: payload.instructorId,
         });
 
-        this.logger.info(
-          `Executing CourseCreatedUseCase for user : ${payload.instructorId}`
+        this._logger.debug(
+          `Executing CourseCreatedUseCase for user : ${payload.instructorId}`,
         );
         // Checks whether user exist with provided userId
-        const user = await this.userRepository.findById(payload.instructorId);
+        const user = await this._userRepository.findById(payload.instructorId);
 
         if (!user) throw new UserNotFoundException(payload.instructorId);
 
         user.instructorProfile.incrementTotalCourse();
 
-        const updatedUser = await this.userRepository.update(
+        const updatedUser = await this._userRepository.update(
           payload.instructorId,
-          user
+          user,
         );
 
         return updatedUser;
-      }
+      },
     );
   }
 }
