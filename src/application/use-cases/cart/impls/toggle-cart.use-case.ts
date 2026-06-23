@@ -1,7 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { CartItemDto } from "src/application/dtos/cart.dto";
 import { CartItem } from "src/domain/entities/cart-item.entity";
-import { Cart } from "src/domain/entities/cart.entity";
 import { CartNotFoundException } from "src/domain/exceptions";
 import { ICartRepository } from "src/domain/repositories/cart.repository";
 import { ILoggerService } from "src/application/adaptors/logger.service";

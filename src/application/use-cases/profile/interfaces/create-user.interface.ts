@@ -1,4 +1,4 @@
-import User, { UserStatus } from "src/domain/entities/user-entity";
+import User from "src/domain/entities/user-entity";
 import { UserAccountCreatedEvent } from "src/domain/events/user-created.event";
 
 export abstract class ICreateUserUseCase {

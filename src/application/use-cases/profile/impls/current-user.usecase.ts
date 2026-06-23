@@ -1,12 +1,11 @@
 import { Injectable } from "@nestjs/common";
-import { UserDto } from "src/application/dtos/user.dto";
-import User from "src/domain/entities/user-entity";
 import { UserNotFoundException } from "src/domain/exceptions";
 import { IUserRepository } from "src/domain/repositories/user.repository";
 import { ILoggerService } from "src/application/adaptors/logger.service";
 import { ITraceService } from "src/application/adaptors/trace.service";
-import CurrentUserDto from "src/presentation/grpc/dtos/current-user.dto";
 import { ICurrentUserUseCase } from "../interfaces/current-user.interface";
+import CurrentUserDto from "@/presentation/grpc/input-dtos/current-user.dto";
+import { UserDto } from "@/application/dtos/user.dto";
 
 @Injectable()
 export default class CurrentUserUseCaseImpl implements ICurrentUserUseCase {

@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { UserDto } from "src/application/dtos/user.dto";
+import { UserDto } from "@/application/dtos/user.dto";
 import { IInstructorStudentRepository } from "src/domain/repositories/instructor-student.repository";
 import { IUserRepository } from "src/domain/repositories/user.repository";
 import { ListInstructorsOfStudentRequest } from "src/infrastructure/grpc/generated/user/types/instructor_student";

@@ -1,4 +1,4 @@
-import { UserDto } from "src/application/dtos/user.dto";
+import { UserDto } from "@/application/dtos/user.dto";
 import { ListInstructorsOfStudentRequest } from "src/infrastructure/grpc/generated/user/types/instructor_student";
 
 export abstract class IListInstructorsOfStudentUseCase {

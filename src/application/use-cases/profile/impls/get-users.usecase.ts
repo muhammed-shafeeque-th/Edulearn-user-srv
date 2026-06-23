@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { UserDto } from "src/application/dtos/user.dto";
+import { UserDto } from "@/application/dtos/user.dto";
 import { BadRequestException } from "src/shared/exceptions/infra.exceptions";
 import {
   IUserRepository,
@@ -12,7 +12,7 @@ import { ITraceService } from "src/application/adaptors/trace.service";
 import GetUsersDto, {
   SortOptionDto,
   UserFilterDto,
-} from "src/presentation/grpc/dtos/get-users.dto";
+} from "@/presentation/grpc/input-dtos/get-users.dto";
 import { IGetUsersUseCase } from "../interfaces/get-users.inteface";
 
 @Injectable()

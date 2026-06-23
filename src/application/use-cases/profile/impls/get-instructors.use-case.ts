@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { UserDto } from "src/application/dtos/user.dto";
+import { UserDto } from "@/application/dtos/user.dto";
 import { IUserRepository } from "src/domain/repositories/user.repository";
 import { ILoggerService } from "src/application/adaptors/logger.service";
 import { ITraceService } from "src/application/adaptors/trace.service";
@@ -28,8 +28,6 @@ export default class GetInstructorsUseCaseImpl
       "GetInstructorsUseCaseImpl.execute",
       async (span) => {
         this._logger.debug(`Executing GetInstructorsUseCaseImpl `);
-
-        console.log("Instructors request :" + JSON.stringify(dto, null, 2));
 
         const page = dto.pagination?.page ?? 1;
         let pageSize = dto.pagination?.pageSize ?? 20;

@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { UserDto } from "src/application/dtos/user.dto";
+import { UserDto } from "@/application/dtos/user.dto";
 import { Gender, UserProfile } from "src/domain/entities/user-profile.entity";
 import {
   SocialProvider,
@@ -10,7 +10,7 @@ import { UserNotFoundException } from "src/domain/exceptions";
 import { IUserRepository } from "src/domain/repositories/user.repository";
 import { ILoggerService } from "src/application/adaptors/logger.service";
 import { ITraceService } from "src/application/adaptors/trace.service";
-import UpdateUserDto from "src/presentation/grpc/dtos/update-user.dto";
+import UpdateUserDto from "@/presentation/grpc/__input-dtos/update-user.dto";
 import { KafkaTopics } from "src/shared/events";
 import { v4 as uuidV4 } from "uuid";
 import { IUpdateUserUseCase } from "../interfaces/update-user.interface";

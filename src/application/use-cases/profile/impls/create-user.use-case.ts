@@ -8,7 +8,6 @@ import { ICartRepository } from "src/domain/repositories/cart.repository";
 import { IWishlistRepository } from "src/domain/repositories/wishlist.repository";
 import { ILoggerService } from "src/application/adaptors/logger.service";
 import { ITraceService } from "src/application/adaptors/trace.service";
-import CreateUserDto from "src/presentation/grpc/dtos/create-user.dto";
 import { Wallet } from "src/domain/entities/user-wallet.entity";
 import { IWalletRepository } from "src/domain/repositories/wallet.repository";
 import { UserAccountCreatedEvent } from "src/domain/events/user-created.event";
@@ -68,14 +67,14 @@ export default class CreateUserUseCase implements ICreateUserUseCase {
         });
 
         // await Promise.all([
-        await this._userRepository.save(user),
-          await this.createInitialUserAssets(user.id),
-          // ]);
+        await this._userRepository.save(user);
+        await this.createInitialUserAssets(user.id);
+        // ]);
 
-          this._logger.debug("Completed user creation", {
-            email: payload.email,
-            ctx: CreateUserUseCase.name,
-          });
+        this._logger.debug("Completed user creation", {
+          email: payload.email,
+          ctx: CreateUserUseCase.name,
+        });
 
         return user;
       },
@@ -103,20 +102,20 @@ export default class CreateUserUseCase implements ICreateUserUseCase {
           const wallet = Wallet.createInitial(userId, "INR");
 
           // await Promise.all([
-          await this._cartRepository.create(cart),
-            await this._wishlistRepository.create(wishlist),
-            await this._walletRepository.save(wallet),
-            // ]);
+          await this._cartRepository.create(cart);
+          await this._wishlistRepository.create(wishlist);
+          await this._walletRepository.save(wallet);
+          // ]);
 
-            this._logger.debug(
-              `Created cart, wishlist, and wallet for user ${userId}`,
-              {
-                userId,
-                cartId: cart.id,
-                wishlistId: wishlist.id,
-                ctx: CreateUserUseCase.name,
-              },
-            );
+          this._logger.debug(
+            `Created cart, wishlist, and wallet for user ${userId}`,
+            {
+              userId,
+              cartId: cart.id,
+              wishlistId: wishlist.id,
+              ctx: CreateUserUseCase.name,
+            },
+          );
 
           span.setAttributes({
             "cart.id": cart.id,

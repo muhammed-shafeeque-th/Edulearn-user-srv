@@ -3,7 +3,6 @@ import { CartItemDto } from "src/application/dtos/cart.dto";
 import { CartItem } from "src/domain/entities/cart-item.entity";
 import {
   CartItemAlreadyExistException,
-  CartItemNotFoundException,
   CartNotFoundException,
 } from "src/domain/exceptions";
 import { ICartRepository } from "src/domain/repositories/cart.repository";

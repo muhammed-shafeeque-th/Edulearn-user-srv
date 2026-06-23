@@ -14,7 +14,7 @@ export default class GetAllEmailsUseCaseImpl implements IGetAllEmailsUseCase {
   public async execute(): Promise<string[]> {
     return await this._tracer.startActiveSpan(
       "GetAllEmailsUseCaseImpl.execute",
-      async (span) => {
+      async () => {
         this._logger.debug(`Executing GetAllEmailsUseCaseImpl `);
         const userEmails = await this._userRepository.findAllUsersEmail();
 

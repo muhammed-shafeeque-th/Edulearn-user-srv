@@ -5,7 +5,7 @@ import { IUserRepository } from "src/domain/repositories/user.repository";
 import { ILoggerService } from "src/application/adaptors/logger.service";
 import { ITraceService } from "src/application/adaptors/trace.service";
 import { KafkaTopics } from "src/shared/events";
-import { UserRoles, UserStatus } from "../../../../domain/entities/user-entity";
+import { UserStatus } from "../../../../domain/entities/user-entity";
 import { v4 as uuidV4 } from "uuid";
 import { UserAccountBlockedEvent } from "src/domain/events/user-block.event";
 import { IEventPublisher } from "src/application/adaptors/event-producer";
