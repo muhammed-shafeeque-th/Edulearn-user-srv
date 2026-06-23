@@ -2,36 +2,31 @@ import { Injectable } from "@nestjs/common";
 import { WishlistDto } from "src/application/dtos/wishlist.dto";
 import { WishlistNotFoundException } from "src/domain/exceptions";
 import { IWishlistRepository } from "src/domain/repositories/wishlist.repository";
-import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
-import { TracingService } from "src/infrastructure/observability/tracing/trace.service";
+import { ILoggerService } from "src/application/adaptors/logger.service";
+import { ITraceService } from "src/application/adaptors/trace.service";
+import { IGetWishlistByUserUseCase } from "../interfaces/get-wishlist-by-user.interface";
 
 @Injectable()
-export class GetWishlistByUserUseCase {
+export class GetWishlistByUserUseCase implements IGetWishlistByUserUseCase {
   constructor(
-    private readonly wishlistRepository: IWishlistRepository,
-    private readonly logger: LoggingService,
-    private readonly tracer: TracingService
+    private readonly _wishlistRepository: IWishlistRepository,
+    private readonly _logger: ILoggerService,
+    private readonly _tracer: ITraceService,
   ) {}
 
-  /**
-   * Retrieves the wishlist for a user, paginated.
-   * @param userId User identifier.
-   * @param page Page number (1-indexed).
-   * @param pageSize Number of items per page.
-   */
   async execute(
     userId: string,
     page: number,
-    pageSize: number
+    pageSize: number,
   ): Promise<{ wishlist: WishlistDto; total: number }> {
-    return await this.tracer.startActiveSpan(
+    return await this._tracer.startActiveSpan(
       "GetWishlistByUserUseCase.execute",
       async (span) => {
         span.setAttributes({
           "user.id": userId,
         });
 
-        this.logger.log(`Fetching wishlist for user ${userId}`, {
+        this._logger.log(`Fetching wishlist for user ${userId}`, {
           ctx: GetWishlistByUserUseCase.name,
         });
 
@@ -42,32 +37,34 @@ export class GetWishlistByUserUseCase {
         const offset = (safePage - 1) * safePageSize;
 
         const { wishlist, totalItems } =
-          await this.wishlistRepository.findByUserId(
+          await this._wishlistRepository.findByUserId(
             userId,
             offset,
-            safePageSize
+            safePageSize,
           );
         if (!wishlist) {
-          this.logger.warn(`Wishlist not found for user ${userId}`, {
+          this._logger.warn(`Wishlist not found for user ${userId}`, {
             ctx: GetWishlistByUserUseCase.name,
           });
-          throw new WishlistNotFoundException(`Wishlist not found for user with id ${userId}`);
+          throw new WishlistNotFoundException(
+            `Wishlist not found for user with id ${userId}`,
+          );
         }
 
         span.setAttribute("wishlist.count", totalItems);
 
-        this.logger.log(
+        this._logger.log(
           `Found ${totalItems} wishlist items for user ${userId} (page=${safePage}, pageSize=${safePageSize})`,
           {
             ctx: GetWishlistByUserUseCase.name,
-          }
+          },
         );
 
         return {
           wishlist: WishlistDto.fromDomain(wishlist),
           total: totalItems,
         };
-      }
+      },
     );
   }
 }

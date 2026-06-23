@@ -4,19 +4,20 @@ import {
   WishlistItemNotFoundException,
 } from "src/domain/exceptions";
 import { IWishlistRepository } from "src/domain/repositories/wishlist.repository";
-import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
-import { TracingService } from "src/infrastructure/observability/tracing/trace.service";
+import { ILoggerService } from "src/application/adaptors/logger.service";
+import { ITraceService } from "src/application/adaptors/trace.service";
+import { IRemoveFromWishlistUseCase } from "../interfaces/remove-wishlist.interface";
 
 @Injectable()
-export class RemoveFromWishlistUseCase {
+export class RemoveFromWishlistUseCase implements IRemoveFromWishlistUseCase {
   constructor(
-    private readonly wishlistRepository: IWishlistRepository,
-    private readonly logger: LoggingService,
-    private readonly tracer: TracingService
+    private readonly _wishlistRepository: IWishlistRepository,
+    private readonly _logger: ILoggerService,
+    private readonly _tracer: ITraceService,
   ) {}
 
   async execute(userId: string, courseId: string): Promise<void> {
-    return await this.tracer.startActiveSpan(
+    return await this._tracer.startActiveSpan(
       "RemoveFromWishlistUseCase.execute",
       async (span) => {
         span.setAttributes({
@@ -24,45 +25,45 @@ export class RemoveFromWishlistUseCase {
           "course.id": courseId,
         });
 
-        this.logger.debug(`Removing from wishlist for  course ${courseId}`, {
+        this._logger.debug(`Removing from wishlist for  course ${courseId}`, {
           ctx: RemoveFromWishlistUseCase.name,
         });
         const { wishlist: userWishlist } =
-          await this.wishlistRepository.findByUserId(userId);
+          await this._wishlistRepository.findByUserId(userId);
         if (!userWishlist) {
           throw new WishlistItemNotFoundException(
-            `wishlist for user ${userId} not found`
+            `wishlist for user ${userId} not found`,
           );
         }
 
         // Check if course exists
         const existInWishlist =
-          await this.wishlistRepository.findItemByUserIdAndCourseId(
+          await this._wishlistRepository.findItemByUserIdAndCourseId(
             userId,
-            courseId
+            courseId,
           );
         if (existInWishlist) {
           throw new WishlistItemAlreadyExistException(
-            `wishlist item course ${courseId} already exist`
+            `wishlist item course ${courseId} already exist`,
           );
         }
 
         if (!existInWishlist) {
           span.setAttribute("wishlist.found", false);
           throw new WishlistItemNotFoundException(
-            `wishlist Item not found for user ${userWishlist.userId} with course ${courseId}`
+            `wishlist Item not found for user ${userWishlist.userId} with course ${courseId}`,
           );
         }
         span.setAttribute("wishlist.found", true);
 
         // Since wishlist entity doesn't have soft delete, we'll implement a hard delete
-        await this.wishlistRepository.removeItem(userWishlist.id, courseId);
+        await this._wishlistRepository.removeItem(userWishlist.id, courseId);
         span.setAttribute("wishlist.deleted", true);
 
-        this.logger.debug(`wishlist item removed`, {
+        this._logger.debug(`wishlist item removed`, {
           ctx: RemoveFromWishlistUseCase.name,
         });
-      }
+      },
     );
   }
 }
