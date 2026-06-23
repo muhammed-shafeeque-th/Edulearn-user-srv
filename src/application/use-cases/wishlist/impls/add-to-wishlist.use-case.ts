@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { WishlistItemDto } from "src/application/dtos/wishlist.dto";
+import { WishlistItemDto } from "@/application/dtos/wishlist.dto";
 import { WishlistItem } from "src/domain/entities/wishlist-item.entity";
 import { Wishlist } from "src/domain/entities/wishlist.entity";
 import {

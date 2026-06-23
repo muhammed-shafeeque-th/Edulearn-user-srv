@@ -1,4 +1,4 @@
-import { WishlistDto } from "src/application/dtos/wishlist.dto";
+import { WishlistDto } from "@/application/dtos/wishlist.dto";
 
 export abstract class IGetWishlistByUserUseCase {
   /**

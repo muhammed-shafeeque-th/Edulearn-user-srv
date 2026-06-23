@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { WishlistDto } from "src/application/dtos/wishlist.dto";
+import { WishlistDto } from "@/application/dtos/wishlist.dto";
 import { WishlistNotFoundException } from "src/domain/exceptions";
 import { IWishlistRepository } from "src/domain/repositories/wishlist.repository";
 import { ILoggerService } from "src/application/adaptors/logger.service";
