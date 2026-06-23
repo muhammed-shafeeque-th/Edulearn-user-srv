@@ -3,31 +3,30 @@ import { UserDto } from "src/application/dtos/user.dto";
 import { IInstructorStudentRepository } from "src/domain/repositories/instructor-student.repository";
 import { IUserRepository } from "src/domain/repositories/user.repository";
 import { ListStudentsOfInstructorRequest } from "src/infrastructure/grpc/generated/user/types/instructor_student";
-import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
-import { TracingService } from "src/infrastructure/observability/tracing/trace.service";
+import { ILoggerService } from "src/application/adaptors/logger.service";
+import { ITraceService } from "src/application/adaptors/trace.service";
+import { IListStudentsOfInstructorUseCase } from "../interfaces/list-students-of-instructor.inteface";
 
 @Injectable()
-export default class ListStudentsOfInstructorUseCase {
+export default class ListStudentsOfInstructorUseCase
+  implements IListStudentsOfInstructorUseCase
+{
   public constructor(
-    private readonly instructorStudentRepository: IInstructorStudentRepository,
-    private readonly userRepository: IUserRepository,
-    private readonly logger: LoggingService,
-    private readonly tracer: TracingService,
+    private readonly _instructorStudentRepository: IInstructorStudentRepository,
+    private readonly _userRepository: IUserRepository,
+    private readonly _logger: ILoggerService,
+    private readonly _tracer: ITraceService,
   ) {}
 
-  /**
-   * Lists the instructors of a student.
-   * @param dto - The request DTO containing instructorId and pagination info.
-   */
   async execute(
     dto: ListStudentsOfInstructorRequest,
   ): Promise<{ students: UserDto[]; total: number }> {
-    return this.tracer.startActiveSpan(
+    return this._tracer.startActiveSpan(
       "ListStudentsOfInstructorUseCase.execute",
       async (span) => {
         try {
           const { pagination, instructorId } = dto;
-          this.logger.info("Executing ListStudentsOfInstructorUseCase", {
+          this._logger.debug("Executing ListStudentsOfInstructorUseCase", {
             instructorId: dto.instructorId,
             page: dto.pagination?.page,
             pageSize: dto.pagination?.pageSize,
@@ -41,7 +40,7 @@ export default class ListStudentsOfInstructorUseCase {
           const limit = pageSize;
 
           const { data, total } =
-            await this.instructorStudentRepository.getStudentsOfInstructor({
+            await this._instructorStudentRepository.getStudentsOfInstructor({
               instructorId,
               pagination: { offset, limit },
             });
@@ -55,9 +54,9 @@ export default class ListStudentsOfInstructorUseCase {
           }
 
           const instructors =
-            await this.userRepository.findUsersByIds(studentIds);
+            await this._userRepository.findUsersByIds(studentIds);
 
-          this.logger.info("ListStudentsOfInstructorUseCase succeeded.", {
+          this._logger.debug("ListStudentsOfInstructorUseCase succeeded.", {
             instructorId,
             totalInstructors: total,
           });
@@ -66,8 +65,8 @@ export default class ListStudentsOfInstructorUseCase {
             students: instructors.map(UserDto.fromDomain),
             total,
           };
-        } catch (error) {
-          this.logger.error(
+        } catch (error: any) {
+          this._logger.error(
             "Error in ListStudentsOfInstructorUseCase: " +
               (error?.message || error),
             error,

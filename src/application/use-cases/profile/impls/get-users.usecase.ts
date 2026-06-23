@@ -7,29 +7,29 @@ import {
   DOMAIN_USER_FIELDS,
   UserSortField,
 } from "src/domain/repositories/user.repository";
-import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
-import { TracingService } from "src/infrastructure/observability/tracing/trace.service";
+import { ILoggerService } from "src/application/adaptors/logger.service";
+import { ITraceService } from "src/application/adaptors/trace.service";
 import GetUsersDto, {
   SortOptionDto,
   UserFilterDto,
 } from "src/presentation/grpc/dtos/get-users.dto";
+import { IGetUsersUseCase } from "../interfaces/get-users.inteface";
 
 @Injectable()
-export default class GetUsersUseCaseImpl {
+export default class GetUsersUseCaseImpl implements IGetUsersUseCase {
   constructor(
-    private readonly userRepository: IUserRepository,
-    private readonly logger: LoggingService,
-    private readonly tracer: TracingService,
+    private readonly _userRepository: IUserRepository,
+    private readonly _logger: ILoggerService,
+    private readonly _tracer: ITraceService,
   ) {}
 
   public async execute(
     dto: GetUsersDto,
   ): Promise<{ users: UserDto[]; total: number }> {
-    return await this.tracer.startActiveSpan(
+    return await this._tracer.startActiveSpan(
       "GetUsersUseCaseImpl.execute",
       async (span) => {
-        this.logger.info(`Executing GetUsersUseCaseImpl`, { dto });
-
+        this._logger.debug(`Executing GetUsersUseCaseImpl`, { dto });
 
         const filterObj = this.domainValidateAndMapFilters(dto);
 
@@ -39,14 +39,14 @@ export default class GetUsersUseCaseImpl {
           ...filterObj,
         });
 
-        this.logger.info("Calling repository.findUsers with filters", {
+        this._logger.debug("Calling repository.findUsers with filters", {
           filterObj,
         });
 
         const { users, totalUsers } =
-          await this.userRepository.findUsers(filterObj);
+          await this._userRepository.findUsers(filterObj);
 
-        this.logger.info(
+        this._logger.debug(
           `Successfully fetched ${users.length} users (total: ${totalUsers})`,
         );
 
@@ -93,7 +93,7 @@ export default class GetUsersUseCaseImpl {
         const field = sort.field.trim();
         console.log("sort.field", field);
         if (!this.isDomainSortField(field)) {
-          this.logger.error("Sort field not allowed by domain", {
+          this._logger.error("Sort field not allowed by domain", {
             field,
             allowed: DOMAIN_USER_FIELDS,
           });

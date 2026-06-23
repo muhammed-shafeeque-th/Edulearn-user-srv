@@ -8,34 +8,35 @@ import {
 import { UpdatedUserEvent } from "src/domain/events/update-user.event";
 import { UserNotFoundException } from "src/domain/exceptions";
 import { IUserRepository } from "src/domain/repositories/user.repository";
-import { KafkaService } from "src/infrastructure/kafka/kafka.service";
-import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
-import { TracingService } from "src/infrastructure/observability/tracing/trace.service";
+import { ILoggerService } from "src/application/adaptors/logger.service";
+import { ITraceService } from "src/application/adaptors/trace.service";
 import UpdateUserDto from "src/presentation/grpc/dtos/update-user.dto";
 import { KafkaTopics } from "src/shared/events";
 import { v4 as uuidV4 } from "uuid";
+import { IUpdateUserUseCase } from "../interfaces/update-user.interface";
+import { IEventPublisher } from "src/application/adaptors/event-producer";
 
 @Injectable()
-export default class UpdateUserUseCaseImpl {
+export default class UpdateUserUseCaseImpl implements IUpdateUserUseCase {
   public constructor(
-    private readonly userRepository: IUserRepository,
-    private readonly kafkaProducer: KafkaService,
-    private readonly logger: LoggingService,
-    private readonly tracer: TracingService
-  ) { }
+    private readonly _userRepository: IUserRepository,
+    private readonly _eventPublisher: IEventPublisher,
+    private readonly _logger: ILoggerService,
+    private readonly _tracer: ITraceService,
+  ) {}
   public async execute(dto: UpdateUserDto): Promise<UserDto | null> {
-    return await this.tracer.startActiveSpan(
+    return await this._tracer.startActiveSpan(
       "UpdateUserUseCaseImpl.execute",
       async (span) => {
         span.setAttributes({
           userId: dto.userId,
         });
 
-        this.logger.info(
-          `Executing UpdateUserUseCaseImpl for user : ${dto.userId}`
+        this._logger.debug(
+          `Executing UpdateUserUseCaseImpl for user : ${dto.userId}`,
         );
         // Checks whether user exist with provided userId
-        const user = await this.userRepository.findById(dto.userId);
+        const user = await this._userRepository.findById(dto.userId);
 
         // Throws an error if user NOT exist with given userId
         if (!user) throw new UserNotFoundException(dto.userId);
@@ -67,14 +68,13 @@ export default class UpdateUserUseCaseImpl {
             phone: dto.phone,
             language: dto.language,
             website: dto.website,
-
           });
         }
         const userSocials = user.socials ?? [];
 
         dto.socials?.forEach((param) => {
           const existingIdx = userSocials.findIndex(
-            (social) => social.provider === param.provider
+            (social) => social.provider === param.provider,
           );
           if (existingIdx !== -1) {
             userSocials[existingIdx] = {
@@ -100,9 +100,9 @@ export default class UpdateUserUseCaseImpl {
         });
         user.setSocials(userSocials);
 
-        const updatedUser = await this.userRepository.update(dto.userId, user);
+        const updatedUser = await this._userRepository.update(dto.userId, user);
 
-        await this.kafkaProducer.publish<UpdatedUserEvent>(
+        await this._eventPublisher.publish<UpdatedUserEvent>(
           {
             eventId: uuidV4(),
             eventType: "UserUpdatedEvent",
@@ -117,17 +117,17 @@ export default class UpdateUserUseCaseImpl {
               firstName: updatedUser.firstName,
               lastName: updatedUser.lastName,
               status: updatedUser.status,
-            }
+            },
           },
           {
             topic: KafkaTopics.UserAccountUpdated,
             key: updatedUser.id,
-          }
+          },
         );
 
         // Return updated user
         return UserDto.fromDomain(updatedUser);
-      }
+      },
     );
   }
 }
