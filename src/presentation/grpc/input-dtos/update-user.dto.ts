@@ -1,17 +1,19 @@
-
-import { IsOptional, IsString, IsUUID } from 'class-validator';
-import { UpdateUserDetailsRequest, UserSocialsData } from 'src/infrastructure/grpc/generated/user/types/user_types';
+import { IsOptional, IsString, IsUUID } from "class-validator";
+import {
+  UpdateUserDetailsRequest,
+  UserSocialsData,
+} from "src/infrastructure/grpc/generated/user/types/user_types";
 
 export default class UpdateUserDto implements UpdateUserDetailsRequest {
-  @IsUUID(undefined, { message: '`userId` must be type UUID' })
+  @IsUUID(undefined, { message: "`userId` must be type UUID" })
   userId!: string;
 
   // @IsOptional()
-  @IsString({ message: 'Must be type string' })
-  firstName?: string ;
+  @IsString({ message: "Must be type string" })
+  firstName?: string;
 
   @IsOptional()
-  @IsString({ message: 'Must be type string' })
+  @IsString({ message: "Must be type string" })
   lastName?: string | undefined;
 
   // @IsEnum(UserRoles)
@@ -36,29 +38,25 @@ export default class UpdateUserDto implements UpdateUserDetailsRequest {
   @IsString()
   language?: string;
 
-
   @IsOptional()
-  @IsString({ message: 'Must be type string' })
+  @IsString({ message: "Must be type string" })
   phone?: string | undefined;
 
   @IsOptional()
-  @IsString({ message: 'Must be type string' })
+  @IsString({ message: "Must be type string" })
   avatar?: string | undefined;
-  
+
   @IsOptional()
-  @IsString({ message: 'Must be type string' })
+  @IsString({ message: "Must be type string" })
   city?: string;
-  
+
   @IsOptional()
-  @IsString({ message: 'Must be type string' })
+  @IsString({ message: "Must be type string" })
   country?: string;
-  
+
   @IsOptional()
-  @IsString({ message: 'Must be type string' })
+  @IsString({ message: "Must be type string" })
   gender?: string;
 
   socials: UserSocialsData[];
-
-
-
 }

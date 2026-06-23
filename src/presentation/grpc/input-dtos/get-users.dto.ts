@@ -1,19 +1,13 @@
 import {
   IsOptional,
-  IsInt,
-  Min,
-  Max,
   IsEnum,
   IsString,
   IsEmail,
   ValidateNested,
 } from "class-validator";
-import { Type, plainToInstance } from "class-transformer";
+import { Type } from "class-transformer";
 import { UserStatus as UserDomainStatus } from "src/domain/entities/user-entity";
-import {
-  PaginationRequest,
-  SortOrder as GrpcSortOrder,
-} from "src/infrastructure/grpc/generated/user/common";
+import { SortOrder as GrpcSortOrder } from "src/infrastructure/grpc/generated/user/common";
 import {
   ListUsersRequest,
   UserStatus as GrpcUserStatus,
@@ -44,7 +38,7 @@ export class SortOptionDto {
   order: SortOrder;
 
   /** Map to gRPC sort order string ("ASC" | "DESC") */
-  static getGrpcOrderString(order: SortOrder ): "ASC" | "DESC" {
+  static getGrpcOrderString(order: SortOrder): "ASC" | "DESC" {
     if (order === SortOrder.DESC) return "DESC";
     return "ASC";
   }
@@ -105,7 +99,6 @@ export class UserFilterDto {
     };
   }
 }
-
 
 export default class GetUsersDto implements ListUsersRequest {
   @IsOptional()
