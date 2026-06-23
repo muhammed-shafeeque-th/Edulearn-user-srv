@@ -1,21 +1,23 @@
 import { Injectable } from "@nestjs/common";
-import {  UserWalletNotFoundException } from "src/domain/exceptions";
+import { UserWalletNotFoundException } from "src/domain/exceptions";
 import { IWalletRepository } from "src/domain/repositories/wallet.repository";
 import {
   GetInstructorRevenueSummeryRequest,
   InstructorRevenueSummery,
 } from "src/infrastructure/grpc/generated/user/types/stats_types";
-import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
-import { TracingService } from "src/infrastructure/observability/tracing/trace.service";
+import { ILoggerService } from "src/application/adaptors/logger.service";
+import { ITraceService } from "src/application/adaptors/trace.service";
 import { BadRequestException } from "src/shared/exceptions/infra.exceptions";
-
+import { IGetInstructorRevenueSummeryUseCase } from "../interfaces/get-instructor-revenue-summery.interface";
 
 @Injectable()
-export class GetInstructorRevenueSummeryUseCase {
+export class GetInstructorRevenueSummeryUseCase
+  implements IGetInstructorRevenueSummeryUseCase
+{
   constructor(
-    private readonly walletRepository: IWalletRepository,
-    private readonly logger: LoggingService,
-    private readonly tracer: TracingService,
+    private readonly _walletRepository: IWalletRepository,
+    private readonly _logger: ILoggerService,
+    private readonly _tracer: ITraceService,
   ) {}
 
   /**
@@ -23,15 +25,15 @@ export class GetInstructorRevenueSummeryUseCase {
    * @param dto Information about the instructor.
    */
   async execute(
-    dto: GetInstructorRevenueSummeryRequest
+    dto: GetInstructorRevenueSummeryRequest,
   ): Promise<InstructorRevenueSummery> {
-    return this.tracer.startActiveSpan(
+    return this._tracer.startActiveSpan(
       "GetInstructorRevenueSummeryUseCase.execute",
       async (span) => {
         try {
           const instructorId = dto.instructorId;
           if (!instructorId) {
-            this.logger.warn("Missing instructorId in request object", {
+            this._logger.warn("Missing instructorId in request object", {
               ctx: GetInstructorRevenueSummeryUseCase.name,
             });
             throw new BadRequestException("InstructorId is required");
@@ -41,28 +43,27 @@ export class GetInstructorRevenueSummeryUseCase {
             "instructor.id": instructorId,
           });
 
-          this.logger.debug(
+          this._logger.debug(
             `Fetching revenue summary for instructorId=${instructorId}`,
-            { ctx: GetInstructorRevenueSummeryUseCase.name }
+            { ctx: GetInstructorRevenueSummeryUseCase.name },
           );
 
-          const revenueSummary = await this.walletRepository.getRevenueSummery(
-            instructorId
-          );
+          const revenueSummary =
+            await this._walletRepository.getRevenueSummery(instructorId);
 
           if (!revenueSummary) {
-            this.logger.warn(
+            this._logger.warn(
               `Revenue summary not found for instructorId=${instructorId}`,
-              { ctx: GetInstructorRevenueSummeryUseCase.name }
+              { ctx: GetInstructorRevenueSummeryUseCase.name },
             );
             throw new UserWalletNotFoundException(
-              `Revenue summary for instructor ${instructorId} not found`
+              `Revenue summary for instructor ${instructorId} not found`,
             );
           }
 
-          this.logger.debug(
+          this._logger.debug(
             `Successfully retrieved revenue summary for instructorId=${instructorId}`,
-            { ctx: GetInstructorRevenueSummeryUseCase.name }
+            { ctx: GetInstructorRevenueSummeryUseCase.name },
           );
 
           return {
@@ -72,15 +73,14 @@ export class GetInstructorRevenueSummeryUseCase {
             thisWeekEarnings: revenueSummary.thisWeekEarnings ?? 0,
             todayEarnings: revenueSummary.todayEarnings ?? 0,
           };
-        } catch (err) {
-          span?.recordException?.(err);
-          this.logger.error(
+        } catch (err: any) {
+          this._logger.error(
             `Failed to get instructor revenue summary. Reason: ${err?.message}`,
-            { ctx: GetInstructorRevenueSummeryUseCase.name, error: err }
+            { ctx: GetInstructorRevenueSummeryUseCase.name, error: err },
           );
           throw err;
         }
-      }
+      },
     );
   }
 }

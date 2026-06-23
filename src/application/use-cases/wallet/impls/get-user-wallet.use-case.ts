@@ -2,29 +2,24 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { WalletDto } from "src/application/dtos/wallet.dto";
 import { UserWalletNotFoundException } from "src/domain/exceptions";
 import { IWalletRepository } from "src/domain/repositories/wallet.repository";
-import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
-import { TracingService } from "src/infrastructure/observability/tracing/trace.service";
+import { ILoggerService } from "src/application/adaptors/logger.service";
+import { ITraceService } from "src/application/adaptors/trace.service";
+import { IGetUserWalletUseCase } from "../interfaces/get-user-wallet.interface";
 
 @Injectable()
-export class GetUserWalletUseCase {
+export class GetUserWalletUseCase implements IGetUserWalletUseCase {
   constructor(
-    private readonly walletRepository: IWalletRepository,
-    private readonly logger: LoggingService,
-    private readonly tracer: TracingService
+    private readonly _walletRepository: IWalletRepository,
+    private readonly _logger: ILoggerService,
+    private readonly _tracer: ITraceService,
   ) {}
 
-  /**
-   * Retrieve the wallet of a user, along with transaction total.
-   * @param userId user identifier
-   * @param page pagination page number (1-based)
-   * @param limit number of transactions per page
-   */
   async execute(
     userId: string,
     page = 1,
-    limit = 10
+    limit = 10,
   ): Promise<{ wallet: WalletDto; total: number }> {
-    return this.tracer.startActiveSpan(
+    return this._tracer.startActiveSpan(
       "GetUserWalletUseCase.execute",
       async (span) => {
         try {
@@ -39,41 +34,40 @@ export class GetUserWalletUseCase {
             limit: limit,
           });
 
-          this.logger.debug(
+          this._logger.debug(
             `Fetching wallet for userId=${userId}, page=${page}, limit=${limit}`,
-            { ctx: GetUserWalletUseCase.name }
+            { ctx: GetUserWalletUseCase.name },
           );
 
           const { wallet: userWallet, totalTransactions } =
-            await this.walletRepository.findByUserId(userId, offset, limit);
+            await this._walletRepository.findByUserId(userId, offset, limit);
 
           if (!userWallet) {
-            this.logger.warn(`Wallet not found for userId=${userId}`, {
+            this._logger.warn(`Wallet not found for userId=${userId}`, {
               ctx: GetUserWalletUseCase.name,
             });
             throw new UserWalletNotFoundException(
-              `Wallet associated with user ${userId} not found`
+              `Wallet associated with user ${userId} not found`,
             );
           }
 
-          this.logger.debug(
+          this._logger.debug(
             `Successfully retrieved wallet for userId=${userId}`,
-            { ctx: GetUserWalletUseCase.name }
+            { ctx: GetUserWalletUseCase.name },
           );
 
           return {
             wallet: WalletDto.fromDomain(userWallet),
             total: totalTransactions,
           };
-        } catch (err) {
-          span.recordException?.(err);
-          this.logger.error(
+        } catch (err: any) {
+          this._logger.error(
             `Failed to get wallet for user: ${userId}. Reason: ${err?.message}`,
-            { ctx: GetUserWalletUseCase.name, error: err }
+            { ctx: GetUserWalletUseCase.name, error: err },
           );
           throw err;
         }
-      }
+      },
     );
   }
 }
