@@ -1,7 +1,8 @@
 import { RoleStatus, UserRoles, UserStatus } from "../entities/user-entity";
 import { BaseEvent } from "./base-event";
 
-export interface InstructorRegisterEvent extends BaseEvent<{
+export interface InstructorRegisterEvent
+  extends BaseEvent<{
     userId: string;
     email: string;
     roles: [UserRoles.STUDENT, UserRoles.INSTRUCTOR];
@@ -10,20 +11,22 @@ export interface InstructorRegisterEvent extends BaseEvent<{
     lastName?: string;
     avatar?: string;
     status?: UserStatus;
-}> { }
+  }> {}
 
-export interface InstructorRoleBlockedEvent extends BaseEvent< {
+export interface InstructorRoleBlockedEvent
+  extends BaseEvent<{
     userId: string;
     email: string;
     status: UserStatus;
     roles?: UserRoles[];
     roleStatus?: Record<UserRoles, RoleStatus>;
-  }>{}
+  }> {}
 
-export interface InstructorRoleUnBlockedEvent extends BaseEvent< {
+export interface InstructorRoleUnBlockedEvent
+  extends BaseEvent<{
     userId: string;
     email: string;
     status: UserStatus;
     roles?: UserRoles[];
     roleStatus?: Record<UserRoles, RoleStatus>;
-  }>{}
+  }> {}
