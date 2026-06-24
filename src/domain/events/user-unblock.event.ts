@@ -1,7 +1,8 @@
-import {  RoleStatus, UserRoles, UserStatus } from "../entities/user-entity";
+import { RoleStatus, UserRoles, UserStatus } from "../entities/user-entity";
 import { BaseEvent } from "./base-event";
 
-export interface UserAccountUnblockedEvent extends BaseEvent< {
+export interface UserAccountUnblockedEvent
+  extends BaseEvent<{
     userId: string;
     email: string;
     status: Exclude<UserStatus, UserStatus.BLOCKED>;
@@ -9,4 +10,4 @@ export interface UserAccountUnblockedEvent extends BaseEvent< {
     avatar?: string;
     roles?: UserRoles[];
     roleStatus?: Record<UserRoles, RoleStatus>;
-  }>{}
+  }> {}
