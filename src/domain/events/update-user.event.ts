@@ -1,13 +1,13 @@
 import { UserRoles, UserStatus } from "../entities/user-entity";
 import { BaseEvent } from "./base-event";
 
-
-export interface UpdatedUserEvent extends BaseEvent<{
-  userId: string;
-  email: string;
-  roles: UserRoles[];
-  firstName?: string;
-  lastName?: string;
-  avatar?: string;
-  status?: UserStatus;
-}> { }
+export interface UpdatedUserEvent
+  extends BaseEvent<{
+    userId: string;
+    email: string;
+    roles: UserRoles[];
+    firstName?: string;
+    lastName?: string;
+    avatar?: string;
+    status?: UserStatus;
+  }> {}
