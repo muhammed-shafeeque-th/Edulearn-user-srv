@@ -1,12 +1,13 @@
 import { Injectable } from "@nestjs/common";
 import { Counter, Gauge, Histogram } from "prom-client";
+import { IMetricService } from "src/application/adaptors/metric.service";
 
 // interface MetricLabels {
 //   [key: string]: string | number;
 // }
 
 @Injectable()
-export class MetricsService {
+export class MetricService implements IMetricService {
   private gRPCRequestDurationSeconds: Histogram;
   private databaseQueryCounter: Counter;
   private currentRequestCount: Gauge;
@@ -55,7 +56,7 @@ export class MetricsService {
   // Use the pre-defined metric instances directly
   public measureDBOperationDuration(
     method: string,
-    operation?: "INSERT" | "DELETE" | "SELECT" | "UPDATE"
+    operation?: "INSERT" | "DELETE" | "SELECT" | "UPDATE",
   ): () => void {
     const end = this.dbRequestDurationSeconds.startTimer({ method, operation });
     return () => {
@@ -76,13 +77,16 @@ export class MetricsService {
     });
   }
   public incrementDBRequestCounter(
-    operation?: "INSERT" | "DELETE" | "SELECT" | "UPDATE"
+    operation?: "INSERT" | "DELETE" | "SELECT" | "UPDATE",
   ): void {
     this.databaseQueryCounter.inc({ operation });
   }
 
   public incrementErrorCounter(method: string, statusCode?: number): void {
-    this.grpcErrorsTotal.inc({ method, status_code: statusCode?.toString() || "unknown" });
+    this.grpcErrorsTotal.inc({
+      method,
+      status_code: statusCode?.toString() || "unknown",
+    });
   }
 
   // // Generic counter increment for custom metrics (requires pre-defined metric instance)
