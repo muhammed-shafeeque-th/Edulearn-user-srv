@@ -12,5 +12,4 @@ export abstract class DomainException extends BaseException {
     Object.setPrototypeOf(this, new.target.prototype);
     this.name = this.constructor.name;
   }
-
 }

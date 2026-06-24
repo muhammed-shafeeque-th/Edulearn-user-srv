@@ -38,7 +38,6 @@ export class WishlistItemAlreadyExistException extends DomainException {
     );
   }
 
-
   serializeError(): { message: string; field?: string }[] {
     return [{ message: this.message }];
   }
