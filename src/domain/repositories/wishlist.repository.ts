@@ -7,12 +7,12 @@ export abstract class IWishlistRepository {
   abstract findById(id: string): Promise<Wishlist | null>;
   abstract findItemByUserIdAndCourseId(
     userId: string,
-    courseId: string
+    courseId: string,
   ): Promise<WishlistItem | null>;
   abstract findByUserId(
     userId: string,
     offset?: number,
-    limit?: number
+    limit?: number,
   ): Promise<{ wishlist: Wishlist | null; totalItems: number }>;
   abstract update(wishlist: Wishlist): Promise<void>;
   abstract addItem(wishlistItem: WishlistItem): Promise<void>;
