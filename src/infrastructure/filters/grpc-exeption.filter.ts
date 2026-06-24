@@ -4,13 +4,13 @@ import {
   Catch,
   ExceptionFilter,
 } from "@nestjs/common";
-import { LoggingService } from "../observability/logging/logging.service";
 import { status } from "@grpc/grpc-js";
 import { RpcException } from "@nestjs/microservices";
+import { ILoggerService } from "src/application/adaptors/logger.service";
 
 @Catch()
 export class GrpcExceptionFilter implements ExceptionFilter {
-  constructor(private readonly logger: LoggingService) {}
+  constructor(private readonly _logger: ILoggerService) {}
 
   catch(exception: any, host: ArgumentsHost) {
     const ctx = host.switchToRpc();
@@ -35,7 +35,7 @@ export class GrpcExceptionFilter implements ExceptionFilter {
         message = message.toString();
       }
     } else {
-      this.logger.error(`Unexpected error: ${exception.message}`, {
+      this._logger.error(`Unexpected error: ${exception.message}`, {
         ...exception,
         ctx: GrpcExceptionFilter.name,
       });
