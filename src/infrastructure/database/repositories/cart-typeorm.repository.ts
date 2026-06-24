@@ -2,9 +2,8 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { RedisService } from "../../redis/redis.service";
-import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
-import { TracingService } from "src/infrastructure/observability/tracing/trace.service";
-import { MetricsService } from "src/infrastructure/observability/metrics/metrics.service";
+import { ILoggerService } from "src/application/adaptors/logger.service";
+import { ITraceService } from "src/application/adaptors/trace.service";
 
 import { ICartRepository } from "src/domain/repositories/cart.repository";
 import { CartOrmEntity } from "../entities/cart.orm-entity";
@@ -12,6 +11,7 @@ import { CartItemOrmEntity } from "../entities/cart-item.orm-entity";
 import { Cart } from "src/domain/entities/cart.entity";
 import { CartItem } from "src/domain/entities/cart-item.entity";
 import { EntityMapper } from "../mapper/entity-mapper";
+import { IMetricService } from "src/application/adaptors/metric.service";
 
 @Injectable()
 export class CartTypeOrmRepository implements ICartRepository {
@@ -20,13 +20,13 @@ export class CartTypeOrmRepository implements ICartRepository {
     private readonly repo: Repository<CartOrmEntity>,
     @InjectRepository(CartItemOrmEntity)
     private readonly cartItemRepo: Repository<CartItemOrmEntity>,
-    private readonly logger: LoggingService,
-    private readonly tracer: TracingService,
-    private readonly metrics: MetricsService,
+    private readonly _logger: ILoggerService,
+    private readonly _tracer: ITraceService,
+    private readonly metrics: IMetricService,
   ) {}
 
   async create(cart: Cart): Promise<void> {
-    return await this.tracer.startActiveSpan(
+    return await this._tracer.startActiveSpan(
       "CartTypeOrmRepository.create",
       async (span) => {
         span.setAttributes({
@@ -56,7 +56,7 @@ export class CartTypeOrmRepository implements ICartRepository {
   }
 
   async findById(id: string): Promise<Cart | null> {
-    return await this.tracer.startActiveSpan(
+    return await this._tracer.startActiveSpan(
       "CartTypeOrmRepository.findById",
       async (span) => {
         span.setAttributes({
@@ -93,7 +93,7 @@ export class CartTypeOrmRepository implements ICartRepository {
     userId: string,
     courseId: string,
   ): Promise<CartItem | null> {
-    return await this.tracer.startActiveSpan(
+    return await this._tracer.startActiveSpan(
       "CartTypeOrmRepository.findItemByUserIdAndCourseId",
       async (span) => {
         span.setAttributes({
@@ -128,7 +128,7 @@ export class CartTypeOrmRepository implements ICartRepository {
     offset?: number,
     limit?: number,
   ): Promise<{ cart: Cart | null; totalItems: number }> {
-    return await this.tracer.startActiveSpan(
+    return await this._tracer.startActiveSpan(
       "CartTypeOrmRepository.findByUserId",
       async (span) => {
         span.setAttributes({
@@ -178,7 +178,7 @@ export class CartTypeOrmRepository implements ICartRepository {
   }
 
   async delete(cart: Cart): Promise<void> {
-    return await this.tracer.startActiveSpan(
+    return await this._tracer.startActiveSpan(
       "CartTypeOrmRepository.delete",
       async (span) => {
         span.setAttributes({
@@ -202,7 +202,7 @@ export class CartTypeOrmRepository implements ICartRepository {
   }
 
   async clearCart(userId: string): Promise<void> {
-    return await this.tracer.startActiveSpan(
+    return await this._tracer.startActiveSpan(
       "CartTypeOrmRepository.clearCart",
       async (span) => {
         span.setAttributes({
@@ -220,7 +220,7 @@ export class CartTypeOrmRepository implements ICartRepository {
 
         if (!cartEntity) {
           end();
-          this.logger.warn(`No cart found for user ${userId} to clear`, {
+          this._logger.warn(`No cart found for user ${userId} to clear`, {
             ctx: CartTypeOrmRepository.name,
           });
           return;
@@ -230,7 +230,7 @@ export class CartTypeOrmRepository implements ICartRepository {
 
         end();
 
-        this.logger.debug(`Cleared all items from cart for user ${userId}`, {
+        this._logger.debug(`Cleared all items from cart for user ${userId}`, {
           ctx: CartTypeOrmRepository.name,
         });
       },
@@ -238,7 +238,7 @@ export class CartTypeOrmRepository implements ICartRepository {
   }
 
   async update(cart: Cart): Promise<void> {
-    return await this.tracer.startActiveSpan(
+    return await this._tracer.startActiveSpan(
       "CartTypeOrmRepository.update",
       async (span) => {
         span.setAttributes({
@@ -266,7 +266,7 @@ export class CartTypeOrmRepository implements ICartRepository {
 
         end();
 
-        this.logger.debug(`Updated cart ${cart.id}`, {
+        this._logger.debug(`Updated cart ${cart.id}`, {
           ctx: CartTypeOrmRepository.name,
         });
       },
@@ -274,7 +274,7 @@ export class CartTypeOrmRepository implements ICartRepository {
   }
 
   async addItem(cartItem: CartItem): Promise<void> {
-    return await this.tracer.startActiveSpan(
+    return await this._tracer.startActiveSpan(
       "CartTypeOrmRepository.addItem",
       async (span) => {
         span.setAttributes({
@@ -294,7 +294,7 @@ export class CartTypeOrmRepository implements ICartRepository {
         await this.cartItemRepo.save(cartItemOrm);
         end();
 
-        this.logger.debug(
+        this._logger.debug(
           `Added item ${cartItem.courseId} to cart ${cartItem.cartId}`,
           {
             ctx: CartTypeOrmRepository.name,
@@ -305,7 +305,7 @@ export class CartTypeOrmRepository implements ICartRepository {
   }
 
   async removeItem(cartId: string, courseId: string): Promise<void> {
-    return await this.tracer.startActiveSpan(
+    return await this._tracer.startActiveSpan(
       "CartTypeOrmRepository.removeItem",
       async (span) => {
         span.setAttributes({
@@ -326,13 +326,13 @@ export class CartTypeOrmRepository implements ICartRepository {
         });
         end();
         if (deleteResult.affected === 0) {
-          this.logger.warn(
+          this._logger.warn(
             `No cart item found to remove for cartId=${cartId}, courseId=${courseId}`,
             { ctx: CartTypeOrmRepository.name },
           );
         }
 
-        this.logger.debug(`Removed item ${courseId} from cart ${cartId}`, {
+        this._logger.debug(`Removed item ${courseId} from cart ${cartId}`, {
           ctx: CartTypeOrmRepository.name,
         });
       },
