@@ -1,6 +1,5 @@
 import { Global, Module } from "@nestjs/common";
-import { ConfigModule, ConfigService } from "@nestjs/config";
-import { TracingService } from "./trace.service";
+import { TraceService } from "./trace.service";
 import { NodeSDK } from "@opentelemetry/sdk-node";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-proto";
 import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions";
@@ -19,11 +18,12 @@ import {
 import { resourceFromAttributes } from "@opentelemetry/resources";
 import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
 import { AppConfigService } from "src/infrastructure/config/config.service";
+import { ITraceService } from "src/application/adaptors/trace.service";
 
 @Global()
 @Module({
   providers: [
-    TracingService,
+    { provide: ITraceService, useClass: TraceService },
     {
       provide: "OTEL_SDK",
       useFactory: async (configService: AppConfigService) => {
@@ -74,7 +74,7 @@ import { AppConfigService } from "src/infrastructure/config/config.service";
             .shutdown()
             .then(() => console.log(`OpenTelemetry SDK shut down successfully`))
             .catch((err) =>
-              console.error("Error shutting down OpenTelemetry SDK", err)
+              console.error("Error shutting down OpenTelemetry SDK", err),
             )
             .finally(() => process.exit(1));
         });
@@ -84,6 +84,6 @@ import { AppConfigService } from "src/infrastructure/config/config.service";
       inject: [AppConfigService],
     },
   ],
-  exports: [TracingService],
+  exports: [ITraceService],
 })
 export class TracingModule {}

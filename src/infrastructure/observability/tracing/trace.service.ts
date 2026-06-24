@@ -8,23 +8,24 @@ import {
   SpanStatusCode,
   Context,
 } from "@opentelemetry/api"; // Import Tracer and SpanStatusCode
+import { ITraceService } from "src/application/adaptors/trace.service";
 import { AppConfigService } from "src/infrastructure/config/config.service";
 
 @Injectable()
-export class TracingService {
-  private tracer: Tracer; // Explicitly type the tracer
+export class TraceService implements ITraceService {
+  private _tracer: Tracer; // Explicitly type the _tracer
 
   public constructor(private readonly configService: AppConfigService) {
-    this.tracer = trace.getTracer(this.configService.serviceName); // Initialize tracer with service name
+    this._tracer = trace.getTracer(this.configService.serviceName); // Initialize _tracer with service name
   }
 
   // Starts a new span and makes it active in the current context
   startActiveSpan<T>(
     name: string,
     fn: (span: Span) => T | Promise<T>,
-    attributes?: Attributes
+    attributes?: Attributes,
   ): T | Promise<T> {
-    return this.tracer.startActiveSpan(name, (span) => {
+    return this._tracer.startActiveSpan(name, (span) => {
       if (attributes) {
         span.setAttributes(attributes);
       }
@@ -74,10 +75,10 @@ export class TracingService {
   startSpan(
     name: string,
     attributes?: Attributes | Record<string | any, string | any>,
-    contextOverride?: Context
+    contextOverride?: Context,
   ): Span {
     const ctx = contextOverride || context.active();
-    const span = this.tracer.startSpan(name, { attributes }, ctx);
+    const span = this._tracer.startSpan(name, { attributes }, ctx);
     return span;
   }
 
