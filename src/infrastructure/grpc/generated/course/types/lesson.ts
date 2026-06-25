@@ -107,7 +107,10 @@ function createBaseCreateLessonRequest(): CreateLessonRequest {
 }
 
 export const CreateLessonRequest: MessageFns<CreateLessonRequest> = {
-  encode(message: CreateLessonRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: CreateLessonRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.sectionId !== "") {
       writer.uint32(18).string(message.sectionId);
     }
@@ -147,8 +150,12 @@ export const CreateLessonRequest: MessageFns<CreateLessonRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CreateLessonRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): CreateLessonRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCreateLessonRequest();
     while (reader.pos < end) {
@@ -265,7 +272,10 @@ function createBaseGetLessonRequest(): GetLessonRequest {
 }
 
 export const GetLessonRequest: MessageFns<GetLessonRequest> = {
-  encode(message: GetLessonRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetLessonRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.lessonId !== "") {
       writer.uint32(10).string(message.lessonId);
     }
@@ -273,7 +283,8 @@ export const GetLessonRequest: MessageFns<GetLessonRequest> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): GetLessonRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetLessonRequest();
     while (reader.pos < end) {
@@ -298,11 +309,20 @@ export const GetLessonRequest: MessageFns<GetLessonRequest> = {
 };
 
 function createBaseUpdateLessonRequest(): UpdateLessonRequest {
-  return { lessonId: "", courseId: "", userId: "", sectionId: "", metadata: undefined };
+  return {
+    lessonId: "",
+    courseId: "",
+    userId: "",
+    sectionId: "",
+    metadata: undefined,
+  };
 }
 
 export const UpdateLessonRequest: MessageFns<UpdateLessonRequest> = {
-  encode(message: UpdateLessonRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: UpdateLessonRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.lessonId !== "") {
       writer.uint32(10).string(message.lessonId);
     }
@@ -345,8 +365,12 @@ export const UpdateLessonRequest: MessageFns<UpdateLessonRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): UpdateLessonRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): UpdateLessonRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseUpdateLessonRequest();
     while (reader.pos < end) {
@@ -471,7 +495,10 @@ function createBaseContentMetaData(): ContentMetaData {
 }
 
 export const ContentMetaData: MessageFns<ContentMetaData> = {
-  encode(message: ContentMetaData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ContentMetaData,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.title !== undefined) {
       writer.uint32(10).string(message.title);
     }
@@ -491,7 +518,8 @@ export const ContentMetaData: MessageFns<ContentMetaData> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): ContentMetaData {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseContentMetaData();
     while (reader.pos < end) {
@@ -552,7 +580,10 @@ function createBaseDeleteLessonRequest(): DeleteLessonRequest {
 }
 
 export const DeleteLessonRequest: MessageFns<DeleteLessonRequest> = {
-  encode(message: DeleteLessonRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: DeleteLessonRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.lessonId !== "") {
       writer.uint32(10).string(message.lessonId);
     }
@@ -565,8 +596,12 @@ export const DeleteLessonRequest: MessageFns<DeleteLessonRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): DeleteLessonRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): DeleteLessonRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseDeleteLessonRequest();
     while (reader.pos < end) {
@@ -610,38 +645,46 @@ function createBaseGetLessonsBySectionRequest(): GetLessonsBySectionRequest {
   return { sectionId: "" };
 }
 
-export const GetLessonsBySectionRequest: MessageFns<GetLessonsBySectionRequest> = {
-  encode(message: GetLessonsBySectionRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.sectionId !== "") {
-      writer.uint32(10).string(message.sectionId);
-    }
-    return writer;
-  },
+export const GetLessonsBySectionRequest: MessageFns<GetLessonsBySectionRequest> =
+  {
+    encode(
+      message: GetLessonsBySectionRequest,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.sectionId !== "") {
+        writer.uint32(10).string(message.sectionId);
+      }
+      return writer;
+    },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetLessonsBySectionRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGetLessonsBySectionRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): GetLessonsBySectionRequest {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetLessonsBySectionRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.sectionId = reader.string();
+            continue;
           }
-
-          message.sectionId = reader.string();
-          continue;
         }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      return message;
+    },
+  };
 
 function createBaseLessonData(): LessonData {
   return {
@@ -662,7 +705,10 @@ function createBaseLessonData(): LessonData {
 }
 
 export const LessonData: MessageFns<LessonData> = {
-  encode(message: LessonData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: LessonData,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -709,7 +755,8 @@ export const LessonData: MessageFns<LessonData> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): LessonData {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseLessonData();
     while (reader.pos < end) {
@@ -842,7 +889,10 @@ function createBaseLessonResponse(): LessonResponse {
 }
 
 export const LessonResponse: MessageFns<LessonResponse> = {
-  encode(message: LessonResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: LessonResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.lesson !== undefined) {
       LessonData.encode(message.lesson, writer.uint32(10).fork()).join();
     }
@@ -853,7 +903,8 @@ export const LessonResponse: MessageFns<LessonResponse> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): LessonResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseLessonResponse();
     while (reader.pos < end) {
@@ -890,7 +941,10 @@ function createBaseLessonsData(): LessonsData {
 }
 
 export const LessonsData: MessageFns<LessonsData> = {
-  encode(message: LessonsData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: LessonsData,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     for (const v of message.lessons) {
       LessonData.encode(v!, writer.uint32(10).fork()).join();
     }
@@ -898,7 +952,8 @@ export const LessonsData: MessageFns<LessonsData> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): LessonsData {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseLessonsData();
     while (reader.pos < end) {
@@ -927,7 +982,10 @@ function createBaseLessonsResponse(): LessonsResponse {
 }
 
 export const LessonsResponse: MessageFns<LessonsResponse> = {
-  encode(message: LessonsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: LessonsResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.lessons !== undefined) {
       LessonsData.encode(message.lessons, writer.uint32(10).fork()).join();
     }
@@ -938,7 +996,8 @@ export const LessonsResponse: MessageFns<LessonsResponse> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): LessonsResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseLessonsResponse();
     while (reader.pos < end) {
@@ -975,7 +1034,10 @@ function createBaseDeleteLessonResponse(): DeleteLessonResponse {
 }
 
 export const DeleteLessonResponse: MessageFns<DeleteLessonResponse> = {
-  encode(message: DeleteLessonResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: DeleteLessonResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.success !== undefined) {
       DeleteSuccess.encode(message.success, writer.uint32(10).fork()).join();
     }
@@ -985,8 +1047,12 @@ export const DeleteLessonResponse: MessageFns<DeleteLessonResponse> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): DeleteLessonResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): DeleteLessonResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseDeleteLessonResponse();
     while (reader.pos < end) {

@@ -23,7 +23,6 @@ import { AppConfigService } from "src/infrastructure/config/config.service";
                 includeDirs: [path.join(process.cwd(), "proto")],
               },
             },
-            
           }),
           inject: [AppConfigService],
         },

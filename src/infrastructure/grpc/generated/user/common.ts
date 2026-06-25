@@ -49,8 +49,7 @@ export interface RemoveSuccess {
   removed: boolean;
 }
 
-export interface Empty {
-}
+export interface Empty {}
 
 export const USER_SERVICE_PACKAGE_NAME = "user_service";
 
@@ -59,7 +58,10 @@ function createBaseSortOption(): SortOption {
 }
 
 export const SortOption: MessageFns<SortOption> = {
-  encode(message: SortOption, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: SortOption,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.field !== "") {
       writer.uint32(10).string(message.field);
     }
@@ -70,7 +72,8 @@ export const SortOption: MessageFns<SortOption> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): SortOption {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseSortOption();
     while (reader.pos < end) {
@@ -107,7 +110,10 @@ function createBasePaginationRequest(): PaginationRequest {
 }
 
 export const PaginationRequest: MessageFns<PaginationRequest> = {
-  encode(message: PaginationRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: PaginationRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.page !== 0) {
       writer.uint32(8).int32(message.page);
     }
@@ -118,7 +124,8 @@ export const PaginationRequest: MessageFns<PaginationRequest> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): PaginationRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBasePaginationRequest();
     while (reader.pos < end) {
@@ -155,15 +162,22 @@ function createBasePaginationResponse(): PaginationResponse {
 }
 
 export const PaginationResponse: MessageFns<PaginationResponse> = {
-  encode(message: PaginationResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: PaginationResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.totalItems !== 0) {
       writer.uint32(24).int64(message.totalItems);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): PaginationResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): PaginationResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBasePaginationResponse();
     while (reader.pos < end) {
@@ -192,7 +206,10 @@ function createBaseError(): Error {
 }
 
 export const Error: MessageFns<Error> = {
-  encode(message: Error, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: Error,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.code !== "") {
       writer.uint32(10).string(message.code);
     }
@@ -206,7 +223,8 @@ export const Error: MessageFns<Error> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): Error {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseError();
     while (reader.pos < end) {
@@ -251,7 +269,10 @@ function createBaseErrorDetail(): ErrorDetail {
 }
 
 export const ErrorDetail: MessageFns<ErrorDetail> = {
-  encode(message: ErrorDetail, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ErrorDetail,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.field !== undefined) {
       writer.uint32(10).string(message.field);
     }
@@ -262,7 +283,8 @@ export const ErrorDetail: MessageFns<ErrorDetail> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): ErrorDetail {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseErrorDetail();
     while (reader.pos < end) {
@@ -299,7 +321,10 @@ function createBaseRemoveSuccess(): RemoveSuccess {
 }
 
 export const RemoveSuccess: MessageFns<RemoveSuccess> = {
-  encode(message: RemoveSuccess, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: RemoveSuccess,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.removed !== false) {
       writer.uint32(8).bool(message.removed);
     }
@@ -307,7 +332,8 @@ export const RemoveSuccess: MessageFns<RemoveSuccess> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): RemoveSuccess {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseRemoveSuccess();
     while (reader.pos < end) {
@@ -341,7 +367,8 @@ export const Empty: MessageFns<Empty> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): Empty {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseEmpty();
     while (reader.pos < end) {

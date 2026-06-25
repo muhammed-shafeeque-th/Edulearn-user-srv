@@ -18,7 +18,10 @@ import { TypeOrmInstructorStudentRepository } from "./repositories/instructor-st
   providers: [
     { provide: IUserRepository, useClass: UserTypeOrmRepositoryImpl },
     { provide: IWishlistRepository, useClass: WishlistTypeOrmRepository },
-    { provide: IInstructorStudentRepository, useClass: TypeOrmInstructorStudentRepository },
+    {
+      provide: IInstructorStudentRepository,
+      useClass: TypeOrmInstructorStudentRepository,
+    },
     { provide: IWalletRepository, useClass: WalletTypeOrmRepositoryImpl },
     { provide: ICartRepository, useClass: CartTypeOrmRepository },
   ],

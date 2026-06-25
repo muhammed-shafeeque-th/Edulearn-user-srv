@@ -6,7 +6,12 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Error, PaginationRequest, PaginationResponse, RemoveSuccess } from "../common";
+import {
+  Error,
+  PaginationRequest,
+  PaginationResponse,
+  RemoveSuccess,
+} from "../common";
 
 export const protobufPackage = "user_service";
 
@@ -86,7 +91,10 @@ function createBaseCartItemData(): CartItemData {
 }
 
 export const CartItemData: MessageFns<CartItemData> = {
-  encode(message: CartItemData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: CartItemData,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -100,7 +108,8 @@ export const CartItemData: MessageFns<CartItemData> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): CartItemData {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCartItemData();
     while (reader.pos < end) {
@@ -141,11 +150,21 @@ export const CartItemData: MessageFns<CartItemData> = {
 };
 
 function createBaseCartData(): CartData {
-  return { id: "", userId: "", total: 0, items: [], updatedAt: "", createdAt: "" };
+  return {
+    id: "",
+    userId: "",
+    total: 0,
+    items: [],
+    updatedAt: "",
+    createdAt: "",
+  };
 }
 
 export const CartData: MessageFns<CartData> = {
-  encode(message: CartData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: CartData,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -168,7 +187,8 @@ export const CartData: MessageFns<CartData> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): CartData {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCartData();
     while (reader.pos < end) {
@@ -237,7 +257,10 @@ function createBaseAddToCartRequest(): AddToCartRequest {
 }
 
 export const AddToCartRequest: MessageFns<AddToCartRequest> = {
-  encode(message: AddToCartRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: AddToCartRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.userId !== "") {
       writer.uint32(10).string(message.userId);
     }
@@ -248,7 +271,8 @@ export const AddToCartRequest: MessageFns<AddToCartRequest> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): AddToCartRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseAddToCartRequest();
     while (reader.pos < end) {
@@ -285,7 +309,10 @@ function createBaseAddToCartResponse(): AddToCartResponse {
 }
 
 export const AddToCartResponse: MessageFns<AddToCartResponse> = {
-  encode(message: AddToCartResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: AddToCartResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.item !== undefined) {
       CartItemData.encode(message.item, writer.uint32(10).fork()).join();
     }
@@ -296,7 +323,8 @@ export const AddToCartResponse: MessageFns<AddToCartResponse> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): AddToCartResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseAddToCartResponse();
     while (reader.pos < end) {
@@ -333,7 +361,10 @@ function createBaseToggleCartItemRequest(): ToggleCartItemRequest {
 }
 
 export const ToggleCartItemRequest: MessageFns<ToggleCartItemRequest> = {
-  encode(message: ToggleCartItemRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ToggleCartItemRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.userId !== "") {
       writer.uint32(10).string(message.userId);
     }
@@ -343,8 +374,12 @@ export const ToggleCartItemRequest: MessageFns<ToggleCartItemRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ToggleCartItemRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): ToggleCartItemRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseToggleCartItemRequest();
     while (reader.pos < end) {
@@ -381,7 +416,10 @@ function createBaseToggleCartItemResponse(): ToggleCartItemResponse {
 }
 
 export const ToggleCartItemResponse: MessageFns<ToggleCartItemResponse> = {
-  encode(message: ToggleCartItemResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ToggleCartItemResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.item !== undefined) {
       CartItemData.encode(message.item, writer.uint32(10).fork()).join();
     }
@@ -391,8 +429,12 @@ export const ToggleCartItemResponse: MessageFns<ToggleCartItemResponse> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ToggleCartItemResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): ToggleCartItemResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseToggleCartItemResponse();
     while (reader.pos < end) {
@@ -429,7 +471,10 @@ function createBaseRemoveFromCartRequest(): RemoveFromCartRequest {
 }
 
 export const RemoveFromCartRequest: MessageFns<RemoveFromCartRequest> = {
-  encode(message: RemoveFromCartRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: RemoveFromCartRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.userId !== "") {
       writer.uint32(10).string(message.userId);
     }
@@ -439,8 +484,12 @@ export const RemoveFromCartRequest: MessageFns<RemoveFromCartRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): RemoveFromCartRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): RemoveFromCartRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseRemoveFromCartRequest();
     while (reader.pos < end) {
@@ -477,7 +526,10 @@ function createBaseClearCartRequest(): ClearCartRequest {
 }
 
 export const ClearCartRequest: MessageFns<ClearCartRequest> = {
-  encode(message: ClearCartRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ClearCartRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.userId !== "") {
       writer.uint32(10).string(message.userId);
     }
@@ -485,7 +537,8 @@ export const ClearCartRequest: MessageFns<ClearCartRequest> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): ClearCartRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseClearCartRequest();
     while (reader.pos < end) {
@@ -514,7 +567,10 @@ function createBaseRemoveFromCartResponse(): RemoveFromCartResponse {
 }
 
 export const RemoveFromCartResponse: MessageFns<RemoveFromCartResponse> = {
-  encode(message: RemoveFromCartResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: RemoveFromCartResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.success !== undefined) {
       RemoveSuccess.encode(message.success, writer.uint32(10).fork()).join();
     }
@@ -524,8 +580,12 @@ export const RemoveFromCartResponse: MessageFns<RemoveFromCartResponse> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): RemoveFromCartResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): RemoveFromCartResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseRemoveFromCartResponse();
     while (reader.pos < end) {
@@ -562,7 +622,10 @@ function createBaseClearCartResponse(): ClearCartResponse {
 }
 
 export const ClearCartResponse: MessageFns<ClearCartResponse> = {
-  encode(message: ClearCartResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ClearCartResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.success !== undefined) {
       RemoveSuccess.encode(message.success, writer.uint32(10).fork()).join();
     }
@@ -573,7 +636,8 @@ export const ClearCartResponse: MessageFns<ClearCartResponse> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): ClearCartResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseClearCartResponse();
     while (reader.pos < end) {
@@ -610,18 +674,25 @@ function createBaseListCartRequest(): ListCartRequest {
 }
 
 export const ListCartRequest: MessageFns<ListCartRequest> = {
-  encode(message: ListCartRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ListCartRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.userId !== "") {
       writer.uint32(10).string(message.userId);
     }
     if (message.pagination !== undefined) {
-      PaginationRequest.encode(message.pagination, writer.uint32(18).fork()).join();
+      PaginationRequest.encode(
+        message.pagination,
+        writer.uint32(18).fork(),
+      ).join();
     }
     return writer;
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): ListCartRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseListCartRequest();
     while (reader.pos < end) {
@@ -640,7 +711,10 @@ export const ListCartRequest: MessageFns<ListCartRequest> = {
             break;
           }
 
-          message.pagination = PaginationRequest.decode(reader, reader.uint32());
+          message.pagination = PaginationRequest.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
       }
@@ -658,7 +732,10 @@ function createBaseListCartResponse(): ListCartResponse {
 }
 
 export const ListCartResponse: MessageFns<ListCartResponse> = {
-  encode(message: ListCartResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ListCartResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.success !== undefined) {
       CartListSuccess.encode(message.success, writer.uint32(10).fork()).join();
     }
@@ -669,7 +746,8 @@ export const ListCartResponse: MessageFns<ListCartResponse> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): ListCartResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseListCartResponse();
     while (reader.pos < end) {
@@ -706,18 +784,25 @@ function createBaseCartListSuccess(): CartListSuccess {
 }
 
 export const CartListSuccess: MessageFns<CartListSuccess> = {
-  encode(message: CartListSuccess, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: CartListSuccess,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.cart !== undefined) {
       CartData.encode(message.cart, writer.uint32(10).fork()).join();
     }
     if (message.pagination !== undefined) {
-      PaginationResponse.encode(message.pagination, writer.uint32(18).fork()).join();
+      PaginationResponse.encode(
+        message.pagination,
+        writer.uint32(18).fork(),
+      ).join();
     }
     return writer;
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): CartListSuccess {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCartListSuccess();
     while (reader.pos < end) {
@@ -736,7 +821,10 @@ export const CartListSuccess: MessageFns<CartListSuccess> = {
             break;
           }
 
-          message.pagination = PaginationResponse.decode(reader, reader.uint32());
+          message.pagination = PaginationResponse.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
       }

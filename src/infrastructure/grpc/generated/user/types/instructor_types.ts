@@ -6,7 +6,12 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Error, PaginationRequest, PaginationResponse, SortOption } from "../common";
+import {
+  Error,
+  PaginationRequest,
+  PaginationResponse,
+  SortOption,
+} from "../common";
 import { UserData, UserFilter } from "./user_types";
 
 export const protobufPackage = "user_service";
@@ -36,6 +41,12 @@ export interface InstructorMeta {
   joinedAt: string;
   education: string;
   experience: string;
+  roleStatus: { [key: string]: string };
+}
+
+export interface InstructorMeta_RoleStatusEntry {
+  key: string;
+  value: string;
 }
 
 /** Instructor Requests */
@@ -62,6 +73,32 @@ export interface ListInstructorsRequest {
   pagination: PaginationRequest | undefined;
   filter: UserFilter | undefined;
   sort: SortOption | undefined;
+}
+
+export interface BlockInstructorResponse {
+  success?: BlockInstructorSuccess | undefined;
+  error?: Error | undefined;
+}
+
+export interface BlockInstructorRequest {
+  instructorId: string;
+}
+
+export interface UnBlockInstructorRequest {
+  instructorId: string;
+}
+
+export interface UnBlockInstructorResponse {
+  success?: UnBlockInstructorSuccess | undefined;
+  error?: Error | undefined;
+}
+
+export interface BlockInstructorSuccess {
+  updated: boolean;
+}
+
+export interface UnBlockInstructorSuccess {
+  updated: boolean;
 }
 
 /** Instructor Responses */
@@ -116,11 +153,15 @@ function createBaseInstructorMeta(): InstructorMeta {
     joinedAt: "",
     education: "",
     experience: "",
+    roleStatus: {},
   };
 }
 
 export const InstructorMeta: MessageFns<InstructorMeta> = {
-  encode(message: InstructorMeta, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: InstructorMeta,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -190,11 +231,20 @@ export const InstructorMeta: MessageFns<InstructorMeta> = {
     if (message.experience !== "") {
       writer.uint32(202).string(message.experience);
     }
+    globalThis.Object.entries(message.roleStatus).forEach(
+      ([key, value]: [string, string]) => {
+        InstructorMeta_RoleStatusEntry.encode(
+          { key: key as any, value },
+          writer.uint32(210).fork(),
+        ).join();
+      },
+    );
     return writer;
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): InstructorMeta {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseInstructorMeta();
     while (reader.pos < end) {
@@ -384,41 +434,18 @@ export const InstructorMeta: MessageFns<InstructorMeta> = {
           message.experience = reader.string();
           continue;
         }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
-
-function createBaseGetInstructorByNameRequest(): GetInstructorByNameRequest {
-  return { username: "" };
-}
-
-export const GetInstructorByNameRequest: MessageFns<GetInstructorByNameRequest> = {
-  encode(message: GetInstructorByNameRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.username !== "") {
-      writer.uint32(10).string(message.username);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): GetInstructorByNameRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGetInstructorByNameRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
+        case 26: {
+          if (tag !== 210) {
             break;
           }
 
-          message.username = reader.string();
+          const entry26 = InstructorMeta_RoleStatusEntry.decode(
+            reader,
+            reader.uint32(),
+          );
+          if (entry26.value !== undefined) {
+            message.roleStatus[entry26.key] = entry26.value;
+          }
           continue;
         }
       }
@@ -430,6 +457,107 @@ export const GetInstructorByNameRequest: MessageFns<GetInstructorByNameRequest> 
     return message;
   },
 };
+
+function createBaseInstructorMeta_RoleStatusEntry(): InstructorMeta_RoleStatusEntry {
+  return { key: "", value: "" };
+}
+
+export const InstructorMeta_RoleStatusEntry: MessageFns<InstructorMeta_RoleStatusEntry> =
+  {
+    encode(
+      message: InstructorMeta_RoleStatusEntry,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.key !== "") {
+        writer.uint32(10).string(message.key);
+      }
+      if (message.value !== "") {
+        writer.uint32(18).string(message.value);
+      }
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): InstructorMeta_RoleStatusEntry {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseInstructorMeta_RoleStatusEntry();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.key = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.value = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
+
+function createBaseGetInstructorByNameRequest(): GetInstructorByNameRequest {
+  return { username: "" };
+}
+
+export const GetInstructorByNameRequest: MessageFns<GetInstructorByNameRequest> =
+  {
+    encode(
+      message: GetInstructorByNameRequest,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.username !== "") {
+        writer.uint32(10).string(message.username);
+      }
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): GetInstructorByNameRequest {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetInstructorByNameRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.username = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
 
 function createBaseRegisterInstructorRequest(): RegisterInstructorRequest {
   return {
@@ -448,168 +576,182 @@ function createBaseRegisterInstructorRequest(): RegisterInstructorRequest {
   };
 }
 
-export const RegisterInstructorRequest: MessageFns<RegisterInstructorRequest> = {
-  encode(message: RegisterInstructorRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.userId !== "") {
-      writer.uint32(10).string(message.userId);
-    }
-    if (message.username !== "") {
-      writer.uint32(18).string(message.username);
-    }
-    for (const v of message.tags) {
-      writer.uint32(26).string(v!);
-    }
-    if (message.expertise !== "") {
-      writer.uint32(34).string(message.expertise);
-    }
-    if (message.experience !== "") {
-      writer.uint32(42).string(message.experience);
-    }
-    if (message.education !== "") {
-      writer.uint32(50).string(message.education);
-    }
-    if (message.language !== "") {
-      writer.uint32(58).string(message.language);
-    }
-    if (message.headline !== "") {
-      writer.uint32(66).string(message.headline);
-    }
-    if (message.biography !== "") {
-      writer.uint32(74).string(message.biography);
-    }
-    if (message.agreeToTerms !== false) {
-      writer.uint32(80).bool(message.agreeToTerms);
-    }
-    if (message.agreeToPrivacy !== false) {
-      writer.uint32(88).bool(message.agreeToPrivacy);
-    }
-    if (message.receiveUpdates !== false) {
-      writer.uint32(96).bool(message.receiveUpdates);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): RegisterInstructorRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseRegisterInstructorRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.userId = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.username = reader.string();
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.tags.push(reader.string());
-          continue;
-        }
-        case 4: {
-          if (tag !== 34) {
-            break;
-          }
-
-          message.expertise = reader.string();
-          continue;
-        }
-        case 5: {
-          if (tag !== 42) {
-            break;
-          }
-
-          message.experience = reader.string();
-          continue;
-        }
-        case 6: {
-          if (tag !== 50) {
-            break;
-          }
-
-          message.education = reader.string();
-          continue;
-        }
-        case 7: {
-          if (tag !== 58) {
-            break;
-          }
-
-          message.language = reader.string();
-          continue;
-        }
-        case 8: {
-          if (tag !== 66) {
-            break;
-          }
-
-          message.headline = reader.string();
-          continue;
-        }
-        case 9: {
-          if (tag !== 74) {
-            break;
-          }
-
-          message.biography = reader.string();
-          continue;
-        }
-        case 10: {
-          if (tag !== 80) {
-            break;
-          }
-
-          message.agreeToTerms = reader.bool();
-          continue;
-        }
-        case 11: {
-          if (tag !== 88) {
-            break;
-          }
-
-          message.agreeToPrivacy = reader.bool();
-          continue;
-        }
-        case 12: {
-          if (tag !== 96) {
-            break;
-          }
-
-          message.receiveUpdates = reader.bool();
-          continue;
-        }
+export const RegisterInstructorRequest: MessageFns<RegisterInstructorRequest> =
+  {
+    encode(
+      message: RegisterInstructorRequest,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.userId !== "") {
+        writer.uint32(10).string(message.userId);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.username !== "") {
+        writer.uint32(18).string(message.username);
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      for (const v of message.tags) {
+        writer.uint32(26).string(v!);
+      }
+      if (message.expertise !== "") {
+        writer.uint32(34).string(message.expertise);
+      }
+      if (message.experience !== "") {
+        writer.uint32(42).string(message.experience);
+      }
+      if (message.education !== "") {
+        writer.uint32(50).string(message.education);
+      }
+      if (message.language !== "") {
+        writer.uint32(58).string(message.language);
+      }
+      if (message.headline !== "") {
+        writer.uint32(66).string(message.headline);
+      }
+      if (message.biography !== "") {
+        writer.uint32(74).string(message.biography);
+      }
+      if (message.agreeToTerms !== false) {
+        writer.uint32(80).bool(message.agreeToTerms);
+      }
+      if (message.agreeToPrivacy !== false) {
+        writer.uint32(88).bool(message.agreeToPrivacy);
+      }
+      if (message.receiveUpdates !== false) {
+        writer.uint32(96).bool(message.receiveUpdates);
+      }
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): RegisterInstructorRequest {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseRegisterInstructorRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.userId = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.username = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.tags.push(reader.string());
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.expertise = reader.string();
+            continue;
+          }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.experience = reader.string();
+            continue;
+          }
+          case 6: {
+            if (tag !== 50) {
+              break;
+            }
+
+            message.education = reader.string();
+            continue;
+          }
+          case 7: {
+            if (tag !== 58) {
+              break;
+            }
+
+            message.language = reader.string();
+            continue;
+          }
+          case 8: {
+            if (tag !== 66) {
+              break;
+            }
+
+            message.headline = reader.string();
+            continue;
+          }
+          case 9: {
+            if (tag !== 74) {
+              break;
+            }
+
+            message.biography = reader.string();
+            continue;
+          }
+          case 10: {
+            if (tag !== 80) {
+              break;
+            }
+
+            message.agreeToTerms = reader.bool();
+            continue;
+          }
+          case 11: {
+            if (tag !== 88) {
+              break;
+            }
+
+            message.agreeToPrivacy = reader.bool();
+            continue;
+          }
+          case 12: {
+            if (tag !== 96) {
+              break;
+            }
+
+            message.receiveUpdates = reader.bool();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
 
 function createBaseListInstructorsRequest(): ListInstructorsRequest {
   return { pagination: undefined, filter: undefined, sort: undefined };
 }
 
 export const ListInstructorsRequest: MessageFns<ListInstructorsRequest> = {
-  encode(message: ListInstructorsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ListInstructorsRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.pagination !== undefined) {
-      PaginationRequest.encode(message.pagination, writer.uint32(10).fork()).join();
+      PaginationRequest.encode(
+        message.pagination,
+        writer.uint32(10).fork(),
+      ).join();
     }
     if (message.filter !== undefined) {
       UserFilter.encode(message.filter, writer.uint32(18).fork()).join();
@@ -620,8 +762,12 @@ export const ListInstructorsRequest: MessageFns<ListInstructorsRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ListInstructorsRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): ListInstructorsRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseListInstructorsRequest();
     while (reader.pos < end) {
@@ -632,7 +778,10 @@ export const ListInstructorsRequest: MessageFns<ListInstructorsRequest> = {
             break;
           }
 
-          message.pagination = PaginationRequest.decode(reader, reader.uint32());
+          message.pagination = PaginationRequest.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 2: {
@@ -661,22 +810,35 @@ export const ListInstructorsRequest: MessageFns<ListInstructorsRequest> = {
   },
 };
 
-function createBaseInstructorSuccessResponse(): InstructorSuccessResponse {
-  return { user: undefined };
+function createBaseBlockInstructorResponse(): BlockInstructorResponse {
+  return {};
 }
 
-export const InstructorSuccessResponse: MessageFns<InstructorSuccessResponse> = {
-  encode(message: InstructorSuccessResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.user !== undefined) {
-      UserData.encode(message.user, writer.uint32(10).fork()).join();
+export const BlockInstructorResponse: MessageFns<BlockInstructorResponse> = {
+  encode(
+    message: BlockInstructorResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.success !== undefined) {
+      BlockInstructorSuccess.encode(
+        message.success,
+        writer.uint32(10).fork(),
+      ).join();
+    }
+    if (message.error !== undefined) {
+      Error.encode(message.error, writer.uint32(18).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): InstructorSuccessResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): BlockInstructorResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseInstructorSuccessResponse();
+    const message = createBaseBlockInstructorResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -685,7 +847,18 @@ export const InstructorSuccessResponse: MessageFns<InstructorSuccessResponse> = 
             break;
           }
 
-          message.user = UserData.decode(reader, reader.uint32());
+          message.success = BlockInstructorSuccess.decode(
+            reader,
+            reader.uint32(),
+          );
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.error = Error.decode(reader, reader.uint32());
           continue;
         }
       }
@@ -698,23 +871,316 @@ export const InstructorSuccessResponse: MessageFns<InstructorSuccessResponse> = 
   },
 };
 
+function createBaseBlockInstructorRequest(): BlockInstructorRequest {
+  return { instructorId: "" };
+}
+
+export const BlockInstructorRequest: MessageFns<BlockInstructorRequest> = {
+  encode(
+    message: BlockInstructorRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.instructorId !== "") {
+      writer.uint32(10).string(message.instructorId);
+    }
+    return writer;
+  },
+
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): BlockInstructorRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseBlockInstructorRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.instructorId = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseUnBlockInstructorRequest(): UnBlockInstructorRequest {
+  return { instructorId: "" };
+}
+
+export const UnBlockInstructorRequest: MessageFns<UnBlockInstructorRequest> = {
+  encode(
+    message: UnBlockInstructorRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.instructorId !== "") {
+      writer.uint32(10).string(message.instructorId);
+    }
+    return writer;
+  },
+
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): UnBlockInstructorRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseUnBlockInstructorRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.instructorId = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseUnBlockInstructorResponse(): UnBlockInstructorResponse {
+  return {};
+}
+
+export const UnBlockInstructorResponse: MessageFns<UnBlockInstructorResponse> =
+  {
+    encode(
+      message: UnBlockInstructorResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.success !== undefined) {
+        UnBlockInstructorSuccess.encode(
+          message.success,
+          writer.uint32(10).fork(),
+        ).join();
+      }
+      if (message.error !== undefined) {
+        Error.encode(message.error, writer.uint32(18).fork()).join();
+      }
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): UnBlockInstructorResponse {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseUnBlockInstructorResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.success = UnBlockInstructorSuccess.decode(
+              reader,
+              reader.uint32(),
+            );
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.error = Error.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
+
+function createBaseBlockInstructorSuccess(): BlockInstructorSuccess {
+  return { updated: false };
+}
+
+export const BlockInstructorSuccess: MessageFns<BlockInstructorSuccess> = {
+  encode(
+    message: BlockInstructorSuccess,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.updated !== false) {
+      writer.uint32(8).bool(message.updated);
+    }
+    return writer;
+  },
+
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): BlockInstructorSuccess {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseBlockInstructorSuccess();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.updated = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseUnBlockInstructorSuccess(): UnBlockInstructorSuccess {
+  return { updated: false };
+}
+
+export const UnBlockInstructorSuccess: MessageFns<UnBlockInstructorSuccess> = {
+  encode(
+    message: UnBlockInstructorSuccess,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.updated !== false) {
+      writer.uint32(8).bool(message.updated);
+    }
+    return writer;
+  },
+
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): UnBlockInstructorSuccess {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseUnBlockInstructorSuccess();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.updated = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseInstructorSuccessResponse(): InstructorSuccessResponse {
+  return { user: undefined };
+}
+
+export const InstructorSuccessResponse: MessageFns<InstructorSuccessResponse> =
+  {
+    encode(
+      message: InstructorSuccessResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.user !== undefined) {
+        UserData.encode(message.user, writer.uint32(10).fork()).join();
+      }
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): InstructorSuccessResponse {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseInstructorSuccessResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.user = UserData.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
+
 function createBaseInstructorsMetaSuccess(): InstructorsMetaSuccess {
   return { instructors: [], pagination: undefined };
 }
 
 export const InstructorsMetaSuccess: MessageFns<InstructorsMetaSuccess> = {
-  encode(message: InstructorsMetaSuccess, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: InstructorsMetaSuccess,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     for (const v of message.instructors) {
       InstructorMeta.encode(v!, writer.uint32(10).fork()).join();
     }
     if (message.pagination !== undefined) {
-      PaginationResponse.encode(message.pagination, writer.uint32(18).fork()).join();
+      PaginationResponse.encode(
+        message.pagination,
+        writer.uint32(18).fork(),
+      ).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): InstructorsMetaSuccess {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): InstructorsMetaSuccess {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseInstructorsMetaSuccess();
     while (reader.pos < end) {
@@ -725,7 +1191,9 @@ export const InstructorsMetaSuccess: MessageFns<InstructorsMetaSuccess> = {
             break;
           }
 
-          message.instructors.push(InstructorMeta.decode(reader, reader.uint32()));
+          message.instructors.push(
+            InstructorMeta.decode(reader, reader.uint32()),
+          );
           continue;
         }
         case 2: {
@@ -733,7 +1201,10 @@ export const InstructorsMetaSuccess: MessageFns<InstructorsMetaSuccess> = {
             break;
           }
 
-          message.pagination = PaginationResponse.decode(reader, reader.uint32());
+          message.pagination = PaginationResponse.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
       }
@@ -751,9 +1222,15 @@ function createBaseListInstructorsResponse(): ListInstructorsResponse {
 }
 
 export const ListInstructorsResponse: MessageFns<ListInstructorsResponse> = {
-  encode(message: ListInstructorsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ListInstructorsResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.instructors !== undefined) {
-      InstructorsMetaSuccess.encode(message.instructors, writer.uint32(10).fork()).join();
+      InstructorsMetaSuccess.encode(
+        message.instructors,
+        writer.uint32(10).fork(),
+      ).join();
     }
     if (message.error !== undefined) {
       Error.encode(message.error, writer.uint32(18).fork()).join();
@@ -761,8 +1238,12 @@ export const ListInstructorsResponse: MessageFns<ListInstructorsResponse> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ListInstructorsResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): ListInstructorsResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseListInstructorsResponse();
     while (reader.pos < end) {
@@ -773,7 +1254,10 @@ export const ListInstructorsResponse: MessageFns<ListInstructorsResponse> = {
             break;
           }
 
-          message.instructors = InstructorsMetaSuccess.decode(reader, reader.uint32());
+          message.instructors = InstructorsMetaSuccess.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 2: {
@@ -798,97 +1282,119 @@ function createBaseGetInstructorByNameResponse(): GetInstructorByNameResponse {
   return {};
 }
 
-export const GetInstructorByNameResponse: MessageFns<GetInstructorByNameResponse> = {
-  encode(message: GetInstructorByNameResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.user !== undefined) {
-      UserData.encode(message.user, writer.uint32(10).fork()).join();
-    }
-    if (message.error !== undefined) {
-      Error.encode(message.error, writer.uint32(18).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): GetInstructorByNameResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGetInstructorByNameResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.user = UserData.decode(reader, reader.uint32());
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.error = Error.decode(reader, reader.uint32());
-          continue;
-        }
+export const GetInstructorByNameResponse: MessageFns<GetInstructorByNameResponse> =
+  {
+    encode(
+      message: GetInstructorByNameResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.user !== undefined) {
+        UserData.encode(message.user, writer.uint32(10).fork()).join();
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.error !== undefined) {
+        Error.encode(message.error, writer.uint32(18).fork()).join();
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): GetInstructorByNameResponse {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetInstructorByNameResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.user = UserData.decode(reader, reader.uint32());
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.error = Error.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
 
 function createBaseRegisterInstructorResponse(): RegisterInstructorResponse {
   return {};
 }
 
-export const RegisterInstructorResponse: MessageFns<RegisterInstructorResponse> = {
-  encode(message: RegisterInstructorResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.error !== undefined) {
-      Error.encode(message.error, writer.uint32(10).fork()).join();
-    }
-    if (message.success !== undefined) {
-      InstructorSuccessResponse.encode(message.success, writer.uint32(18).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): RegisterInstructorResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseRegisterInstructorResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.error = Error.decode(reader, reader.uint32());
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.success = InstructorSuccessResponse.decode(reader, reader.uint32());
-          continue;
-        }
+export const RegisterInstructorResponse: MessageFns<RegisterInstructorResponse> =
+  {
+    encode(
+      message: RegisterInstructorResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.error !== undefined) {
+        Error.encode(message.error, writer.uint32(10).fork()).join();
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.success !== undefined) {
+        InstructorSuccessResponse.encode(
+          message.success,
+          writer.uint32(18).fork(),
+        ).join();
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): RegisterInstructorResponse {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseRegisterInstructorResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.error = Error.decode(reader, reader.uint32());
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.success = InstructorSuccessResponse.decode(
+              reader,
+              reader.uint32(),
+            );
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
 
 export interface MessageFns<T> {
   encode(message: T, writer?: BinaryWriter): BinaryWriter;

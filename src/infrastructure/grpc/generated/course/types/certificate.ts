@@ -88,7 +88,10 @@ function createBaseCertificateData(): CertificateData {
 }
 
 export const CertificateData: MessageFns<CertificateData> = {
-  encode(message: CertificateData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: CertificateData,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -126,7 +129,8 @@ export const CertificateData: MessageFns<CertificateData> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): CertificateData {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCertificateData();
     while (reader.pos < end) {
@@ -235,7 +239,10 @@ function createBaseGetCertificateRequest(): GetCertificateRequest {
 }
 
 export const GetCertificateRequest: MessageFns<GetCertificateRequest> = {
-  encode(message: GetCertificateRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetCertificateRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.certificateId !== "") {
       writer.uint32(10).string(message.certificateId);
     }
@@ -245,8 +252,12 @@ export const GetCertificateRequest: MessageFns<GetCertificateRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetCertificateRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): GetCertificateRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetCertificateRequest();
     while (reader.pos < end) {
@@ -282,219 +293,258 @@ function createBaseGetCertificateByEnrollmentRequest(): GetCertificateByEnrollme
   return { enrollmentId: "", userId: "" };
 }
 
-export const GetCertificateByEnrollmentRequest: MessageFns<GetCertificateByEnrollmentRequest> = {
-  encode(message: GetCertificateByEnrollmentRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.enrollmentId !== "") {
-      writer.uint32(10).string(message.enrollmentId);
-    }
-    if (message.userId !== "") {
-      writer.uint32(18).string(message.userId);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): GetCertificateByEnrollmentRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGetCertificateByEnrollmentRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.enrollmentId = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.userId = reader.string();
-          continue;
-        }
+export const GetCertificateByEnrollmentRequest: MessageFns<GetCertificateByEnrollmentRequest> =
+  {
+    encode(
+      message: GetCertificateByEnrollmentRequest,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.enrollmentId !== "") {
+        writer.uint32(10).string(message.enrollmentId);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.userId !== "") {
+        writer.uint32(18).string(message.userId);
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): GetCertificateByEnrollmentRequest {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetCertificateByEnrollmentRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.enrollmentId = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.userId = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
 
 function createBaseGenerateCertificateRequest(): GenerateCertificateRequest {
   return { enrollmentId: "", userId: "", studentName: "" };
 }
 
-export const GenerateCertificateRequest: MessageFns<GenerateCertificateRequest> = {
-  encode(message: GenerateCertificateRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.enrollmentId !== "") {
-      writer.uint32(10).string(message.enrollmentId);
-    }
-    if (message.userId !== "") {
-      writer.uint32(18).string(message.userId);
-    }
-    if (message.studentName !== "") {
-      writer.uint32(26).string(message.studentName);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): GenerateCertificateRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGenerateCertificateRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.enrollmentId = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.userId = reader.string();
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.studentName = reader.string();
-          continue;
-        }
+export const GenerateCertificateRequest: MessageFns<GenerateCertificateRequest> =
+  {
+    encode(
+      message: GenerateCertificateRequest,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.enrollmentId !== "") {
+        writer.uint32(10).string(message.enrollmentId);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.userId !== "") {
+        writer.uint32(18).string(message.userId);
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      if (message.studentName !== "") {
+        writer.uint32(26).string(message.studentName);
+      }
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): GenerateCertificateRequest {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGenerateCertificateRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.enrollmentId = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.userId = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.studentName = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
 
 function createBaseDownloadCertificateRequest(): DownloadCertificateRequest {
   return { certificateId: "", userId: "" };
 }
 
-export const DownloadCertificateRequest: MessageFns<DownloadCertificateRequest> = {
-  encode(message: DownloadCertificateRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.certificateId !== "") {
-      writer.uint32(10).string(message.certificateId);
-    }
-    if (message.userId !== "") {
-      writer.uint32(18).string(message.userId);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): DownloadCertificateRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseDownloadCertificateRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.certificateId = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.userId = reader.string();
-          continue;
-        }
+export const DownloadCertificateRequest: MessageFns<DownloadCertificateRequest> =
+  {
+    encode(
+      message: DownloadCertificateRequest,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.certificateId !== "") {
+        writer.uint32(10).string(message.certificateId);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.userId !== "") {
+        writer.uint32(18).string(message.userId);
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): DownloadCertificateRequest {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseDownloadCertificateRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.certificateId = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.userId = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
 
 function createBaseGetCertificatesByUserRequest(): GetCertificatesByUserRequest {
   return { userId: "", pagination: undefined };
 }
 
-export const GetCertificatesByUserRequest: MessageFns<GetCertificatesByUserRequest> = {
-  encode(message: GetCertificatesByUserRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.userId !== "") {
-      writer.uint32(10).string(message.userId);
-    }
-    if (message.pagination !== undefined) {
-      Pagination.encode(message.pagination, writer.uint32(18).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): GetCertificatesByUserRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGetCertificatesByUserRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.userId = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.pagination = Pagination.decode(reader, reader.uint32());
-          continue;
-        }
+export const GetCertificatesByUserRequest: MessageFns<GetCertificatesByUserRequest> =
+  {
+    encode(
+      message: GetCertificatesByUserRequest,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.userId !== "") {
+        writer.uint32(10).string(message.userId);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.pagination !== undefined) {
+        Pagination.encode(message.pagination, writer.uint32(18).fork()).join();
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): GetCertificatesByUserRequest {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetCertificatesByUserRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.userId = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.pagination = Pagination.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
 
 function createBaseCertificatePDFChunk(): CertificatePDFChunk {
   return { data: new Uint8Array(0) };
 }
 
 export const CertificatePDFChunk: MessageFns<CertificatePDFChunk> = {
-  encode(message: CertificatePDFChunk, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: CertificatePDFChunk,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.data.length !== 0) {
       writer.uint32(10).bytes(message.data);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CertificatePDFChunk {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): CertificatePDFChunk {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCertificatePDFChunk();
     while (reader.pos < end) {
@@ -523,7 +573,10 @@ function createBaseCertificatesData(): CertificatesData {
 }
 
 export const CertificatesData: MessageFns<CertificatesData> = {
-  encode(message: CertificatesData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: CertificatesData,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     for (const v of message.certificates) {
       CertificateData.encode(v!, writer.uint32(10).fork()).join();
     }
@@ -534,7 +587,8 @@ export const CertificatesData: MessageFns<CertificatesData> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): CertificatesData {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCertificatesData();
     while (reader.pos < end) {
@@ -545,7 +599,9 @@ export const CertificatesData: MessageFns<CertificatesData> = {
             break;
           }
 
-          message.certificates.push(CertificateData.decode(reader, reader.uint32()));
+          message.certificates.push(
+            CertificateData.decode(reader, reader.uint32()),
+          );
           continue;
         }
         case 2: {
@@ -571,9 +627,15 @@ function createBaseCertificateResponse(): CertificateResponse {
 }
 
 export const CertificateResponse: MessageFns<CertificateResponse> = {
-  encode(message: CertificateResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: CertificateResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.certificate !== undefined) {
-      CertificateData.encode(message.certificate, writer.uint32(10).fork()).join();
+      CertificateData.encode(
+        message.certificate,
+        writer.uint32(10).fork(),
+      ).join();
     }
     if (message.error !== undefined) {
       Error.encode(message.error, writer.uint32(18).fork()).join();
@@ -581,8 +643,12 @@ export const CertificateResponse: MessageFns<CertificateResponse> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CertificateResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): CertificateResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCertificateResponse();
     while (reader.pos < end) {
@@ -619,9 +685,15 @@ function createBaseCertificatesResponse(): CertificatesResponse {
 }
 
 export const CertificatesResponse: MessageFns<CertificatesResponse> = {
-  encode(message: CertificatesResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: CertificatesResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.certificates !== undefined) {
-      CertificatesData.encode(message.certificates, writer.uint32(10).fork()).join();
+      CertificatesData.encode(
+        message.certificates,
+        writer.uint32(10).fork(),
+      ).join();
     }
     if (message.error !== undefined) {
       Error.encode(message.error, writer.uint32(18).fork()).join();
@@ -629,8 +701,12 @@ export const CertificatesResponse: MessageFns<CertificatesResponse> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CertificatesResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): CertificatesResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCertificatesResponse();
     while (reader.pos < end) {
@@ -641,7 +717,10 @@ export const CertificatesResponse: MessageFns<CertificatesResponse> = {
             break;
           }
 
-          message.certificates = CertificatesData.decode(reader, reader.uint32());
+          message.certificates = CertificatesData.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 2: {

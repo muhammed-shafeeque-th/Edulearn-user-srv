@@ -1,35 +1,26 @@
-import { Inject, Injectable, LoggerService } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { context, trace } from "@opentelemetry/api"; // Import OpenTelemetry context API
 import { WINSTON_MODULE_NEST_PROVIDER } from "nest-winston";
+import {
+  ILoggerService,
+  LogContext,
+} from "src/application/adaptors/logger.service";
 import { AppConfigService } from "src/infrastructure/config/config.service";
 import { Logger as WinstonLogger } from "winston";
 
-// Define a more robust LogContext interface
-interface LogContext {
-  traceId?: string; // OpenTelemetry Trace ID
-  spanId?: string; // OpenTelemetry Span ID
-  userId?: string; // Logged-in user ID
-  correlationId?: string; // General correlation ID if different from traceId
-  service?: string;
-  environment?: string;
-  ctx?: string; // Method or class in which logging
-  // Allows arbitrary additional context properties
-  [key: string]: unknown;
-}
-
 @Injectable()
-export class LoggingService implements LoggerService {
+export class LoggerService implements ILoggerService {
   public constructor(
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
-    private readonly logger: WinstonLogger,
-    private readonly configService: AppConfigService
+    private readonly _logger: WinstonLogger,
+    private readonly configService: AppConfigService,
   ) {}
 
   // Private helper to build common log entry structure
   private buildLogEntry(
     level: string,
     message: string,
-    logContext?: LogContext
+    logContext?: LogContext,
   ) {
     // Get current active OpenTelemetry span context for correlation
     const activeSpan = trace.getSpan(context.active());
@@ -55,31 +46,31 @@ export class LoggingService implements LoggerService {
     };
   }
 
-  // Use winston's logger directly with metadata object
+  // Use winston's _logger directly with metadata object
   info(message: string, context?: LogContext): void {
     const logEntry = this.buildLogEntry("info", message, context);
-    this.logger.log(message, logEntry);
+    this._logger.log(message, logEntry);
   }
 
   log(message: string, context?: LogContext): void {
     const logEntry = this.buildLogEntry("log", message, context);
-    this.logger.log(message, logEntry);
+    this._logger.log(message, logEntry);
   }
 
   error(message: string, context?: LogContext): void {
     const logEntry = this.buildLogEntry("error", message, context);
-    this.logger.error(message, logEntry);
+    this._logger.error(message, logEntry);
   }
 
   warn(message: string, context?: LogContext): void {
     // Renamed from warning to warn for consistency with Winston
     const logEntry = this.buildLogEntry("warn", message, context);
-    this.logger.warn(message, logEntry);
+    this._logger.warn(message, logEntry);
   }
 
   debug(message: string, context?: LogContext): void {
     const logEntry = this.buildLogEntry("debug", message, context);
-    this.logger.debug(message, logEntry);
+    this._logger.debug(message, logEntry);
   }
 
   // private getCaller(): string | undefined {

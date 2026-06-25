@@ -98,215 +98,270 @@ function createBaseGetInstructorRevenueSummeryRequest(): GetInstructorRevenueSum
   return { instructorId: "" };
 }
 
-export const GetInstructorRevenueSummeryRequest: MessageFns<GetInstructorRevenueSummeryRequest> = {
-  encode(message: GetInstructorRevenueSummeryRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.instructorId !== "") {
-      writer.uint32(10).string(message.instructorId);
-    }
-    return writer;
-  },
+export const GetInstructorRevenueSummeryRequest: MessageFns<GetInstructorRevenueSummeryRequest> =
+  {
+    encode(
+      message: GetInstructorRevenueSummeryRequest,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.instructorId !== "") {
+        writer.uint32(10).string(message.instructorId);
+      }
+      return writer;
+    },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetInstructorRevenueSummeryRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGetInstructorRevenueSummeryRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): GetInstructorRevenueSummeryRequest {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetInstructorRevenueSummeryRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.instructorId = reader.string();
+            continue;
           }
-
-          message.instructorId = reader.string();
-          continue;
         }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      return message;
+    },
+  };
 
 function createBaseGetInstructorsGrowthTrendRequest(): GetInstructorsGrowthTrendRequest {
   return { year: 0 };
 }
 
-export const GetInstructorsGrowthTrendRequest: MessageFns<GetInstructorsGrowthTrendRequest> = {
-  encode(message: GetInstructorsGrowthTrendRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.year !== 0) {
-      writer.uint32(8).int32(message.year);
-    }
-    return writer;
-  },
+export const GetInstructorsGrowthTrendRequest: MessageFns<GetInstructorsGrowthTrendRequest> =
+  {
+    encode(
+      message: GetInstructorsGrowthTrendRequest,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.year !== 0) {
+        writer.uint32(8).int32(message.year);
+      }
+      return writer;
+    },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetInstructorsGrowthTrendRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGetInstructorsGrowthTrendRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 8) {
-            break;
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): GetInstructorsGrowthTrendRequest {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetInstructorsGrowthTrendRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
+
+            message.year = reader.int32();
+            continue;
           }
-
-          message.year = reader.int32();
-          continue;
         }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      return message;
+    },
+  };
 
 function createBaseGetUsersGrowthTrendRequest(): GetUsersGrowthTrendRequest {
   return { year: 0 };
 }
 
-export const GetUsersGrowthTrendRequest: MessageFns<GetUsersGrowthTrendRequest> = {
-  encode(message: GetUsersGrowthTrendRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.year !== 0) {
-      writer.uint32(8).int32(message.year);
-    }
-    return writer;
-  },
+export const GetUsersGrowthTrendRequest: MessageFns<GetUsersGrowthTrendRequest> =
+  {
+    encode(
+      message: GetUsersGrowthTrendRequest,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.year !== 0) {
+        writer.uint32(8).int32(message.year);
+      }
+      return writer;
+    },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetUsersGrowthTrendRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGetUsersGrowthTrendRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 8) {
-            break;
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): GetUsersGrowthTrendRequest {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetUsersGrowthTrendRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
+
+            message.year = reader.int32();
+            continue;
           }
-
-          message.year = reader.int32();
-          continue;
         }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      return message;
+    },
+  };
 
 function createBaseGetInstructorsGrowthTrendResponse(): GetInstructorsGrowthTrendResponse {
   return {};
 }
 
-export const GetInstructorsGrowthTrendResponse: MessageFns<GetInstructorsGrowthTrendResponse> = {
-  encode(message: GetInstructorsGrowthTrendResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.success !== undefined) {
-      GrowthTrendSuccess.encode(message.success, writer.uint32(10).fork()).join();
-    }
-    if (message.error !== undefined) {
-      Error.encode(message.error, writer.uint32(18).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): GetInstructorsGrowthTrendResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGetInstructorsGrowthTrendResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.success = GrowthTrendSuccess.decode(reader, reader.uint32());
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.error = Error.decode(reader, reader.uint32());
-          continue;
-        }
+export const GetInstructorsGrowthTrendResponse: MessageFns<GetInstructorsGrowthTrendResponse> =
+  {
+    encode(
+      message: GetInstructorsGrowthTrendResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.success !== undefined) {
+        GrowthTrendSuccess.encode(
+          message.success,
+          writer.uint32(10).fork(),
+        ).join();
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.error !== undefined) {
+        Error.encode(message.error, writer.uint32(18).fork()).join();
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): GetInstructorsGrowthTrendResponse {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetInstructorsGrowthTrendResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.success = GrowthTrendSuccess.decode(
+              reader,
+              reader.uint32(),
+            );
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.error = Error.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
 
 function createBaseGetUsersGrowthTrendResponse(): GetUsersGrowthTrendResponse {
   return {};
 }
 
-export const GetUsersGrowthTrendResponse: MessageFns<GetUsersGrowthTrendResponse> = {
-  encode(message: GetUsersGrowthTrendResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.success !== undefined) {
-      GrowthTrendSuccess.encode(message.success, writer.uint32(10).fork()).join();
-    }
-    if (message.error !== undefined) {
-      Error.encode(message.error, writer.uint32(18).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): GetUsersGrowthTrendResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGetUsersGrowthTrendResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.success = GrowthTrendSuccess.decode(reader, reader.uint32());
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.error = Error.decode(reader, reader.uint32());
-          continue;
-        }
+export const GetUsersGrowthTrendResponse: MessageFns<GetUsersGrowthTrendResponse> =
+  {
+    encode(
+      message: GetUsersGrowthTrendResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.success !== undefined) {
+        GrowthTrendSuccess.encode(
+          message.success,
+          writer.uint32(10).fork(),
+        ).join();
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.error !== undefined) {
+        Error.encode(message.error, writer.uint32(18).fork()).join();
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): GetUsersGrowthTrendResponse {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetUsersGrowthTrendResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.success = GrowthTrendSuccess.decode(
+              reader,
+              reader.uint32(),
+            );
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.error = Error.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
 
 function createBaseGrowthTrend(): GrowthTrend {
   return { month: 0, count: 0 };
 }
 
 export const GrowthTrend: MessageFns<GrowthTrend> = {
-  encode(message: GrowthTrend, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GrowthTrend,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.month !== 0) {
       writer.uint32(8).int32(message.month);
     }
@@ -317,7 +372,8 @@ export const GrowthTrend: MessageFns<GrowthTrend> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): GrowthTrend {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGrowthTrend();
     while (reader.pos < end) {
@@ -354,15 +410,22 @@ function createBaseGrowthTrendSuccess(): GrowthTrendSuccess {
 }
 
 export const GrowthTrendSuccess: MessageFns<GrowthTrendSuccess> = {
-  encode(message: GrowthTrendSuccess, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GrowthTrendSuccess,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     for (const v of message.trend) {
       GrowthTrend.encode(v!, writer.uint32(10).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GrowthTrendSuccess {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): GrowthTrendSuccess {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGrowthTrendSuccess();
     while (reader.pos < end) {
@@ -387,11 +450,20 @@ export const GrowthTrendSuccess: MessageFns<GrowthTrendSuccess> = {
 };
 
 function createBaseInstructorRevenueSummery(): InstructorRevenueSummery {
-  return { totalEarnings: 0, thisMonthEarnings: 0, lastMonthEarnings: 0, thisWeekEarnings: 0, todayEarnings: 0 };
+  return {
+    totalEarnings: 0,
+    thisMonthEarnings: 0,
+    lastMonthEarnings: 0,
+    thisWeekEarnings: 0,
+    todayEarnings: 0,
+  };
 }
 
 export const InstructorRevenueSummery: MessageFns<InstructorRevenueSummery> = {
-  encode(message: InstructorRevenueSummery, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: InstructorRevenueSummery,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.totalEarnings !== 0) {
       writer.uint32(8).int32(message.totalEarnings);
     }
@@ -410,8 +482,12 @@ export const InstructorRevenueSummery: MessageFns<InstructorRevenueSummery> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): InstructorRevenueSummery {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): InstructorRevenueSummery {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseInstructorRevenueSummery();
     while (reader.pos < end) {
@@ -472,7 +548,10 @@ function createBaseUsersStats(): UsersStats {
 }
 
 export const UsersStats: MessageFns<UsersStats> = {
-  encode(message: UsersStats, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: UsersStats,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.total !== 0) {
       writer.uint32(8).int32(message.total);
     }
@@ -489,7 +568,8 @@ export const UsersStats: MessageFns<UsersStats> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): UsersStats {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseUsersStats();
     while (reader.pos < end) {
@@ -542,7 +622,10 @@ function createBaseInstructorsStats(): InstructorsStats {
 }
 
 export const InstructorsStats: MessageFns<InstructorsStats> = {
-  encode(message: InstructorsStats, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: InstructorsStats,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.total !== 0) {
       writer.uint32(8).int32(message.total);
     }
@@ -562,7 +645,8 @@ export const InstructorsStats: MessageFns<InstructorsStats> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): InstructorsStats {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseInstructorsStats();
     while (reader.pos < end) {
@@ -623,7 +707,10 @@ function createBaseRevenueSummery(): RevenueSummery {
 }
 
 export const RevenueSummery: MessageFns<RevenueSummery> = {
-  encode(message: RevenueSummery, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: RevenueSummery,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.revenueThisMonth !== 0) {
       writer.uint32(8).int32(message.revenueThisMonth);
     }
@@ -634,7 +721,8 @@ export const RevenueSummery: MessageFns<RevenueSummery> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): RevenueSummery {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseRevenueSummery();
     while (reader.pos < end) {
@@ -671,15 +759,22 @@ function createBaseGetRevenueSummeryRequest(): GetRevenueSummeryRequest {
 }
 
 export const GetRevenueSummeryRequest: MessageFns<GetRevenueSummeryRequest> = {
-  encode(message: GetRevenueSummeryRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetRevenueSummeryRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.range !== "") {
       writer.uint32(10).string(message.range);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetRevenueSummeryRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): GetRevenueSummeryRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetRevenueSummeryRequest();
     while (reader.pos < end) {
@@ -708,15 +803,22 @@ function createBaseGetInstructorsStats(): GetInstructorsStats {
 }
 
 export const GetInstructorsStats: MessageFns<GetInstructorsStats> = {
-  encode(message: GetInstructorsStats, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetInstructorsStats,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.range !== "") {
       writer.uint32(10).string(message.range);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetInstructorsStats {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): GetInstructorsStats {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetInstructorsStats();
     while (reader.pos < end) {
@@ -745,7 +847,10 @@ function createBaseGetUsersStatsResponse(): GetUsersStatsResponse {
 }
 
 export const GetUsersStatsResponse: MessageFns<GetUsersStatsResponse> = {
-  encode(message: GetUsersStatsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetUsersStatsResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.success !== undefined) {
       UsersStats.encode(message.success, writer.uint32(10).fork()).join();
     }
@@ -755,8 +860,12 @@ export const GetUsersStatsResponse: MessageFns<GetUsersStatsResponse> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetUsersStatsResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): GetUsersStatsResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetUsersStatsResponse();
     while (reader.pos < end) {
@@ -792,97 +901,122 @@ function createBaseGetInstructorsStatsResponse(): GetInstructorsStatsResponse {
   return {};
 }
 
-export const GetInstructorsStatsResponse: MessageFns<GetInstructorsStatsResponse> = {
-  encode(message: GetInstructorsStatsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.success !== undefined) {
-      InstructorsStats.encode(message.success, writer.uint32(10).fork()).join();
-    }
-    if (message.error !== undefined) {
-      Error.encode(message.error, writer.uint32(18).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): GetInstructorsStatsResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGetInstructorsStatsResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.success = InstructorsStats.decode(reader, reader.uint32());
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.error = Error.decode(reader, reader.uint32());
-          continue;
-        }
+export const GetInstructorsStatsResponse: MessageFns<GetInstructorsStatsResponse> =
+  {
+    encode(
+      message: GetInstructorsStatsResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.success !== undefined) {
+        InstructorsStats.encode(
+          message.success,
+          writer.uint32(10).fork(),
+        ).join();
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.error !== undefined) {
+        Error.encode(message.error, writer.uint32(18).fork()).join();
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): GetInstructorsStatsResponse {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetInstructorsStatsResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.success = InstructorsStats.decode(reader, reader.uint32());
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.error = Error.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
 
 function createBaseGetInstructorRevenueSummeryResponse(): GetInstructorRevenueSummeryResponse {
   return {};
 }
 
-export const GetInstructorRevenueSummeryResponse: MessageFns<GetInstructorRevenueSummeryResponse> = {
-  encode(message: GetInstructorRevenueSummeryResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.success !== undefined) {
-      InstructorRevenueSummery.encode(message.success, writer.uint32(10).fork()).join();
-    }
-    if (message.error !== undefined) {
-      Error.encode(message.error, writer.uint32(18).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): GetInstructorRevenueSummeryResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGetInstructorRevenueSummeryResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.success = InstructorRevenueSummery.decode(reader, reader.uint32());
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.error = Error.decode(reader, reader.uint32());
-          continue;
-        }
+export const GetInstructorRevenueSummeryResponse: MessageFns<GetInstructorRevenueSummeryResponse> =
+  {
+    encode(
+      message: GetInstructorRevenueSummeryResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.success !== undefined) {
+        InstructorRevenueSummery.encode(
+          message.success,
+          writer.uint32(10).fork(),
+        ).join();
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.error !== undefined) {
+        Error.encode(message.error, writer.uint32(18).fork()).join();
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): GetInstructorRevenueSummeryResponse {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetInstructorRevenueSummeryResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.success = InstructorRevenueSummery.decode(
+              reader,
+              reader.uint32(),
+            );
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.error = Error.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
 
 export interface MessageFns<T> {
   encode(message: T, writer?: BinaryWriter): BinaryWriter;

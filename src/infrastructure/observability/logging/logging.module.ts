@@ -1,10 +1,11 @@
 import { Module, Global } from "@nestjs/common";
-import { LoggingService } from "./logging.service";
+import { LoggerService } from "./logging.service";
 import { WinstonModule } from "nest-winston";
 import winston, { format } from "winston";
 import LokiTransport from "winston-loki";
 import DailyRotateFile from "winston-daily-rotate-file";
 import { AppConfigService } from "src/infrastructure/config/config.service";
+import { ILoggerService } from "src/application/adaptors/logger.service";
 
 @Global()
 @Module({
@@ -55,7 +56,7 @@ import { AppConfigService } from "src/infrastructure/config/config.service";
                       const colorize = format.colorize();
                       const colorLevel = colorize.colorize(
                         level,
-                        level.toUpperCase()
+                        level.toUpperCase(),
                       );
                       const msg = stack ? `${message}\n${stack}` : message;
                       const metaString =
@@ -63,8 +64,8 @@ import { AppConfigService } from "src/infrastructure/config/config.service";
                           ? `${JSON.stringify(meta.metadata)}`
                           : "";
                       return `[${timestamp}] [${colorLevel}]: ${msg}${metaString}`;
-                    }
-                  )
+                    },
+                  ),
                 ),
           transports: transportToUse,
         };
@@ -72,7 +73,7 @@ import { AppConfigService } from "src/infrastructure/config/config.service";
       inject: [AppConfigService],
     }),
   ],
-  providers: [LoggingService],
-  exports: [LoggingService],
+  providers: [{ provide: ILoggerService, useClass: LoggerService }],
+  exports: [ILoggerService],
 })
 export class LoggingModule {}

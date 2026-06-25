@@ -1,19 +1,20 @@
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import { Inject, Injectable } from "@nestjs/common";
 import { Cache } from "cache-manager";
-import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
+import { ILoggerService } from "src/application/adaptors/logger.service";
+import { ICacheService } from "src/application/adaptors/cache.service";
 
 @Injectable()
-export class RedisService {
+export class RedisService implements ICacheService {
   constructor(
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
-    private readonly logger: LoggingService
+    private readonly _logger: ILoggerService,
   ) {}
 
   async get<T>(key: string): Promise<T | null> {
     const value = await this.cacheManager.get<T>(key);
     if (value) {
-      this.logger.debug(`Cache get for key: ${key}`);
+      this._logger.debug(`Cache get for key: ${key}`);
       try {
         return JSON.parse(value as string);
       } catch (error) {
@@ -27,7 +28,7 @@ export class RedisService {
     try {
       const stringValue = JSON.stringify(value);
       await this.cacheManager.set(key, stringValue, ttl);
-      this.logger.debug(`Cache set: ${key}`);
+      this._logger.debug(`Cache set: ${key}`);
     } catch (error) {
       throw error;
     }
@@ -35,7 +36,7 @@ export class RedisService {
 
   async del(key: string): Promise<void> {
     await this.cacheManager.del(key);
-    this.logger.debug(`Cache delete: ${key}`);
+    this._logger.debug(`Cache delete: ${key}`);
   }
 
   async delByPattern(pattern: string): Promise<void> {
@@ -46,19 +47,21 @@ export class RedisService {
         const keys = await store.client.keys(pattern);
         if (keys.length > 0) {
           await store.client.del(...keys);
-          this.logger.debug(
-            `Cache delete by pattern: ${pattern}, deleted ${keys.length} keys`
+          this._logger.debug(
+            `Cache delete by pattern: ${pattern}, deleted ${keys.length} keys`,
           );
         } else {
-          this.logger.debug(
-            `Cache delete by pattern: ${pattern}, no keys found`
+          this._logger.debug(
+            `Cache delete by pattern: ${pattern}, no keys found`,
           );
         }
       } else {
-        this.logger.warn("Redis client not available for pattern deletion");
+        this._logger.warn("Redis client not available for pattern deletion");
       }
     } catch (error) {
-      this.logger.error(`Failed to delete keys by pattern ${pattern}:`, error);
+      this._logger.error(`Failed to delete keys by pattern ${pattern}:`, {
+        error,
+      });
       throw error;
     }
   }

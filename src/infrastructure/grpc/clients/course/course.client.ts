@@ -6,15 +6,15 @@ import {
   BadRequestException,
 } from "@nestjs/common";
 import { ClientGrpc } from "@nestjs/microservices";
-import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
 import { GRPC_COURSE_CLIENT_TOKEN } from "./constants";
 import {
   EnrollmentServiceClient,
   CourseServiceClient,
 } from "src/infrastructure/grpc/generated/course_service";
-import { ClientServiceException } from "src/domain/exceptions";
+import { ClientServiceException } from "src/shared/exceptions/infra.exceptions";
 import { CheckEnrollmentResponse } from "../../generated/course/types/enrollment";
 import { CourseResponse } from "../../generated/course/types/course";
+import { ILoggerService } from "src/application/adaptors/logger.service";
 
 @Injectable()
 export class CourseClient implements OnModuleDestroy, OnModuleInit {
@@ -22,20 +22,20 @@ export class CourseClient implements OnModuleDestroy, OnModuleInit {
   private courseService!: CourseServiceClient;
 
   constructor(
-    @Inject(GRPC_COURSE_CLIENT_TOKEN) private readonly client: ClientGrpc,
-    private readonly logger: LoggingService,
+    @Inject(GRPC_COURSE_CLIENT_TOKEN) private readonly _client: ClientGrpc,
+    private readonly _logger: ILoggerService,
   ) {}
 
   onModuleInit(): void {
     this.enrollmentService =
-      this.client.getService<EnrollmentServiceClient>("EnrollmentService");
+      this._client.getService<EnrollmentServiceClient>("EnrollmentService");
     this.courseService =
-      this.client.getService<CourseServiceClient>("CourseService");
-    this.logger.info("Course gRPC client initialized");
+      this._client.getService<CourseServiceClient>("CourseService");
+    this._logger.info("Course gRPC client initialized");
   }
 
   onModuleDestroy(): void {
-    this.logger.info("Course gRPC client destroyed");
+    this._logger.info("Course gRPC _client destroyed");
   }
 
   async getCourse(courseId: string): Promise<CourseResponse> {
@@ -67,7 +67,7 @@ export class CourseClient implements OnModuleDestroy, OnModuleInit {
 
       return response;
     } catch (err: any) {
-      this.logger.error("Error in getCourse", { error: err, courseId });
+      this._logger.error("Error in getCourse", { error: err, courseId });
       throw err;
     }
   }
@@ -82,13 +82,13 @@ export class CourseClient implements OnModuleDestroy, OnModuleInit {
   ): Promise<{ isEnrolled: boolean }> {
     // Input validation
     if (typeof courseId !== "string" || !courseId.trim()) {
-      this.logger.warn("Invalid courseId provided to checkCourseEnrollment", {
+      this._logger.warn("Invalid courseId provided to checkCourseEnrollment", {
         courseId,
       });
       throw new BadRequestException("Invalid or missing courseId");
     }
     if (typeof userId !== "string" || !userId.trim()) {
-      this.logger.warn("Invalid userId provided to checkCourseEnrollment", {
+      this._logger.warn("Invalid userId provided to checkCourseEnrollment", {
         userId,
       });
       throw new BadRequestException("Invalid or missing userId");
@@ -106,7 +106,7 @@ export class CourseClient implements OnModuleDestroy, OnModuleInit {
             next: (res: CheckEnrollmentResponse) => {
               // Handle application-level errors sent inside response
               if (res.error) {
-                this.logger.warn(
+                this._logger.warn(
                   "Received error from enrollmentService.checkCourseEnrollment",
                   { error: res.error },
                 );
@@ -117,13 +117,13 @@ export class CourseClient implements OnModuleDestroy, OnModuleInit {
                 );
               }
               // Best practice: Always log status
-              this.logger.debug(
+              this._logger.debug(
                 `Checked enrollment for userId=${userId} in courseId=${courseId}: isEnrolled=${res.enrolled}`,
               );
               resolve(res);
             },
             error: (error: any) => {
-              this.logger.error(
+              this._logger.error(
                 `Failed to check course enrollment for userId=${userId}, courseId=${courseId}: ${error?.message ?? error}`,
                 { error },
               );
@@ -146,7 +146,7 @@ export class CourseClient implements OnModuleDestroy, OnModuleInit {
       const { enrolled } = response;
       return { isEnrolled: Boolean(enrolled) };
     } catch (err: any) {
-      this.logger.error("Error in checkCourseEnrollment", {
+      this._logger.error("Error in checkCourseEnrollment", {
         error: err,
         courseId,
         userId,

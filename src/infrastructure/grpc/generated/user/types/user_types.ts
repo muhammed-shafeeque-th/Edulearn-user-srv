@@ -6,7 +6,12 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Error, PaginationRequest, PaginationResponse, SortOption } from "../common";
+import {
+  Error,
+  PaginationRequest,
+  PaginationResponse,
+  SortOption,
+} from "../common";
 
 export const protobufPackage = "user_service";
 
@@ -73,6 +78,12 @@ export interface UserData {
   socials: UserSocialsData[];
   updatedAt: string;
   createdAt: string;
+  roleStatus: { [key: string]: string };
+}
+
+export interface UserData_RoleStatusEntry {
+  key: string;
+  value: string;
 }
 
 export interface UserMeta {
@@ -91,6 +102,12 @@ export interface UserMeta {
   country?: string | undefined;
   bio?: string | undefined;
   gender?: string | undefined;
+  roleStatus: { [key: string]: string };
+}
+
+export interface UserMeta_RoleStatusEntry {
+  key: string;
+  value: string;
 }
 
 export interface ListUsersRequest {
@@ -107,8 +124,7 @@ export interface ListUsersByIdsRequest {
   userIds: string[];
 }
 
-export interface GetUserEmailsRequest {
-}
+export interface GetUserEmailsRequest {}
 
 export interface CheckUserByEmailRequest {
   email: string;
@@ -118,11 +134,11 @@ export interface GetCurrentUserRequest {
   userId: string;
 }
 
-export interface BlockUserRequest {
+export interface BlockAccountRequest {
   userId: string;
 }
 
-export interface UnBlockUserRequest {
+export interface UnBlockAccountRequest {
   userId: string;
 }
 
@@ -195,21 +211,21 @@ export interface CheckUserByEmailResponse {
   error?: Error | undefined;
 }
 
-export interface BlockUserResponse {
-  success?: BlockUserSuccess | undefined;
+export interface BlockAccountResponse {
+  success?: BlockAccountSuccess | undefined;
   error?: Error | undefined;
 }
 
-export interface UnBlockUserResponse {
-  success?: UnBlockUserSuccess | undefined;
+export interface UnBlockAccountResponse {
+  success?: UnBlockAccountSuccess | undefined;
   error?: Error | undefined;
 }
 
-export interface BlockUserSuccess {
+export interface BlockAccountSuccess {
   updated: boolean;
 }
 
-export interface UnBlockUserSuccess {
+export interface UnBlockAccountSuccess {
   updated: boolean;
 }
 
@@ -234,7 +250,10 @@ function createBaseUserFilter(): UserFilter {
 }
 
 export const UserFilter: MessageFns<UserFilter> = {
-  encode(message: UserFilter, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: UserFilter,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.status !== undefined) {
       writer.uint32(8).int32(message.status);
     }
@@ -251,7 +270,8 @@ export const UserFilter: MessageFns<UserFilter> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): UserFilter {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseUserFilter();
     while (reader.pos < end) {
@@ -304,7 +324,10 @@ function createBaseUserProfileData(): UserProfileData {
 }
 
 export const UserProfileData: MessageFns<UserProfileData> = {
-  encode(message: UserProfileData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: UserProfileData,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.bio !== undefined) {
       writer.uint32(10).string(message.bio);
     }
@@ -333,7 +356,8 @@ export const UserProfileData: MessageFns<UserProfileData> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): UserProfileData {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseUserProfileData();
     while (reader.pos < end) {
@@ -418,7 +442,10 @@ function createBaseUserSocialsData(): UserSocialsData {
 }
 
 export const UserSocialsData: MessageFns<UserSocialsData> = {
-  encode(message: UserSocialsData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: UserSocialsData,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.provider !== "") {
       writer.uint32(10).string(message.provider);
     }
@@ -432,7 +459,8 @@ export const UserSocialsData: MessageFns<UserSocialsData> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): UserSocialsData {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseUserSocialsData();
     while (reader.pos < end) {
@@ -490,7 +518,10 @@ function createBaseInstructorProfileData(): InstructorProfileData {
 }
 
 export const InstructorProfileData: MessageFns<InstructorProfileData> = {
-  encode(message: InstructorProfileData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: InstructorProfileData,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.bio !== "") {
       writer.uint32(10).string(message.bio);
     }
@@ -530,8 +561,12 @@ export const InstructorProfileData: MessageFns<InstructorProfileData> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): InstructorProfileData {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): InstructorProfileData {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseInstructorProfileData();
     while (reader.pos < end) {
@@ -660,11 +695,15 @@ function createBaseUserData(): UserData {
     socials: [],
     updatedAt: "",
     createdAt: "",
+    roleStatus: {},
   };
 }
 
 export const UserData: MessageFns<UserData> = {
-  encode(message: UserData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: UserData,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -699,7 +738,10 @@ export const UserData: MessageFns<UserData> = {
       UserProfileData.encode(message.profile, writer.uint32(90).fork()).join();
     }
     if (message.instructorProfile !== undefined) {
-      InstructorProfileData.encode(message.instructorProfile, writer.uint32(98).fork()).join();
+      InstructorProfileData.encode(
+        message.instructorProfile,
+        writer.uint32(98).fork(),
+      ).join();
     }
     for (const v of message.socials) {
       UserSocialsData.encode(v!, writer.uint32(106).fork()).join();
@@ -710,11 +752,20 @@ export const UserData: MessageFns<UserData> = {
     if (message.createdAt !== "") {
       writer.uint32(122).string(message.createdAt);
     }
+    globalThis.Object.entries(message.roleStatus).forEach(
+      ([key, value]: [string, string]) => {
+        UserData_RoleStatusEntry.encode(
+          { key: key as any, value },
+          writer.uint32(130).fork(),
+        ).join();
+      },
+    );
     return writer;
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): UserData {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseUserData();
     while (reader.pos < end) {
@@ -813,7 +864,10 @@ export const UserData: MessageFns<UserData> = {
             break;
           }
 
-          message.instructorProfile = InstructorProfileData.decode(reader, reader.uint32());
+          message.instructorProfile = InstructorProfileData.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 13: {
@@ -840,6 +894,75 @@ export const UserData: MessageFns<UserData> = {
           message.createdAt = reader.string();
           continue;
         }
+        case 16: {
+          if (tag !== 130) {
+            break;
+          }
+
+          const entry16 = UserData_RoleStatusEntry.decode(
+            reader,
+            reader.uint32(),
+          );
+          if (entry16.value !== undefined) {
+            message.roleStatus[entry16.key] = entry16.value;
+          }
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseUserData_RoleStatusEntry(): UserData_RoleStatusEntry {
+  return { key: "", value: "" };
+}
+
+export const UserData_RoleStatusEntry: MessageFns<UserData_RoleStatusEntry> = {
+  encode(
+    message: UserData_RoleStatusEntry,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.key !== "") {
+      writer.uint32(10).string(message.key);
+    }
+    if (message.value !== "") {
+      writer.uint32(18).string(message.value);
+    }
+    return writer;
+  },
+
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): UserData_RoleStatusEntry {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseUserData_RoleStatusEntry();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.key = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.value = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -862,11 +985,15 @@ function createBaseUserMeta(): UserMeta {
     lastLogin: "",
     updatedAt: "",
     createdAt: "",
+    roleStatus: {},
   };
 }
 
 export const UserMeta: MessageFns<UserMeta> = {
-  encode(message: UserMeta, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: UserMeta,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -912,11 +1039,20 @@ export const UserMeta: MessageFns<UserMeta> = {
     if (message.gender !== undefined) {
       writer.uint32(122).string(message.gender);
     }
+    globalThis.Object.entries(message.roleStatus).forEach(
+      ([key, value]: [string, string]) => {
+        UserMeta_RoleStatusEntry.encode(
+          { key: key as any, value },
+          writer.uint32(130).fork(),
+        ).join();
+      },
+    );
     return writer;
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): UserMeta {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseUserMeta();
     while (reader.pos < end) {
@@ -1042,6 +1178,75 @@ export const UserMeta: MessageFns<UserMeta> = {
           message.gender = reader.string();
           continue;
         }
+        case 16: {
+          if (tag !== 130) {
+            break;
+          }
+
+          const entry16 = UserMeta_RoleStatusEntry.decode(
+            reader,
+            reader.uint32(),
+          );
+          if (entry16.value !== undefined) {
+            message.roleStatus[entry16.key] = entry16.value;
+          }
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseUserMeta_RoleStatusEntry(): UserMeta_RoleStatusEntry {
+  return { key: "", value: "" };
+}
+
+export const UserMeta_RoleStatusEntry: MessageFns<UserMeta_RoleStatusEntry> = {
+  encode(
+    message: UserMeta_RoleStatusEntry,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.key !== "") {
+      writer.uint32(10).string(message.key);
+    }
+    if (message.value !== "") {
+      writer.uint32(18).string(message.value);
+    }
+    return writer;
+  },
+
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): UserMeta_RoleStatusEntry {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseUserMeta_RoleStatusEntry();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.key = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.value = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -1057,9 +1262,15 @@ function createBaseListUsersRequest(): ListUsersRequest {
 }
 
 export const ListUsersRequest: MessageFns<ListUsersRequest> = {
-  encode(message: ListUsersRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ListUsersRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.pagination !== undefined) {
-      PaginationRequest.encode(message.pagination, writer.uint32(10).fork()).join();
+      PaginationRequest.encode(
+        message.pagination,
+        writer.uint32(10).fork(),
+      ).join();
     }
     if (message.filter !== undefined) {
       UserFilter.encode(message.filter, writer.uint32(18).fork()).join();
@@ -1071,7 +1282,8 @@ export const ListUsersRequest: MessageFns<ListUsersRequest> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): ListUsersRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseListUsersRequest();
     while (reader.pos < end) {
@@ -1082,7 +1294,10 @@ export const ListUsersRequest: MessageFns<ListUsersRequest> = {
             break;
           }
 
-          message.pagination = PaginationRequest.decode(reader, reader.uint32());
+          message.pagination = PaginationRequest.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 2: {
@@ -1116,7 +1331,10 @@ function createBaseGetUserRequest(): GetUserRequest {
 }
 
 export const GetUserRequest: MessageFns<GetUserRequest> = {
-  encode(message: GetUserRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetUserRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.userId !== "") {
       writer.uint32(10).string(message.userId);
     }
@@ -1124,7 +1342,8 @@ export const GetUserRequest: MessageFns<GetUserRequest> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): GetUserRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetUserRequest();
     while (reader.pos < end) {
@@ -1153,15 +1372,22 @@ function createBaseListUsersByIdsRequest(): ListUsersByIdsRequest {
 }
 
 export const ListUsersByIdsRequest: MessageFns<ListUsersByIdsRequest> = {
-  encode(message: ListUsersByIdsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ListUsersByIdsRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     for (const v of message.userIds) {
       writer.uint32(10).string(v!);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ListUsersByIdsRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): ListUsersByIdsRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseListUsersByIdsRequest();
     while (reader.pos < end) {
@@ -1190,12 +1416,19 @@ function createBaseGetUserEmailsRequest(): GetUserEmailsRequest {
 }
 
 export const GetUserEmailsRequest: MessageFns<GetUserEmailsRequest> = {
-  encode(_: GetUserEmailsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    _: GetUserEmailsRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetUserEmailsRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): GetUserEmailsRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetUserEmailsRequest();
     while (reader.pos < end) {
@@ -1216,15 +1449,22 @@ function createBaseCheckUserByEmailRequest(): CheckUserByEmailRequest {
 }
 
 export const CheckUserByEmailRequest: MessageFns<CheckUserByEmailRequest> = {
-  encode(message: CheckUserByEmailRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: CheckUserByEmailRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.email !== "") {
       writer.uint32(10).string(message.email);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CheckUserByEmailRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): CheckUserByEmailRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCheckUserByEmailRequest();
     while (reader.pos < end) {
@@ -1253,15 +1493,22 @@ function createBaseGetCurrentUserRequest(): GetCurrentUserRequest {
 }
 
 export const GetCurrentUserRequest: MessageFns<GetCurrentUserRequest> = {
-  encode(message: GetCurrentUserRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetCurrentUserRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.userId !== "") {
       writer.uint32(10).string(message.userId);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetCurrentUserRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): GetCurrentUserRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetCurrentUserRequest();
     while (reader.pos < end) {
@@ -1285,22 +1532,29 @@ export const GetCurrentUserRequest: MessageFns<GetCurrentUserRequest> = {
   },
 };
 
-function createBaseBlockUserRequest(): BlockUserRequest {
+function createBaseBlockAccountRequest(): BlockAccountRequest {
   return { userId: "" };
 }
 
-export const BlockUserRequest: MessageFns<BlockUserRequest> = {
-  encode(message: BlockUserRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const BlockAccountRequest: MessageFns<BlockAccountRequest> = {
+  encode(
+    message: BlockAccountRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.userId !== "") {
       writer.uint32(10).string(message.userId);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): BlockUserRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): BlockAccountRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseBlockUserRequest();
+    const message = createBaseBlockAccountRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1322,22 +1576,29 @@ export const BlockUserRequest: MessageFns<BlockUserRequest> = {
   },
 };
 
-function createBaseUnBlockUserRequest(): UnBlockUserRequest {
+function createBaseUnBlockAccountRequest(): UnBlockAccountRequest {
   return { userId: "" };
 }
 
-export const UnBlockUserRequest: MessageFns<UnBlockUserRequest> = {
-  encode(message: UnBlockUserRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const UnBlockAccountRequest: MessageFns<UnBlockAccountRequest> = {
+  encode(
+    message: UnBlockAccountRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.userId !== "") {
       writer.uint32(10).string(message.userId);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): UnBlockUserRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): UnBlockAccountRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseUnBlockUserRequest();
+    const message = createBaseUnBlockAccountRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1364,7 +1625,10 @@ function createBaseUpdateUserDetailsRequest(): UpdateUserDetailsRequest {
 }
 
 export const UpdateUserDetailsRequest: MessageFns<UpdateUserDetailsRequest> = {
-  encode(message: UpdateUserDetailsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: UpdateUserDetailsRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.userId !== "") {
       writer.uint32(10).string(message.userId);
     }
@@ -1404,8 +1668,12 @@ export const UpdateUserDetailsRequest: MessageFns<UpdateUserDetailsRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): UpdateUserDetailsRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): UpdateUserDetailsRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseUpdateUserDetailsRequest();
     while (reader.pos < end) {
@@ -1522,7 +1790,10 @@ function createBaseChangePasswordRequest(): ChangePasswordRequest {
 }
 
 export const ChangePasswordRequest: MessageFns<ChangePasswordRequest> = {
-  encode(message: ChangePasswordRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ChangePasswordRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.userId !== "") {
       writer.uint32(10).string(message.userId);
     }
@@ -1535,8 +1806,12 @@ export const ChangePasswordRequest: MessageFns<ChangePasswordRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ChangePasswordRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): ChangePasswordRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseChangePasswordRequest();
     while (reader.pos < end) {
@@ -1581,7 +1856,10 @@ function createBaseUserEmailsSuccess(): UserEmailsSuccess {
 }
 
 export const UserEmailsSuccess: MessageFns<UserEmailsSuccess> = {
-  encode(message: UserEmailsSuccess, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: UserEmailsSuccess,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     for (const v of message.emails) {
       writer.uint32(10).string(v!);
     }
@@ -1589,7 +1867,8 @@ export const UserEmailsSuccess: MessageFns<UserEmailsSuccess> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): UserEmailsSuccess {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseUserEmailsSuccess();
     while (reader.pos < end) {
@@ -1618,7 +1897,10 @@ function createBaseEmailExist(): EmailExist {
 }
 
 export const EmailExist: MessageFns<EmailExist> = {
-  encode(message: EmailExist, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: EmailExist,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.exists !== false) {
       writer.uint32(8).bool(message.exists);
     }
@@ -1629,7 +1911,8 @@ export const EmailExist: MessageFns<EmailExist> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): EmailExist {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseEmailExist();
     while (reader.pos < end) {
@@ -1666,18 +1949,25 @@ function createBaseUsersMetaSuccess(): UsersMetaSuccess {
 }
 
 export const UsersMetaSuccess: MessageFns<UsersMetaSuccess> = {
-  encode(message: UsersMetaSuccess, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: UsersMetaSuccess,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     for (const v of message.users) {
       UserMeta.encode(v!, writer.uint32(10).fork()).join();
     }
     if (message.pagination !== undefined) {
-      PaginationResponse.encode(message.pagination, writer.uint32(18).fork()).join();
+      PaginationResponse.encode(
+        message.pagination,
+        writer.uint32(18).fork(),
+      ).join();
     }
     return writer;
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): UsersMetaSuccess {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseUsersMetaSuccess();
     while (reader.pos < end) {
@@ -1696,7 +1986,10 @@ export const UsersMetaSuccess: MessageFns<UsersMetaSuccess> = {
             break;
           }
 
-          message.pagination = PaginationResponse.decode(reader, reader.uint32());
+          message.pagination = PaginationResponse.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
       }
@@ -1714,18 +2007,25 @@ function createBaseUsersSuccess(): UsersSuccess {
 }
 
 export const UsersSuccess: MessageFns<UsersSuccess> = {
-  encode(message: UsersSuccess, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: UsersSuccess,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     for (const v of message.users) {
       UserData.encode(v!, writer.uint32(10).fork()).join();
     }
     if (message.pagination !== undefined) {
-      PaginationResponse.encode(message.pagination, writer.uint32(18).fork()).join();
+      PaginationResponse.encode(
+        message.pagination,
+        writer.uint32(18).fork(),
+      ).join();
     }
     return writer;
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): UsersSuccess {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseUsersSuccess();
     while (reader.pos < end) {
@@ -1744,7 +2044,10 @@ export const UsersSuccess: MessageFns<UsersSuccess> = {
             break;
           }
 
-          message.pagination = PaginationResponse.decode(reader, reader.uint32());
+          message.pagination = PaginationResponse.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
       }
@@ -1762,7 +2065,10 @@ function createBaseUsersResponse(): UsersResponse {
 }
 
 export const UsersResponse: MessageFns<UsersResponse> = {
-  encode(message: UsersResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: UsersResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     for (const v of message.users) {
       UserData.encode(v!, writer.uint32(10).fork()).join();
     }
@@ -1770,7 +2076,8 @@ export const UsersResponse: MessageFns<UsersResponse> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): UsersResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseUsersResponse();
     while (reader.pos < end) {
@@ -1799,7 +2106,10 @@ function createBaseListUsersResponse(): ListUsersResponse {
 }
 
 export const ListUsersResponse: MessageFns<ListUsersResponse> = {
-  encode(message: ListUsersResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ListUsersResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.users !== undefined) {
       UsersMetaSuccess.encode(message.users, writer.uint32(10).fork()).join();
     }
@@ -1810,7 +2120,8 @@ export const ListUsersResponse: MessageFns<ListUsersResponse> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): ListUsersResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseListUsersResponse();
     while (reader.pos < end) {
@@ -1847,9 +2158,15 @@ function createBaseGetUserEmailsResponse(): GetUserEmailsResponse {
 }
 
 export const GetUserEmailsResponse: MessageFns<GetUserEmailsResponse> = {
-  encode(message: GetUserEmailsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetUserEmailsResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.success !== undefined) {
-      UserEmailsSuccess.encode(message.success, writer.uint32(10).fork()).join();
+      UserEmailsSuccess.encode(
+        message.success,
+        writer.uint32(10).fork(),
+      ).join();
     }
     if (message.error !== undefined) {
       Error.encode(message.error, writer.uint32(18).fork()).join();
@@ -1857,8 +2174,12 @@ export const GetUserEmailsResponse: MessageFns<GetUserEmailsResponse> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetUserEmailsResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): GetUserEmailsResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetUserEmailsResponse();
     while (reader.pos < end) {
@@ -1895,7 +2216,10 @@ function createBaseGetUserResponse(): GetUserResponse {
 }
 
 export const GetUserResponse: MessageFns<GetUserResponse> = {
-  encode(message: GetUserResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetUserResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.user !== undefined) {
       UserData.encode(message.user, writer.uint32(10).fork()).join();
     }
@@ -1906,7 +2230,8 @@ export const GetUserResponse: MessageFns<GetUserResponse> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): GetUserResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetUserResponse();
     while (reader.pos < end) {
@@ -1943,7 +2268,10 @@ function createBaseGetCurrentUserResponse(): GetCurrentUserResponse {
 }
 
 export const GetCurrentUserResponse: MessageFns<GetCurrentUserResponse> = {
-  encode(message: GetCurrentUserResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetCurrentUserResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.user !== undefined) {
       UserData.encode(message.user, writer.uint32(10).fork()).join();
     }
@@ -1953,8 +2281,12 @@ export const GetCurrentUserResponse: MessageFns<GetCurrentUserResponse> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetCurrentUserResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): GetCurrentUserResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetCurrentUserResponse();
     while (reader.pos < end) {
@@ -1991,7 +2323,10 @@ function createBaseCheckUserByEmailResponse(): CheckUserByEmailResponse {
 }
 
 export const CheckUserByEmailResponse: MessageFns<CheckUserByEmailResponse> = {
-  encode(message: CheckUserByEmailResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: CheckUserByEmailResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.response !== undefined) {
       EmailExist.encode(message.response, writer.uint32(10).fork()).join();
     }
@@ -2001,8 +2336,12 @@ export const CheckUserByEmailResponse: MessageFns<CheckUserByEmailResponse> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CheckUserByEmailResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): CheckUserByEmailResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCheckUserByEmailResponse();
     while (reader.pos < end) {
@@ -2034,14 +2373,20 @@ export const CheckUserByEmailResponse: MessageFns<CheckUserByEmailResponse> = {
   },
 };
 
-function createBaseBlockUserResponse(): BlockUserResponse {
+function createBaseBlockAccountResponse(): BlockAccountResponse {
   return {};
 }
 
-export const BlockUserResponse: MessageFns<BlockUserResponse> = {
-  encode(message: BlockUserResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const BlockAccountResponse: MessageFns<BlockAccountResponse> = {
+  encode(
+    message: BlockAccountResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.success !== undefined) {
-      BlockUserSuccess.encode(message.success, writer.uint32(10).fork()).join();
+      BlockAccountSuccess.encode(
+        message.success,
+        writer.uint32(10).fork(),
+      ).join();
     }
     if (message.error !== undefined) {
       Error.encode(message.error, writer.uint32(18).fork()).join();
@@ -2049,10 +2394,14 @@ export const BlockUserResponse: MessageFns<BlockUserResponse> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): BlockUserResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): BlockAccountResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseBlockUserResponse();
+    const message = createBaseBlockAccountResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -2061,7 +2410,7 @@ export const BlockUserResponse: MessageFns<BlockUserResponse> = {
             break;
           }
 
-          message.success = BlockUserSuccess.decode(reader, reader.uint32());
+          message.success = BlockAccountSuccess.decode(reader, reader.uint32());
           continue;
         }
         case 2: {
@@ -2082,14 +2431,20 @@ export const BlockUserResponse: MessageFns<BlockUserResponse> = {
   },
 };
 
-function createBaseUnBlockUserResponse(): UnBlockUserResponse {
+function createBaseUnBlockAccountResponse(): UnBlockAccountResponse {
   return {};
 }
 
-export const UnBlockUserResponse: MessageFns<UnBlockUserResponse> = {
-  encode(message: UnBlockUserResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const UnBlockAccountResponse: MessageFns<UnBlockAccountResponse> = {
+  encode(
+    message: UnBlockAccountResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.success !== undefined) {
-      UnBlockUserSuccess.encode(message.success, writer.uint32(10).fork()).join();
+      UnBlockAccountSuccess.encode(
+        message.success,
+        writer.uint32(10).fork(),
+      ).join();
     }
     if (message.error !== undefined) {
       Error.encode(message.error, writer.uint32(18).fork()).join();
@@ -2097,10 +2452,14 @@ export const UnBlockUserResponse: MessageFns<UnBlockUserResponse> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): UnBlockUserResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): UnBlockAccountResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseUnBlockUserResponse();
+    const message = createBaseUnBlockAccountResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -2109,7 +2468,10 @@ export const UnBlockUserResponse: MessageFns<UnBlockUserResponse> = {
             break;
           }
 
-          message.success = UnBlockUserSuccess.decode(reader, reader.uint32());
+          message.success = UnBlockAccountSuccess.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 2: {
@@ -2130,22 +2492,29 @@ export const UnBlockUserResponse: MessageFns<UnBlockUserResponse> = {
   },
 };
 
-function createBaseBlockUserSuccess(): BlockUserSuccess {
+function createBaseBlockAccountSuccess(): BlockAccountSuccess {
   return { updated: false };
 }
 
-export const BlockUserSuccess: MessageFns<BlockUserSuccess> = {
-  encode(message: BlockUserSuccess, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const BlockAccountSuccess: MessageFns<BlockAccountSuccess> = {
+  encode(
+    message: BlockAccountSuccess,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.updated !== false) {
       writer.uint32(8).bool(message.updated);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): BlockUserSuccess {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): BlockAccountSuccess {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseBlockUserSuccess();
+    const message = createBaseBlockAccountSuccess();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -2167,22 +2536,29 @@ export const BlockUserSuccess: MessageFns<BlockUserSuccess> = {
   },
 };
 
-function createBaseUnBlockUserSuccess(): UnBlockUserSuccess {
+function createBaseUnBlockAccountSuccess(): UnBlockAccountSuccess {
   return { updated: false };
 }
 
-export const UnBlockUserSuccess: MessageFns<UnBlockUserSuccess> = {
-  encode(message: UnBlockUserSuccess, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const UnBlockAccountSuccess: MessageFns<UnBlockAccountSuccess> = {
+  encode(
+    message: UnBlockAccountSuccess,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.updated !== false) {
       writer.uint32(8).bool(message.updated);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): UnBlockUserSuccess {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): UnBlockAccountSuccess {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseUnBlockUserSuccess();
+    const message = createBaseUnBlockAccountSuccess();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -2208,58 +2584,72 @@ function createBaseUpdateUserDetailsResponse(): UpdateUserDetailsResponse {
   return {};
 }
 
-export const UpdateUserDetailsResponse: MessageFns<UpdateUserDetailsResponse> = {
-  encode(message: UpdateUserDetailsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.user !== undefined) {
-      UserData.encode(message.user, writer.uint32(10).fork()).join();
-    }
-    if (message.error !== undefined) {
-      Error.encode(message.error, writer.uint32(18).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): UpdateUserDetailsResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseUpdateUserDetailsResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.user = UserData.decode(reader, reader.uint32());
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.error = Error.decode(reader, reader.uint32());
-          continue;
-        }
+export const UpdateUserDetailsResponse: MessageFns<UpdateUserDetailsResponse> =
+  {
+    encode(
+      message: UpdateUserDetailsResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.user !== undefined) {
+        UserData.encode(message.user, writer.uint32(10).fork()).join();
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.error !== undefined) {
+        Error.encode(message.error, writer.uint32(18).fork()).join();
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): UpdateUserDetailsResponse {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseUpdateUserDetailsResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.user = UserData.decode(reader, reader.uint32());
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.error = Error.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
 
 function createBaseChangePasswordResponse(): ChangePasswordResponse {
   return {};
 }
 
 export const ChangePasswordResponse: MessageFns<ChangePasswordResponse> = {
-  encode(message: ChangePasswordResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ChangePasswordResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.success !== undefined) {
-      ChangePasswordSuccess.encode(message.success, writer.uint32(10).fork()).join();
+      ChangePasswordSuccess.encode(
+        message.success,
+        writer.uint32(10).fork(),
+      ).join();
     }
     if (message.error !== undefined) {
       Error.encode(message.error, writer.uint32(18).fork()).join();
@@ -2267,8 +2657,12 @@ export const ChangePasswordResponse: MessageFns<ChangePasswordResponse> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ChangePasswordResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): ChangePasswordResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseChangePasswordResponse();
     while (reader.pos < end) {
@@ -2279,7 +2673,10 @@ export const ChangePasswordResponse: MessageFns<ChangePasswordResponse> = {
             break;
           }
 
-          message.success = ChangePasswordSuccess.decode(reader, reader.uint32());
+          message.success = ChangePasswordSuccess.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 2: {
@@ -2305,15 +2702,22 @@ function createBaseChangePasswordSuccess(): ChangePasswordSuccess {
 }
 
 export const ChangePasswordSuccess: MessageFns<ChangePasswordSuccess> = {
-  encode(message: ChangePasswordSuccess, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ChangePasswordSuccess,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.updated !== false) {
       writer.uint32(8).bool(message.updated);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ChangePasswordSuccess {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): ChangePasswordSuccess {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseChangePasswordSuccess();
     while (reader.pos < end) {

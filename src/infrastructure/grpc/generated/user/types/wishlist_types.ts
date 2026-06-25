@@ -6,7 +6,12 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Error, PaginationRequest, PaginationResponse, RemoveSuccess } from "../common";
+import {
+  Error,
+  PaginationRequest,
+  PaginationResponse,
+  RemoveSuccess,
+} from "../common";
 
 export const protobufPackage = "user_service";
 
@@ -77,7 +82,10 @@ function createBaseWishlistItemData(): WishlistItemData {
 }
 
 export const WishlistItemData: MessageFns<WishlistItemData> = {
-  encode(message: WishlistItemData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: WishlistItemData,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -91,7 +99,8 @@ export const WishlistItemData: MessageFns<WishlistItemData> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): WishlistItemData {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseWishlistItemData();
     while (reader.pos < end) {
@@ -132,11 +141,21 @@ export const WishlistItemData: MessageFns<WishlistItemData> = {
 };
 
 function createBaseWishlistData(): WishlistData {
-  return { id: "", userId: "", total: 0, items: [], updatedAt: "", createdAt: "" };
+  return {
+    id: "",
+    userId: "",
+    total: 0,
+    items: [],
+    updatedAt: "",
+    createdAt: "",
+  };
 }
 
 export const WishlistData: MessageFns<WishlistData> = {
-  encode(message: WishlistData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: WishlistData,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -159,7 +178,8 @@ export const WishlistData: MessageFns<WishlistData> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): WishlistData {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseWishlistData();
     while (reader.pos < end) {
@@ -228,7 +248,10 @@ function createBaseAddToWishlistRequest(): AddToWishlistRequest {
 }
 
 export const AddToWishlistRequest: MessageFns<AddToWishlistRequest> = {
-  encode(message: AddToWishlistRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: AddToWishlistRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.userId !== "") {
       writer.uint32(10).string(message.userId);
     }
@@ -238,8 +261,12 @@ export const AddToWishlistRequest: MessageFns<AddToWishlistRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): AddToWishlistRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): AddToWishlistRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseAddToWishlistRequest();
     while (reader.pos < end) {
@@ -276,7 +303,10 @@ function createBaseAddToWishlistResponse(): AddToWishlistResponse {
 }
 
 export const AddToWishlistResponse: MessageFns<AddToWishlistResponse> = {
-  encode(message: AddToWishlistResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: AddToWishlistResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.item !== undefined) {
       WishlistItemData.encode(message.item, writer.uint32(10).fork()).join();
     }
@@ -286,8 +316,12 @@ export const AddToWishlistResponse: MessageFns<AddToWishlistResponse> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): AddToWishlistResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): AddToWishlistResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseAddToWishlistResponse();
     while (reader.pos < end) {
@@ -323,211 +357,253 @@ function createBaseToggleWishlistItemRequest(): ToggleWishlistItemRequest {
   return { userId: "", courseId: "" };
 }
 
-export const ToggleWishlistItemRequest: MessageFns<ToggleWishlistItemRequest> = {
-  encode(message: ToggleWishlistItemRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.userId !== "") {
-      writer.uint32(10).string(message.userId);
-    }
-    if (message.courseId !== "") {
-      writer.uint32(18).string(message.courseId);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): ToggleWishlistItemRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseToggleWishlistItemRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.userId = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.courseId = reader.string();
-          continue;
-        }
+export const ToggleWishlistItemRequest: MessageFns<ToggleWishlistItemRequest> =
+  {
+    encode(
+      message: ToggleWishlistItemRequest,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.userId !== "") {
+        writer.uint32(10).string(message.userId);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.courseId !== "") {
+        writer.uint32(18).string(message.courseId);
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): ToggleWishlistItemRequest {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseToggleWishlistItemRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.userId = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.courseId = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
 
 function createBaseToggleWishlistItemResponse(): ToggleWishlistItemResponse {
   return {};
 }
 
-export const ToggleWishlistItemResponse: MessageFns<ToggleWishlistItemResponse> = {
-  encode(message: ToggleWishlistItemResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.item !== undefined) {
-      WishlistItemData.encode(message.item, writer.uint32(10).fork()).join();
-    }
-    if (message.error !== undefined) {
-      Error.encode(message.error, writer.uint32(18).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): ToggleWishlistItemResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseToggleWishlistItemResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.item = WishlistItemData.decode(reader, reader.uint32());
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.error = Error.decode(reader, reader.uint32());
-          continue;
-        }
+export const ToggleWishlistItemResponse: MessageFns<ToggleWishlistItemResponse> =
+  {
+    encode(
+      message: ToggleWishlistItemResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.item !== undefined) {
+        WishlistItemData.encode(message.item, writer.uint32(10).fork()).join();
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.error !== undefined) {
+        Error.encode(message.error, writer.uint32(18).fork()).join();
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): ToggleWishlistItemResponse {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseToggleWishlistItemResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.item = WishlistItemData.decode(reader, reader.uint32());
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.error = Error.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
 
 function createBaseRemoveFromWishlistRequest(): RemoveFromWishlistRequest {
   return { userId: "", courseId: "" };
 }
 
-export const RemoveFromWishlistRequest: MessageFns<RemoveFromWishlistRequest> = {
-  encode(message: RemoveFromWishlistRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.userId !== "") {
-      writer.uint32(10).string(message.userId);
-    }
-    if (message.courseId !== "") {
-      writer.uint32(18).string(message.courseId);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): RemoveFromWishlistRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseRemoveFromWishlistRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.userId = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.courseId = reader.string();
-          continue;
-        }
+export const RemoveFromWishlistRequest: MessageFns<RemoveFromWishlistRequest> =
+  {
+    encode(
+      message: RemoveFromWishlistRequest,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.userId !== "") {
+        writer.uint32(10).string(message.userId);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.courseId !== "") {
+        writer.uint32(18).string(message.courseId);
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): RemoveFromWishlistRequest {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseRemoveFromWishlistRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.userId = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.courseId = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
 
 function createBaseRemoveFromWishlistResponse(): RemoveFromWishlistResponse {
   return {};
 }
 
-export const RemoveFromWishlistResponse: MessageFns<RemoveFromWishlistResponse> = {
-  encode(message: RemoveFromWishlistResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.success !== undefined) {
-      RemoveSuccess.encode(message.success, writer.uint32(10).fork()).join();
-    }
-    if (message.error !== undefined) {
-      Error.encode(message.error, writer.uint32(18).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): RemoveFromWishlistResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseRemoveFromWishlistResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.success = RemoveSuccess.decode(reader, reader.uint32());
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.error = Error.decode(reader, reader.uint32());
-          continue;
-        }
+export const RemoveFromWishlistResponse: MessageFns<RemoveFromWishlistResponse> =
+  {
+    encode(
+      message: RemoveFromWishlistResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.success !== undefined) {
+        RemoveSuccess.encode(message.success, writer.uint32(10).fork()).join();
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.error !== undefined) {
+        Error.encode(message.error, writer.uint32(18).fork()).join();
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): RemoveFromWishlistResponse {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseRemoveFromWishlistResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.success = RemoveSuccess.decode(reader, reader.uint32());
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.error = Error.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
 
 function createBaseListWishlistRequest(): ListWishlistRequest {
   return { userId: "", pagination: undefined };
 }
 
 export const ListWishlistRequest: MessageFns<ListWishlistRequest> = {
-  encode(message: ListWishlistRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ListWishlistRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.userId !== "") {
       writer.uint32(10).string(message.userId);
     }
     if (message.pagination !== undefined) {
-      PaginationRequest.encode(message.pagination, writer.uint32(18).fork()).join();
+      PaginationRequest.encode(
+        message.pagination,
+        writer.uint32(18).fork(),
+      ).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ListWishlistRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): ListWishlistRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseListWishlistRequest();
     while (reader.pos < end) {
@@ -546,7 +622,10 @@ export const ListWishlistRequest: MessageFns<ListWishlistRequest> = {
             break;
           }
 
-          message.pagination = PaginationRequest.decode(reader, reader.uint32());
+          message.pagination = PaginationRequest.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
       }
@@ -564,7 +643,10 @@ function createBaseListWishlistResponse(): ListWishlistResponse {
 }
 
 export const ListWishlistResponse: MessageFns<ListWishlistResponse> = {
-  encode(message: ListWishlistResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ListWishlistResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.success !== undefined) {
       WishlistSuccess.encode(message.success, writer.uint32(10).fork()).join();
     }
@@ -574,8 +656,12 @@ export const ListWishlistResponse: MessageFns<ListWishlistResponse> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ListWishlistResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): ListWishlistResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseListWishlistResponse();
     while (reader.pos < end) {
@@ -612,18 +698,25 @@ function createBaseWishlistSuccess(): WishlistSuccess {
 }
 
 export const WishlistSuccess: MessageFns<WishlistSuccess> = {
-  encode(message: WishlistSuccess, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: WishlistSuccess,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.wishlist !== undefined) {
       WishlistData.encode(message.wishlist, writer.uint32(10).fork()).join();
     }
     if (message.pagination !== undefined) {
-      PaginationResponse.encode(message.pagination, writer.uint32(18).fork()).join();
+      PaginationResponse.encode(
+        message.pagination,
+        writer.uint32(18).fork(),
+      ).join();
     }
     return writer;
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): WishlistSuccess {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseWishlistSuccess();
     while (reader.pos < end) {
@@ -642,7 +735,10 @@ export const WishlistSuccess: MessageFns<WishlistSuccess> = {
             break;
           }
 
-          message.pagination = PaginationResponse.decode(reader, reader.uint32());
+          message.pagination = PaginationResponse.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
       }
