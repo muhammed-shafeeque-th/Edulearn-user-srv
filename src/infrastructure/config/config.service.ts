@@ -26,7 +26,10 @@ export class AppConfigService {
   }
 
   get courseGrpcUrl(): string {
-    return this.configService.get<string>("COURSE_SERVICE_GRPC", 'course_srv:50053');
+    return this.configService.get<string>(
+      "COURSE_SERVICE_GRPC",
+      "course_srv:50053",
+    );
   }
 
   // DB config
@@ -34,7 +37,7 @@ export class AppConfigService {
   get databaseUrl(): string {
     return this.configService.get<string>(
       "DATABASE_URL",
-      "postgresql://postgres:password@localhost:5432/user_service"
+      "postgresql://postgres:password@localhost:5432/user_service",
     );
   }
   get databaseHost(): string {
@@ -66,7 +69,7 @@ export class AppConfigService {
   get redisUrl(): string {
     return this.configService.get<string>(
       "REDIS_URL",
-      "redis://localhost:6379/0"
+      "redis://localhost:6379/0",
     );
   }
 
@@ -101,29 +104,33 @@ export class AppConfigService {
   get kafkaConsumerGroup(): string {
     return this.configService.get<string>(
       "KAFKA_CONSUMER_GROUP",
-      "user-service-group"
+      "user-service-group",
     );
   }
 
   get kafkaMaxPollRecords(): number {
-    return Number(this.configService.get<number>("KAFKA_MAX_POLL_RECORDS", 100));
-  }
-
-  get kafkaFetchMaxBytes(): number {
-    return Number(this.configService.get<number>("KAFKA_FETCH_MAX_BYTES", 5242880));
-  }
-
-  // JWT config
-  get jwtSecret(): string {
-    return this.configService.get<string>(
-      "JWT_TOKEN_SECRET",
-      "your-secret-key"
+    return Number(
+      this.configService.get<number>("KAFKA_MAX_POLL_RECORDS", 100),
     );
   }
 
-  get jwtExpiresIn(): string {
-    return this.configService.get<string>("JWT_TOKEN_EXPIRY", "1h");
+  get kafkaFetchMaxBytes(): number {
+    return Number(
+      this.configService.get<number>("KAFKA_FETCH_MAX_BYTES", 5242880),
+    );
   }
+
+  // // JWT config
+  // get jwtSecret(): string {
+  //   return this.configService.get<string>(
+  //     "JWT_TOKEN_SECRET",
+  //     "your-secret-key",
+  //   );
+  // }
+
+  // get jwtExpiresIn(): string {
+  //   return this.configService.get<string>("JWT_TOKEN_EXPIRY", "1h");
+  // }
 
   // Observability config
 
