@@ -1,4 +1,4 @@
-import { CartDto } from "src/application/dtos/cart.dto";
+import { CartDto } from "@/application/dtos/cart.dto";
 
 export abstract class IGetCartByUserUseCase {
   abstract execute(
