@@ -10,6 +10,7 @@ import {
 import { WishlistOrmEntity } from "./wishlist.orm-entity";
 
 @Entity("wishlist_items")
+@Index(["wishlistId", "courseId"], { unique: true })
 export class WishlistItemOrmEntity {
   @PrimaryColumn()
   id: string;

@@ -39,8 +39,16 @@ export class UserOrmEntity {
   // @Column({ nullable: true })
   // passwordHash?: string;
 
-  @Column({ type: "enum", enum: UserRoles, default: "student" })
-  role!: UserRoles;
+  @Column({
+    type: "enum",
+    enum: UserRoles,
+    array: true,
+    default: [UserRoles.STUDENT],
+  })
+  roles!: UserRoles[];
+
+  @Column({ type: "jsonb", default: {} })
+  roleStatusMap!: Record<UserRoles, string>;
 
   @Column({ type: "enum", enum: UserStatus, default: "active" })
   status!: UserStatus;
@@ -59,7 +67,6 @@ export class UserOrmEntity {
 
   @CreateDateColumn()
   createdAt!: Date;
-
 
   @UpdateDateColumn()
   updatedAt!: Date;
@@ -115,8 +122,8 @@ export class UserOrmEntity {
   wishlist: WishlistOrmEntity[];
 
   @OneToMany(() => InstructorStudentOrmEntity, (rel) => rel.instructor)
-students?: InstructorStudentOrmEntity[];
+  students?: InstructorStudentOrmEntity[];
 
-@OneToMany(() => InstructorStudentOrmEntity, (rel) => rel.student)
-instructors?: InstructorStudentOrmEntity[];
+  @OneToMany(() => InstructorStudentOrmEntity, (rel) => rel.student)
+  instructors?: InstructorStudentOrmEntity[];
 }

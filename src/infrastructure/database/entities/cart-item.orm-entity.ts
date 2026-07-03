@@ -11,6 +11,7 @@ import {
 import { CartOrmEntity } from "./cart.orm-entity";
 
 @Entity("cart_items")
+@Index(["cartId", "courseId"], { unique: true })
 export class CartItemOrmEntity {
   @PrimaryColumn()
   id: string;

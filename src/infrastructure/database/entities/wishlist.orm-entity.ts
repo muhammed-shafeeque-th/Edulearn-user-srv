@@ -27,7 +27,10 @@ export class WishlistOrmEntity {
   @Index("idx_wishlist_user_id") // Index for joining with sections
   user: UserOrmEntity;
 
-  @OneToMany(() => WishlistItemOrmEntity, (wishlistItem) => wishlistItem.wishlist)
+  @OneToMany(
+    () => WishlistItemOrmEntity,
+    (wishlistItem) => wishlistItem.wishlist,
+  )
   items: WishlistItemOrmEntity[];
 
   @Column({ type: "int", default: 0 })

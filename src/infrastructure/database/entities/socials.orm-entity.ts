@@ -16,7 +16,6 @@ export class UserSocialOrmEntity {
 
   @Column("uuid")
   userId!: string;
-  
 
   @ManyToOne(() => UserOrmEntity, (u) => u.socials, { onDelete: "CASCADE" })
   @JoinColumn({ name: "userId" })
@@ -24,9 +23,9 @@ export class UserSocialOrmEntity {
 
   @Index()
   @Column()
-  provider!: string; // e.g., google, github 
-  
-//   @Index()
+  provider!: string; // e.g., google, github
+
+  //   @Index()
   @Column({ nullable: true })
   providerUserId?: string;
 
@@ -39,6 +38,6 @@ export class UserSocialOrmEntity {
   // @Column({ nullable: true })
   // encryptedRefreshToken?: string;
 
-//   @CreateDateColumn({ type: "timestamptz", nullable: true })
-//   createdAt?: Date;
+  //   @CreateDateColumn({ type: "timestamptz", nullable: true })
+  //   createdAt?: Date;
 }

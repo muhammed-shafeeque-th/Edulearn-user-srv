@@ -1,14 +1,20 @@
-import { Column, Entity, OneToOne, PrimaryColumn, CreateDateColumn, JoinColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  OneToOne,
+  PrimaryColumn,
+  CreateDateColumn,
+  JoinColumn,
+} from "typeorm";
 import { UserOrmEntity } from "./user.orm-entity";
 
 @Entity("user_profiles")
 export class UserProfileOrmEntity {
   @PrimaryColumn("uuid")
   id!: string;
-  
+
   @Column({ nullable: false })
   userId: string;
-  
 
   @OneToOne(() => UserOrmEntity, (u) => u.profile)
   @JoinColumn({ name: "userId" })
@@ -30,7 +36,7 @@ export class UserProfileOrmEntity {
   language?: string;
 
   @Column({ type: "varchar", length: 255, nullable: true })
-  website?: string;  
+  website?: string;
 
   @Column({ type: "enum", enum: ["male", "female", "other"], nullable: true })
   gender?: "male" | "female" | "other";
@@ -39,7 +45,5 @@ export class UserProfileOrmEntity {
   preferences?: Record<string, any>;
 
   @CreateDateColumn()
-  createdAt: Date
-
-
+  createdAt: Date;
 }
