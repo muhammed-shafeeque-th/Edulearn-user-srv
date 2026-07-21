@@ -6,9 +6,7 @@ import EmailExistDto from "@/presentation/grpc/input-dtos/email-exist.dto";
 import { ICheckEmailExistUseCase } from "../interfaces/email-exist.interface";
 
 @Injectable()
-export default class CheckEmailExistUseCaseImpl
-  implements ICheckEmailExistUseCase
-{
+export default class CheckEmailExistUseCaseImpl implements ICheckEmailExistUseCase {
   public constructor(
     private readonly _userRepository: IUserRepository,
     private readonly _logger: ILoggerService,

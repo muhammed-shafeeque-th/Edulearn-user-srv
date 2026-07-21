@@ -6,9 +6,7 @@ import { ITraceService } from "src/application/adaptors/trace.service";
 import { IGetInstructorsStatsUseCase } from "../interfaces/get-instructors-stats.interface";
 
 @Injectable()
-export default class GetInstructorsStatsUseCase
-  implements IGetInstructorsStatsUseCase
-{
+export default class GetInstructorsStatsUseCase implements IGetInstructorsStatsUseCase {
   constructor(
     private readonly _userRepository: IUserRepository,
     private readonly _logger: ILoggerService,

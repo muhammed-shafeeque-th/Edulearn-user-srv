@@ -8,9 +8,7 @@ import { ITraceService } from "src/application/adaptors/trace.service";
 import { IListStudentsOfInstructorUseCase } from "../interfaces/list-students-of-instructor.inteface";
 
 @Injectable()
-export default class ListStudentsOfInstructorUseCase
-  implements IListStudentsOfInstructorUseCase
-{
+export default class ListStudentsOfInstructorUseCase implements IListStudentsOfInstructorUseCase {
   public constructor(
     private readonly _instructorStudentRepository: IInstructorStudentRepository,
     private readonly _userRepository: IUserRepository,
