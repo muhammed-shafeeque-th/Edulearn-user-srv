@@ -1,9 +1,7 @@
 import { IsBoolean, IsString, IsUUID } from "class-validator";
 import { RegisterInstructorRequest } from "src/infrastructure/grpc/generated/user/types/instructor_types";
 
-export default class RegisterInstructorDto
-  implements RegisterInstructorRequest
-{
+export default class RegisterInstructorDto implements RegisterInstructorRequest {
   @IsUUID(undefined, { message: "`userId` must be type UUID" })
   userId!: string;
 
