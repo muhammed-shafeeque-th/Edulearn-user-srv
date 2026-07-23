@@ -21,7 +21,7 @@ describe("GetUserUseCaseImpl", () => {
   });
 
   it("should return user data when found", async () => {
-    const mockUser = createMockUser({id: FAKE_USER_ID});
+    const mockUser = createMockUser({ id: FAKE_USER_ID });
     userRepo.findById.mockResolvedValue(mockUser);
 
     const result = await useCase.execute({ userId: FAKE_USER_ID });

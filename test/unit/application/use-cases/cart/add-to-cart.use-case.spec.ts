@@ -28,19 +28,14 @@ describe("AddToCartUseCase", () => {
     tracer = createMockTracer();
     courseClient = createMockCourseClient();
 
-    useCase = new AddToCartUseCase(
-      cartRepo,
-      logger,
-      tracer,
-      courseClient,
-    );
+    useCase = new AddToCartUseCase(cartRepo, logger, tracer, courseClient);
   });
 
   it("should add an item to the cart", async () => {
     const mockCart = createMockCart();
     cartRepo.findByUserId.mockResolvedValue({ cart: mockCart, totalItems: 0 });
     cartRepo.findItemByUserIdAndCourseId.mockResolvedValue(null);
-    courseClient.getCourse.mockResolvedValue({course: {} as any});
+    courseClient.getCourse.mockResolvedValue({ course: {} as any });
     courseClient.checkCourseEnrollment.mockResolvedValue({ isEnrolled: false });
     cartRepo.addItem.mockResolvedValue(undefined);
 
@@ -63,7 +58,7 @@ describe("AddToCartUseCase", () => {
   });
   it("should throw CartNotFoundException if cart not found for user", async () => {
     cartRepo.findByUserId.mockResolvedValue({ cart: null, totalItems: 0 });
-    courseClient.getCourse.mockResolvedValue({course: {} as any});
+    courseClient.getCourse.mockResolvedValue({ course: {} as any });
 
     await expect(useCase.execute(FAKE_USER_ID, FAKE_COURSE_ID)).rejects.toThrow(
       CartNotFoundException,

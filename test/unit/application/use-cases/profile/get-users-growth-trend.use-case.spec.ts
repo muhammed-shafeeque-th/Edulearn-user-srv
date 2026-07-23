@@ -18,11 +18,7 @@ describe("GetUsersGrowthTrendUseCase", () => {
     logger = createMockLogger();
     tracer = createMockTracer();
 
-    useCase = new GetUsersGrowthTrendUseCase(
-      userRepo,
-      logger,
-      tracer,
-    );
+    useCase = new GetUsersGrowthTrendUseCase(userRepo, logger, tracer);
   });
 
   it("should return growth trend for given year", async () => {
