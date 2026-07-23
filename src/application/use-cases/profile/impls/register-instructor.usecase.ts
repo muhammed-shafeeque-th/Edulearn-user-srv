@@ -4,7 +4,7 @@ import { UserNotFoundException } from "src/domain/exceptions";
 import { IUserRepository } from "src/domain/repositories/user.repository";
 import { ILoggerService } from "src/application/adaptors/logger.service";
 import { ITraceService } from "src/application/adaptors/trace.service";
-import RegisterInstructorDto from "@/presentation/grpc/__input-dtos/register-instructor.dto";
+import RegisterInstructorDto from "@/presentation/grpc/input-dtos/register-instructor.dto";
 import { KafkaTopics } from "src/shared/events";
 import { UserAlreadyExistException } from "../../../../domain/exceptions";
 import slugify from "slugify";
@@ -16,9 +16,7 @@ import { IRegisterInstructorUseCase } from "../interfaces/register-instructor.in
 import { IEventPublisher } from "src/application/adaptors/event-producer";
 
 @Injectable()
-export default class RegisterInstructorUseCase
-  implements IRegisterInstructorUseCase
-{
+export default class RegisterInstructorUseCase implements IRegisterInstructorUseCase {
   public constructor(
     private readonly _userRepository: IUserRepository,
     private readonly _eventPublisher: IEventPublisher,

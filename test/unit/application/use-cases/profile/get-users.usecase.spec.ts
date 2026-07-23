@@ -1,6 +1,6 @@
 import GetUsersUseCaseImpl from "@/application/use-cases/profile/impls/get-users.usecase";
 import { IUserRepository } from "@/domain/repositories/user.repository";
-import { UserStatus } from "@/presentation/grpc/dtos/get-users.dto";
+import { UserStatus } from "@/infrastructure/grpc/generated/user/types/user_types";
 import { BadRequestException } from "src/shared/exceptions/infra.exceptions";
 import { createMockUser } from "test/fixtures";
 import { createMockLogger } from "test/mocks/logger.mock";
@@ -85,13 +85,13 @@ describe("GetUsersUseCaseImpl", () => {
     });
 
     await useCase.execute({
-      filter: { status: UserStatus.ACTIVE } ,
+      filter: { status: UserStatus.ACTIVE },
       pagination: { page: 1, pageSize: 10 },
     } as any);
 
     expect(userRepo.findUsers).toHaveBeenCalledWith(
       expect.objectContaining({
-        status: 'active',
+        status: "active",
       }),
     );
   });

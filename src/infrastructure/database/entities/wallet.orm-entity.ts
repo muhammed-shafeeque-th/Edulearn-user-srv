@@ -44,7 +44,7 @@ export class WalletOrmEntity {
       onDelete: "CASCADE",
       cascade: false, // Set cascade policy as needed
       eager: false, // Use query builder or relation loading for performance
-    }
+    },
   )
   walletTransactions: WalletTransactionOrmEntity[];
 }

@@ -13,9 +13,7 @@ import { IUnBlockInstructorRoleUseCase } from "../interfaces/unblock-instructor.
 import { IEventPublisher } from "src/application/adaptors/event-producer";
 
 @Injectable()
-export default class UnBlockInstructorRoleUseCaseImpl
-  implements IUnBlockInstructorRoleUseCase
-{
+export default class UnBlockInstructorRoleUseCaseImpl implements IUnBlockInstructorRoleUseCase {
   public constructor(
     private readonly _userRepository: IUserRepository,
     private readonly _eventPublisher: IEventPublisher,

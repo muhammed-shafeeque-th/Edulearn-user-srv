@@ -9,9 +9,7 @@ import { IGetInstructorByUsernameUseCase } from "../interfaces/get-instructor-by
 import GetUserByUsernameDto from "@/presentation/grpc/input-dtos/get-user-by-username.dto";
 
 @Injectable()
-export default class GetInstructorByUsernameUseCaseImpl
-  implements IGetInstructorByUsernameUseCase
-{
+export default class GetInstructorByUsernameUseCaseImpl implements IGetInstructorByUsernameUseCase {
   public constructor(
     private readonly _userRepository: IUserRepository,
     private readonly _logger: ILoggerService,

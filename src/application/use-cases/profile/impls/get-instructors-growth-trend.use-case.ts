@@ -9,9 +9,7 @@ import { ITraceService } from "src/application/adaptors/trace.service";
 import { IGetInstructorsGrowthTrendUseCase } from "../interfaces/get-instructors-growth-trend.interface";
 
 @Injectable()
-export default class GetInstructorsGrowthTrendUseCase
-  implements IGetInstructorsGrowthTrendUseCase
-{
+export default class GetInstructorsGrowthTrendUseCase implements IGetInstructorsGrowthTrendUseCase {
   constructor(
     private readonly _userRepository: IUserRepository,
     private readonly _logger: ILoggerService,

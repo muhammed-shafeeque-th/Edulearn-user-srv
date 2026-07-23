@@ -5,7 +5,7 @@ import { UserDto } from "@/application/dtos/user.dto";
 import User from "src/domain/entities/user-entity";
 import { UserNotFoundException } from "src/domain/exceptions";
 import { IUserRepository } from "src/domain/repositories/user.repository";
-import DetailedUserDto from "@/presentation/grpc/__input-dtos/detailed-user.dto";
+import DetailedUserDto from "@/presentation/grpc/input-dtos/detailed-user.dto";
 import { IGetUserUseCase } from "../interfaces/get-user.interface";
 
 @Injectable()

@@ -12,9 +12,7 @@ import { IEventPublisher } from "src/application/adaptors/event-producer";
 import { IBlockUserAccountUseCase } from "../interfaces/block-user-account.interface";
 
 @Injectable()
-export default class BlockUserAccountUseCaseImpl
-  implements IBlockUserAccountUseCase
-{
+export default class BlockUserAccountUseCaseImpl implements IBlockUserAccountUseCase {
   public constructor(
     private readonly _userRepository: IUserRepository,
     private readonly _eventPublisher: IEventPublisher,

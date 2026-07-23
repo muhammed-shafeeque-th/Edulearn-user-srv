@@ -1,19 +1,21 @@
-import { Controller } from "@nestjs/common";
+import { Controller, UseFilters } from "@nestjs/common";
 import { GrpcMethod } from "@nestjs/microservices";
 
-import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
-import { TracingService } from "src/infrastructure/observability/tracing/trace.service";
+import { ILoggerService } from "src/application/adaptors/logger.service";
+import { ITraceService } from "src/application/adaptors/trace.service";
 
 import { DomainException } from "src/domain/exceptions";
-import GetInstructorsUseCaseImpl from "src/application/use-cases/user/get-instructors.use-case";
-import GetUsersUseCaseImpl from "src/application/use-cases/user/get-users.usecase";
-import CurrentUserUseCaseImpl from "src/application/use-cases/user/current-user.usecase";
-import GetUserUseCaseImpl from "src/application/use-cases/user/get-user.use-case";
-import UpdateUserUseCaseImpl from "src/application/use-cases/user/update-user.use-case";
-import GetEmailsUseCaseImpl from "src/application/use-cases/user/get-emails.use-case";
-import CheckEmailExistUseCaseImpl from "src/application/use-cases/user/email-exist.use-case";
-import BlockUserUseCaseImpl from "src/application/use-cases/user/block-user.use-case";
-import UnBlockUserUserCaseImpl from "src/application/use-cases/user/unblock-user.use-case";
+import { IGetInstructorsUseCase } from "@/application/use-cases/profile/interfaces/get-instructors.interface";
+import { IGetUsersUseCase } from "@/application/use-cases/profile/interfaces/get-users.inteface";
+import { ICurrentUserUseCase } from "@/application/use-cases/profile/interfaces/current-user.interface";
+import { IGetUserUseCase } from "@/application/use-cases/profile/interfaces/get-user.interface";
+import { IUpdateUserUseCase } from "@/application/use-cases/profile/interfaces/update-user.interface";
+import { IGetAllEmailsUseCase } from "@/application/use-cases/profile/interfaces/get-emails.interface";
+import { ICheckEmailExistUseCase } from "@/application/use-cases/profile/interfaces/email-exist.interface";
+import { IBlockUserAccountUseCase } from "@/application/use-cases/profile/interfaces/block-user-account.interface";
+import { IUnBlockUserAccountUseCase } from "@/application/use-cases/profile/interfaces/unblock-user-account.interface";
+import { IBlockInstructorRoleUseCase } from "@/application/use-cases/profile/interfaces/block-instructor.interface";
+import { IUnBlockInstructorRoleUseCase } from "@/application/use-cases/profile/interfaces/unblock-instructor.interface";
 import {
   GetCurrentUserRequest,
   GetCurrentUserResponse,
@@ -23,38 +25,37 @@ import {
   GetUserEmailsResponse,
   CheckUserByEmailRequest,
   CheckUserByEmailResponse,
-  BlockUserRequest,
-  BlockUserResponse,
-  UnBlockUserRequest,
-  UnBlockUserResponse,
+  BlockAccountRequest,
+  BlockAccountResponse,
+  UnBlockAccountRequest,
+  UnBlockAccountResponse,
   UpdateUserDetailsRequest,
   UpdateUserDetailsResponse,
-  UserData,
   ListUsersResponse,
-  EmailExist,
 } from "src/infrastructure/grpc/generated/user/types/user_types";
-import User from "src/domain/entities/user-entity";
-import RegisterInstructorUseCase from "src/application/use-cases/user/register-instructor.usecase";
-import GetUsersByIdsDto from "./dtos/get-users-by-ids.dto";
-import GetUsersByIdsUseCase from "src/application/use-cases/user/get-users-by-ids.usecase";
-import GetInstructorByUsernameUseCaseImpl from "src/application/use-cases/user/get-instructor-by-username.use-case";
-import GetUsersDto from "./dtos/get-users.dto";
+import { IRegisterInstructorUseCase } from "@/application/use-cases/profile/interfaces/register-instructor.interface";
+import { IGetUsersByIdsUseCase } from "@/application/use-cases/profile/interfaces/get-users-by-ids.interface";
+import { IGetInstructorByUsernameUseCase } from "@/application/use-cases/profile/interfaces/get-instructor-by-username.interface";
 import {
   Empty,
   Error,
   PaginationResponse,
 } from "src/infrastructure/grpc/generated/user/common";
 import {
+  BlockInstructorRequest,
+  BlockInstructorResponse,
   GetInstructorByNameRequest,
   GetInstructorByNameResponse,
   ListInstructorsRequest,
   ListInstructorsResponse,
   RegisterInstructorRequest,
   RegisterInstructorResponse,
+  UnBlockInstructorRequest,
+  UnBlockInstructorResponse,
 } from "src/infrastructure/grpc/generated/user/types/instructor_types";
-import ListInstructorsOfStudentUseCase from "src/application/use-cases/user/list-instructors-of-student.use-case";
-import ListStudentsOfInstructorUseCase from "src/application/use-cases/user/list-students-of-instructor.use-case";
-import IsStudentOfInstructorUseCase from "src/application/use-cases/user/is-student-of-instructor.use-case";
+import { IListInstructorsOfStudentUseCase } from "@/application/use-cases/profile/interfaces/list-instructors-of-student.inteface";
+import { IListStudentsOfInstructorUseCase } from "@/application/use-cases/profile/interfaces/list-students-of-instructor.inteface";
+import { IIsStudentOfInstructorUseCase } from "@/application/use-cases/profile/interfaces/is-student-of-instructor.interface";
 import {
   IsStudentOfInstructorRequest,
   IsStudentOfInstructorResponse,
@@ -69,40 +70,46 @@ import {
   GetUsersGrowthTrendResponse,
   GetUsersStatsResponse,
 } from "src/infrastructure/grpc/generated/user/types/stats_types";
-import GetUsersStatsUseCase from "src/application/use-cases/user/get-users-stats.use-case";
-import GetInstructorsStatsUseCase from "src/application/use-cases/user/get-instructors-stats.use-case";
-import GetUsersGrowthTrendUseCase from "src/application/use-cases/user/get-users-growth-trend.use-case";
-import GetInstructorsGrowthTrendUseCase from "src/application/use-cases/user/get-instructors-growth-trend.use-case";
+import { IGetUsersStatsUseCase } from "@/application/use-cases/profile/interfaces/get-users-stats.interface";
+import { IGetInstructorsStatsUseCase } from "@/application/use-cases/profile/interfaces/get-instructors-stats.interface";
+import { IGetUsersGrowthTrendUseCase } from "@/application/use-cases/profile/interfaces/get-users-growth-trend.inteface";
+import { IGetInstructorsGrowthTrendUseCase } from "@/application/use-cases/profile/interfaces/get-instructors-growth-trend.interface";
+import { GrpcExceptionFilter } from "src/infrastructure/filters/grpc-exception.filter";
+import GetUsersDto from "./input-dtos/get-users.dto";
+import GetUsersByIdsDto from "./input-dtos/get-users-by-ids.dto";
 
 @Controller()
+@UseFilters(GrpcExceptionFilter)
 export class UserGrpcController {
   constructor(
-    private readonly getUsersUseCase: GetUsersUseCaseImpl,
-    private readonly getUsersByIdsUseCase: GetUsersByIdsUseCase,
-    private readonly getInstructorsUseCase: GetInstructorsUseCaseImpl,
-    private readonly listInstructorsOfStudentUseCase: ListInstructorsOfStudentUseCase,
-    private readonly listStudentsOfInstructorUseCase: ListStudentsOfInstructorUseCase,
-    private readonly isStudentOfInstructorUseCase: IsStudentOfInstructorUseCase,
-    private readonly getUsersStatsUseCase: GetUsersStatsUseCase,
-    private readonly getUsersGrowthTrendUseCase: GetUsersGrowthTrendUseCase,
-    private readonly getInstructorsStatsUseCase: GetInstructorsStatsUseCase,
-    private readonly getInstructorsGrowthTrendUseCase: GetInstructorsGrowthTrendUseCase,
-    private readonly currentUserUseCase: CurrentUserUseCaseImpl,
-    private readonly detailedUserUseCase: GetUserUseCaseImpl,
-    private readonly getInstructorByUsernameUseCase: GetInstructorByUsernameUseCaseImpl,
-    private readonly updateUserUseCase: UpdateUserUseCaseImpl,
-    private readonly getEmailsUseCase: GetEmailsUseCaseImpl,
-    private readonly checkEmailExistUseCase: CheckEmailExistUseCaseImpl,
-    private readonly blockUserUseCase: BlockUserUseCaseImpl,
-    private readonly unBlockUserUseCase: UnBlockUserUserCaseImpl,
-    private readonly registerInstructorUseCase: RegisterInstructorUseCase,
-    private readonly tracer: TracingService,
-    private readonly logger: LoggingService,
+    private readonly _getUsersUseCase: IGetUsersUseCase,
+    private readonly _getUsersByIdsUseCase: IGetUsersByIdsUseCase,
+    private readonly _getInstructorsUseCase: IGetInstructorsUseCase,
+    private readonly _listInstructorsOfStudentUseCase: IListInstructorsOfStudentUseCase,
+    private readonly _listStudentsOfInstructorUseCase: IListStudentsOfInstructorUseCase,
+    private readonly _isStudentOfInstructorUseCase: IIsStudentOfInstructorUseCase,
+    private readonly _getUsersStatsUseCase: IGetUsersStatsUseCase,
+    private readonly _getUsersGrowthTrendUseCase: IGetUsersGrowthTrendUseCase,
+    private readonly _getInstructorsStatsUseCase: IGetInstructorsStatsUseCase,
+    private readonly _getInstructorsGrowthTrendUseCase: IGetInstructorsGrowthTrendUseCase,
+    private readonly _currentUserUseCase: ICurrentUserUseCase,
+    private readonly _detailedUserUseCase: IGetUserUseCase,
+    private readonly _getInstructorByUsernameUseCase: IGetInstructorByUsernameUseCase,
+    private readonly _updateUserUseCase: IUpdateUserUseCase,
+    private readonly _getEmailsUseCase: IGetAllEmailsUseCase,
+    private readonly _checkEmailExistUseCase: ICheckEmailExistUseCase,
+    private readonly _blockUserAccountUseCase: IBlockUserAccountUseCase,
+    private readonly _unBlockUserAccountUseCase: IUnBlockUserAccountUseCase,
+    private readonly _blockInstructorRoleUseCase: IBlockInstructorRoleUseCase,
+    private readonly _unBlockInstructorRoleUseCase: IUnBlockInstructorRoleUseCase,
+    private readonly _registerInstructorUseCase: IRegisterInstructorUseCase,
+    private readonly _logger: ILoggerService,
+    private readonly _tracer: ITraceService,
   ) {}
 
   private createErrorResponse(error: DomainException): Error {
     return {
-      code: error.errorCode,
+      code: error.code,
       message: error.message,
       details:
         "serializeError" in error && typeof error.serializeError === "function"
@@ -114,22 +121,24 @@ export class UserGrpcController {
   @GrpcMethod("UserService", "ListUsers")
   async listUsers(data: GetUsersDto): Promise<ListUsersResponse> {
     try {
-      return await this.tracer.startActiveSpan(
+      return await this._tracer.startActiveSpan(
         "UserGrpcController.listUsers",
         async (span) => {
           const { page, pageSize } = data.pagination!;
 
           span.setAttributes({ page, pageSize });
-          this.logger.info("Handling `ListUsers` request ", {
+          this._logger.debug("Handling `ListUsers` request ", {
             ctx: UserGrpcController.name,
           });
 
-          const { total, users } = await this.getUsersUseCase.execute(data);
+          const { total, users } = await this._getUsersUseCase.execute(data);
 
           const paginationResponse: PaginationResponse = {
             totalItems: total,
           };
-          this.logger.info("ListUsers request has been successfully completed");
+          this._logger.debug(
+            "ListUsers request has been successfully completed",
+          );
 
           return {
             users: {
@@ -140,31 +149,31 @@ export class UserGrpcController {
         },
       );
     } catch (error) {
-      this.logger.error("Error processing gRPC request `GetUsers`", {
+      this._logger.error("Error processing gRPC request `GetUsers`", {
         error,
       });
-      return { error: this.createErrorResponse(error) };
+      throw error;
     }
   }
   @GrpcMethod("UserService", "ListUsersByIds")
   async getUsersByIds(data: GetUsersByIdsDto): Promise<ListUsersResponse> {
     try {
-      return await this.tracer.startActiveSpan(
+      return await this._tracer.startActiveSpan(
         "UserGrpcController.getUsersByIds",
-        async (span) => {
+        async () => {
           // const { page, pageSize } = data.pagination!;
 
           // span.setAttributes({ page, pageSize });
-          this.logger.info("Handling `getUsersByIds` request ", {
+          this._logger.debug("Handling `getUsersByIds` request ", {
             ctx: UserGrpcController.name,
           });
 
-          const { users } = await this.getUsersByIdsUseCase.execute(data);
+          const { users } = await this._getUsersByIdsUseCase.execute(data);
 
           const paginationResponse: PaginationResponse = {
             totalItems: users.length,
           };
-          this.logger.info(
+          this._logger.debug(
             "getUsersByIds request has been successfully completed",
           );
 
@@ -177,10 +186,10 @@ export class UserGrpcController {
         },
       );
     } catch (error) {
-      this.logger.error("Error processing gRPC request `getUsersByIds`", {
+      this._logger.error("Error processing gRPC request `getUsersByIds`", {
         error,
       });
-      return { error: this.createErrorResponse(error) };
+      throw error;
     }
   }
   @GrpcMethod("UserService", "ListInstructors")
@@ -188,24 +197,23 @@ export class UserGrpcController {
     data: ListInstructorsRequest,
   ): Promise<ListInstructorsResponse> {
     try {
-      return await this.tracer.startActiveSpan(
+      return await this._tracer.startActiveSpan(
         "UserGrpcController.listInstructors",
         async (span) => {
           const { page, pageSize } = data.pagination!;
 
           span.setAttributes({ page, pageSize });
-          this.logger.info("Handling `ListInstructors` request ", {
+          this._logger.debug("Handling `ListInstructors` request ", {
             ctx: UserGrpcController.name,
           });
 
-
           const { total, instructors } =
-            await this.getInstructorsUseCase.execute(data);
+            await this._getInstructorsUseCase.execute(data);
 
           const paginationResponse: PaginationResponse = {
             totalItems: total,
           };
-          this.logger.info(
+          this._logger.debug(
             "ListInstructors request has been successfully completed",
           );
 
@@ -220,10 +228,10 @@ export class UserGrpcController {
         },
       );
     } catch (error) {
-      this.logger.error("Error processing gRPC request `ListInstructors`", {
+      this._logger.error("Error processing gRPC request `ListInstructors`", {
         error,
       });
-      return { error: this.createErrorResponse(error) };
+      throw error;
     }
   }
 
@@ -232,19 +240,19 @@ export class UserGrpcController {
     data: GetCurrentUserRequest,
   ): Promise<GetCurrentUserResponse> {
     try {
-      return await this.tracer.startActiveSpan(
+      return await this._tracer.startActiveSpan(
         "UserGrpcController.getCurrentUser",
         async (span) => {
-          this.logger.info("Handling `getCurrentUser` request ", {
+          this._logger.debug("Handling `getCurrentUser` request ", {
             ctx: UserGrpcController.name,
           });
 
           const { userId } = data;
           span.setAttributes({ userId });
 
-          const user = await this.currentUserUseCase.execute({ userId });
+          const user = await this._currentUserUseCase.execute({ userId });
 
-          this.logger.info(
+          this._logger.debug(
             "GeCurrentUser request has been successfully completed",
           );
 
@@ -254,23 +262,21 @@ export class UserGrpcController {
         },
       );
     } catch (error) {
-      this.logger.error("Error processing gRPC request `getCurrentUser`", {
+      this._logger.error("Error processing gRPC request `getCurrentUser`", {
         error,
       });
 
-      return { error: this.createErrorResponse(error) };
+      throw error;
     }
   }
 
   @GrpcMethod("UserService", "GetUserEmails")
-  async getUserEmails(
-    data: GetUserEmailsRequest,
-  ): Promise<GetUserEmailsResponse> {
+  async getUserEmails(): Promise<GetUserEmailsResponse> {
     try {
-      return await this.tracer.startActiveSpan(
+      return await this._tracer.startActiveSpan(
         "UserGrpcController.getUsersEmails",
         async () => {
-          this.logger.info("Handling `GetUsersEmails` request ", {
+          this._logger.debug("Handling `GetUsersEmails` request ", {
             ctx: UserGrpcController.name,
           });
 
@@ -281,24 +287,24 @@ export class UserGrpcController {
           // await validate input
           // await validateDto(userDto);
 
-          const userEmails = await this.getEmailsUseCase.execute();
+          const userEmails = await this._getEmailsUseCase.execute();
 
-          this.logger.info(
+          this._logger.debug(
             "GetUsersEmails request has been successfully completed",
           );
           return { success: { emails: userEmails } };
         },
       );
     } catch (error) {
-      this.logger.error("Error processing gRPC request `GetUsersEmails`", {
+      this._logger.error("Error processing gRPC request `GetUsersEmails`", {
         error,
       });
 
-      if (error instanceof DomainException) {
-        return {
-          error: this.createErrorResponse(error),
-        };
-      }
+      // if (error instanceof DomainException) {
+      //   return {
+      //     error: this.createErrorResponse(error),
+      //   };
+      // }
       throw error;
     }
   }
@@ -307,174 +313,307 @@ export class UserGrpcController {
     data: CheckUserByEmailRequest,
   ): Promise<CheckUserByEmailResponse> {
     try {
-      return await this.tracer.startActiveSpan(
+      return await this._tracer.startActiveSpan(
         "UserGrpcController.checkUserEmailExist",
         async (span) => {
           const { email } = data;
 
           span.setAttributes({ email });
-          this.logger.info("Handling `GetUsers` request ", {
+          this._logger.debug("Handling `GetUsers` request ", {
             ctx: UserGrpcController.name,
           });
 
-          const emailExist = await this.checkEmailExistUseCase.execute({
+          const emailExist = await this._checkEmailExistUseCase.execute({
             email,
           });
 
-          this.logger.info(
+          this._logger.debug(
             "CheckEmailsExists request has been successfully completed",
           );
           return { response: { exists: emailExist, error: "None" } };
         },
       );
     } catch (error) {
-      this.logger.error("Error processing gRPC request `CheckEmailExists`", {
+      this._logger.error("Error processing gRPC request `CheckEmailExists`", {
         error,
       });
 
       if (error instanceof DomainException) {
-        return { error: this.createErrorResponse(error) };
+        throw error;
       }
       throw error;
     }
   }
 
-  @GrpcMethod("UserService", "BlockUser")
-  async blockUser(data: BlockUserRequest): Promise<BlockUserResponse> {
-    try {
-      return await this.tracer.startActiveSpan(
-        "UserGrpcController.blockUser",
-        async (span) => {
-          const { userId } = data;
+  // @GrpcMethod("UserService", "BlockUser")
+  // async blockUser(data: BlockUserRequest): Promise<BlockUserResponse> {
+  //   try {
+  //     return await this._tracer.startActiveSpan(
+  //       "UserGrpcController.blockUser",
+  //       async (span) => {
+  //         const { userId } = data;
 
-          span.setAttributes({ userId });
-          this.logger.info("Handling `BlockUser` request ", {
-            ctx: UserGrpcController.name,
-          });
+  //         span.setAttributes({ userId });
+  //         this._logger.debug("Handling `BlockUser` request ", {
+  //           ctx: UserGrpcController.name,
+  //         });
 
-          const blockedUser = await this.blockUserUseCase.execute({ userId });
+  //         const blockedUser = await this.blockUserUseCase.execute({ userId });
 
-          this.logger.info("BlockUser request has been successfully completed");
-          return { success: { updated: !!blockedUser } };
-        },
-      );
-    } catch (error) {
-      this.logger.error("Error processing gRPC request `BlockUser`", {
-        error,
-      });
+  //         this._logger.debug("BlockUser request has been successfully completed");
+  //         return { success: { updated: !!blockedUser } };
+  //       },
+  //     );
+  //   } catch (error) {
+  //     this._logger.error("Error processing gRPC request `BlockUser`", {
+  //       error,
+  //     });
 
-      if (error instanceof DomainException) {
-        return {
-          error: this.createErrorResponse(error),
-        };
-      }
-      throw error;
-    }
-  }
+  //     // if (error instanceof DomainException) {
+  //     //   return {
+  //     //     error: this.createErrorResponse(error),
+  //     //   };
+  //     // }
+  //     throw error;
+  //   }
+  // }
   @GrpcMethod("UserService", "GetInstructorByName")
   async getUserByUsername(
     data: GetInstructorByNameRequest,
   ): Promise<GetInstructorByNameResponse> {
     try {
-      return await this.tracer.startActiveSpan(
+      return await this._tracer.startActiveSpan(
         "UserGrpcController.GetInstructorByName",
         async (span) => {
           const { username } = data;
 
           span.setAttributes({ username });
-          this.logger.info("Handling `GetInstructorByName` request ", {
+          this._logger.debug("Handling `GetInstructorByName` request ", {
             ctx: UserGrpcController.name,
           });
 
-          const user = await this.getInstructorByUsernameUseCase.execute({
+          const user = await this._getInstructorByUsernameUseCase.execute({
             username,
           });
 
-          this.logger.info(
+          this._logger.debug(
             "GetInstructorByName request has been successfully completed",
           );
           return { user: user.toGrpcResponse() } as GetUserResponse;
         },
       );
     } catch (error) {
-      this.logger.error("Error processing gRPC request `GetInstructorByName`", {
-        error,
-      });
+      this._logger.error(
+        "Error processing gRPC request `GetInstructorByName`",
+        {
+          error,
+        },
+      );
 
-      if (error instanceof DomainException) {
-        return {
-          error: this.createErrorResponse(error),
-        };
-      }
+      // if (error instanceof DomainException) {
+      //   return {
+      //     error: this.createErrorResponse(error),
+      //   };
+      // }
       throw error;
     }
   }
   @GrpcMethod("UserService", "GetUser")
   async getUser(data: GetUserRequest): Promise<GetUserResponse> {
     try {
-      return await this.tracer.startActiveSpan(
+      return await this._tracer.startActiveSpan(
         "UserGrpcController.getUser",
         async (span) => {
           const { userId } = data;
 
           span.setAttributes({ userId });
-          this.logger.info("Handling `GetUser` request ", {
+          this._logger.debug("Handling `GetUser` request ", {
             ctx: UserGrpcController.name,
           });
 
-          const user = await this.detailedUserUseCase.execute({
+          const user = await this._detailedUserUseCase.execute({
             userId,
           });
 
-          this.logger.info("GetUser request has been successfully completed");
+          this._logger.debug("GetUser request has been successfully completed");
           return { user: user.toGrpcResponse() } as GetUserResponse;
         },
       );
     } catch (error) {
-      this.logger.error("Error processing gRPC request `getUser`", {
+      this._logger.error("Error processing gRPC request `getUser`", {
         error,
       });
 
-      if (error instanceof DomainException) {
-        return {
-          error: this.createErrorResponse(error),
-        };
-      }
+      // if (error instanceof DomainException) {
+      //   return {
+      //     error: this.createErrorResponse(error),
+      //   };
+      // }
       throw error;
     }
   }
 
-  @GrpcMethod("UserService", "UnBlockUser")
-  async unBlockUser(data: UnBlockUserRequest): Promise<UnBlockUserResponse> {
+  // @GrpcMethod("UserService", "UnBlockUser")
+  // async unBlockUser(data: UnBlockUserRequest): Promise<UnBlockUserResponse> {
+  //   try {
+  //     return await this._tracer.startActiveSpan(
+  //       "UserGrpcController.unblockUser",
+  //       async (span) => {
+  //         const { userId } = data;
+
+  //         span.setAttributes({ userId });
+  //         this._logger.debug("Handling `UnBlockUser` request ", {
+  //           ctx: UserGrpcController.name,
+  //         });
+
+  //         const blockedUser = await this.unBlockUserUseCase.execute({ userId });
+
+  //         this._logger.debug(
+  //           "UnBlockUser request has been successfully completed",
+  //         );
+  //         return { success: { updated: !!blockedUser } };
+  //       },
+  //     );
+  //   } catch (error) {
+  //     this._logger.error("Error processing gRPC request `unBlockUser`", {
+  //       error,
+  //     });
+
+  //     // if (error instanceof DomainException) {
+  //     //   return {
+  //     //     error: this.createErrorResponse(error),
+  //     //   };
+  //     // }
+  //     throw error;
+  //   }
+  // }
+
+  @GrpcMethod("UserService", "BlockAccount")
+  async blockAccount(data: BlockAccountRequest): Promise<BlockAccountResponse> {
     try {
-      return await this.tracer.startActiveSpan(
-        "UserGrpcController.unblockUser",
+      return await this._tracer.startActiveSpan(
+        "UserGrpcController.blockAccount",
         async (span) => {
           const { userId } = data;
 
           span.setAttributes({ userId });
-          this.logger.info("Handling `UnBlockUser` request ", {
+          this._logger.debug("Handling `BlockAccount` request ", {
             ctx: UserGrpcController.name,
           });
 
-          const blockedUser = await this.unBlockUserUseCase.execute({ userId });
+          const blockedUser = await this._blockUserAccountUseCase.execute({
+            userId,
+          });
 
-          this.logger.info(
-            "UnBlockUser request has been successfully completed",
+          this._logger.debug(
+            "BlockAccount request has been successfully completed",
           );
           return { success: { updated: !!blockedUser } };
         },
       );
     } catch (error) {
-      this.logger.error("Error processing gRPC request `unBlockUser`", {
+      this._logger.error("Error processing gRPC request `BlockAccount`", {
         error,
       });
+      throw error;
+    }
+  }
 
-      if (error instanceof DomainException) {
-        return {
-          error: this.createErrorResponse(error),
-        };
-      }
+  @GrpcMethod("UserService", "UnBlockAccount")
+  async unBlockAccount(
+    data: UnBlockAccountRequest,
+  ): Promise<UnBlockAccountResponse> {
+    try {
+      return await this._tracer.startActiveSpan(
+        "UserGrpcController.unBlockAccount",
+        async (span) => {
+          const { userId } = data;
+
+          span.setAttributes({ userId });
+          this._logger.debug("Handling `UnBlockAccount` request ", {
+            ctx: UserGrpcController.name,
+          });
+
+          const blockedUser = await this._unBlockUserAccountUseCase.execute({
+            userId,
+          });
+
+          this._logger.debug(
+            "UnBlockAccount request has been successfully completed",
+          );
+          return { success: { updated: !!blockedUser } };
+        },
+      );
+    } catch (error) {
+      this._logger.error("Error processing gRPC request `UnBlockAccount`", {
+        error,
+      });
+      throw error;
+    }
+  }
+
+  @GrpcMethod("UserService", "BlockInstructor")
+  async blockInstructor(
+    data: BlockInstructorRequest,
+  ): Promise<BlockInstructorResponse> {
+    try {
+      return await this._tracer.startActiveSpan(
+        "UserGrpcController.blockInstructor",
+        async (span) => {
+          const { instructorId } = data;
+
+          span.setAttributes({ instructorId });
+          this._logger.debug("Handling `BlockInstructor` request ", {
+            ctx: UserGrpcController.name,
+          });
+
+          const blockedUser = await this._blockInstructorRoleUseCase.execute({
+            instructorId,
+          });
+
+          this._logger.debug(
+            "BlockInstructor request has been successfully completed",
+          );
+          return { success: { updated: !!blockedUser } };
+        },
+      );
+    } catch (error) {
+      this._logger.error("Error processing gRPC request `BlockInstructor`", {
+        error,
+      });
+      throw error;
+    }
+  }
+
+  @GrpcMethod("UserService", "UnBlockInstructor")
+  async unBlockInstructor(
+    data: UnBlockInstructorRequest,
+  ): Promise<UnBlockInstructorResponse> {
+    try {
+      return await this._tracer.startActiveSpan(
+        "UserGrpcController.unBlockInstructor",
+        async (span) => {
+          const { instructorId } = data;
+
+          span.setAttributes({ instructorId });
+          this._logger.debug("Handling `UnBlockInstructor` request ", {
+            ctx: UserGrpcController.name,
+          });
+
+          const blockedUser = await this._unBlockInstructorRoleUseCase.execute({
+            instructorId,
+          });
+
+          this._logger.debug(
+            "UnBlockInstructor request has been successfully completed",
+          );
+          return { success: { updated: !!blockedUser } };
+        },
+      );
+    } catch (error) {
+      this._logger.error("Error processing gRPC request `UnBlockInstructor`", {
+        error,
+      });
       throw error;
     }
   }
@@ -484,21 +623,21 @@ export class UserGrpcController {
     data: UpdateUserDetailsRequest,
   ): Promise<UpdateUserDetailsResponse> {
     try {
-      return await this.tracer.startActiveSpan(
+      return await this._tracer.startActiveSpan(
         "UserGrpcController.updateUserDetails",
         async (span) => {
           const { userId } = data!;
 
-          this.logger.info("udpate data " + JSON.stringify(data, null, 2));
+          this._logger.debug("udpate data " + JSON.stringify(data, null, 2));
 
           span.setAttributes({ userId });
-          this.logger.info("Handling `UpdateUserDetails` request ", {
+          this._logger.debug("Handling `UpdateUserDetails` request ", {
             ctx: UserGrpcController.name,
           });
 
-          const updatedUser = await this.updateUserUseCase.execute(data);
+          const updatedUser = await this._updateUserUseCase.execute(data);
 
-          this.logger.info(
+          this._logger.debug(
             "updateUserDetails request has been successfully completed",
           );
           return {
@@ -507,15 +646,15 @@ export class UserGrpcController {
         },
       );
     } catch (error) {
-      this.logger.error("Error processing gRPC request `UpdateUserDetails`", {
+      this._logger.error("Error processing gRPC request `UpdateUserDetails`", {
         error,
       });
 
-      if (error instanceof DomainException) {
-        return {
-          error: this.createErrorResponse(error),
-        };
-      }
+      // if (error instanceof DomainException) {
+      //   return {
+      //     error: this.createErrorResponse(error),
+      //   };
+      // }
       throw error;
     }
   }
@@ -524,20 +663,20 @@ export class UserGrpcController {
     data: RegisterInstructorRequest,
   ): Promise<RegisterInstructorResponse> {
     try {
-      return await this.tracer.startActiveSpan(
+      return await this._tracer.startActiveSpan(
         "UserGrpcController.registerInstructor",
         async (span) => {
           const { userId } = data!;
 
           span.setAttributes({ userId });
-          this.logger.info("Handling `RegisterInstructor` request ", {
+          this._logger.debug("Handling `RegisterInstructor` request ", {
             ctx: UserGrpcController.name,
           });
 
           const updatedUser =
-            await this.registerInstructorUseCase.execute(data);
+            await this._registerInstructorUseCase.execute(data);
 
-          this.logger.info(
+          this._logger.debug(
             "registerInstructor request has been successfully completed",
           );
           return {
@@ -548,15 +687,15 @@ export class UserGrpcController {
         },
       );
     } catch (error) {
-      this.logger.error("Error processing gRPC request `RegisterInstructor`", {
+      this._logger.error("Error processing gRPC request `RegisterInstructor`", {
         error,
       });
 
-      if (error instanceof DomainException) {
-        return {
-          error: this.createErrorResponse(error),
-        };
-      }
+      // if (error instanceof DomainException) {
+      //   return {
+      //     error: this.createErrorResponse(error),
+      //   };
+      // }
       throw error;
     }
   }
@@ -566,18 +705,18 @@ export class UserGrpcController {
     data: ListInstructorsOfStudentRequest,
   ): Promise<ListInstructorsResponse> {
     try {
-      return await this.tracer.startActiveSpan(
+      return await this._tracer.startActiveSpan(
         "UserGrpcController.listInstructorsOfStudent",
         async (span) => {
           const { page, pageSize } = data.pagination!;
 
           span.setAttributes({ page, pageSize });
-          this.logger.info("Handling `ListInstructorsOfStudent` request ", {
+          this._logger.debug("Handling `ListInstructorsOfStudent` request ", {
             ctx: UserGrpcController.name,
           });
 
           const { total, instructors } =
-            await this.listInstructorsOfStudentUseCase.execute(data);
+            await this._listInstructorsOfStudentUseCase.execute(data);
 
           console.log(
             "Instructors of student: " +
@@ -587,7 +726,7 @@ export class UserGrpcController {
           const paginationResponse: PaginationResponse = {
             totalItems: total,
           };
-          this.logger.info(
+          this._logger.debug(
             "ListInstructorsOfStudent request has been successfully completed",
           );
 
@@ -602,13 +741,13 @@ export class UserGrpcController {
         },
       );
     } catch (error) {
-      this.logger.error(
+      this._logger.error(
         "Error processing gRPC request `ListInstructorsOfStudent`",
         {
           error,
         },
       );
-      return { error: this.createErrorResponse(error) };
+      throw error;
     }
   }
 
@@ -617,18 +756,18 @@ export class UserGrpcController {
     data: ListStudentsOfInstructorRequest,
   ): Promise<ListUsersResponse> {
     try {
-      return await this.tracer.startActiveSpan(
+      return await this._tracer.startActiveSpan(
         "UserGrpcController.listStudentsOfInstructor",
         async (span) => {
           const { page, pageSize } = data.pagination!;
 
           span.setAttributes({ page, pageSize });
-          this.logger.info("Handling `ListStudentsOfInstructor` request ", {
+          this._logger.debug("Handling `ListStudentsOfInstructor` request ", {
             ctx: UserGrpcController.name,
           });
 
           const { total, students } =
-            await this.listStudentsOfInstructorUseCase.execute(data);
+            await this._listStudentsOfInstructorUseCase.execute(data);
 
           console.log(
             "Students of instructor: " +
@@ -638,7 +777,7 @@ export class UserGrpcController {
           const paginationResponse: PaginationResponse = {
             totalItems: total,
           };
-          this.logger.info(
+          this._logger.debug(
             "ListStudentsOfInstructor request has been successfully completed",
           );
 
@@ -651,13 +790,13 @@ export class UserGrpcController {
         },
       );
     } catch (error) {
-      this.logger.error(
+      this._logger.error(
         "Error processing gRPC request `ListStudentsOfInstructor`",
         {
           error,
         },
       );
-      return { error: this.createErrorResponse(error) };
+      throw error;
     }
   }
 
@@ -666,17 +805,17 @@ export class UserGrpcController {
     data: IsStudentOfInstructorRequest,
   ): Promise<IsStudentOfInstructorResponse> {
     try {
-      return await this.tracer.startActiveSpan(
+      return await this._tracer.startActiveSpan(
         "UserGrpcController.isStudentOfInstructor",
         async (span) => {
-          this.logger.info("Handling `IsStudentOfInstructor` request ", {
+          this._logger.debug("Handling `IsStudentOfInstructor` request ", {
             ctx: UserGrpcController.name,
           });
 
           const { isStudent } =
-            await this.isStudentOfInstructorUseCase.execute(data);
+            await this._isStudentOfInstructorUseCase.execute(data);
 
-          this.logger.info(
+          this._logger.debug(
             "IsStudentOfInstructor request has been successfully completed",
           );
 
@@ -688,28 +827,28 @@ export class UserGrpcController {
         },
       );
     } catch (error) {
-      this.logger.error(
+      this._logger.error(
         "Error processing gRPC request `IsStudentOfInstructor`",
         {
           error,
         },
       );
-      return { error: this.createErrorResponse(error) };
+      throw error;
     }
   }
   @GrpcMethod("UserService", "GetUsersStats")
   async getUsersStats(data: Empty): Promise<GetUsersStatsResponse> {
     try {
-      return await this.tracer.startActiveSpan(
+      return await this._tracer.startActiveSpan(
         "UserGrpcController.getUsersStats",
         async (span) => {
-          this.logger.info("Handling `GetUsersStats` request ", {
+          this._logger.debug("Handling `GetUsersStats` request ", {
             ctx: UserGrpcController.name,
           });
 
-          const stats = await this.getUsersStatsUseCase.execute();
+          const stats = await this._getUsersStatsUseCase.execute();
 
-          this.logger.info(
+          this._logger.debug(
             "GetUsersStats request has been successfully completed",
           );
 
@@ -719,10 +858,10 @@ export class UserGrpcController {
         },
       );
     } catch (error) {
-      this.logger.error("Error processing gRPC request `GetUsersStats`", {
+      this._logger.error("Error processing gRPC request `GetUsersStats`", {
         error,
       });
-      return { error: this.createErrorResponse(error) };
+      throw error;
     }
   }
   @GrpcMethod("UserService", "GetUsersGrowthTrend")
@@ -730,18 +869,18 @@ export class UserGrpcController {
     data: GetUsersGrowthTrendRequest,
   ): Promise<GetUsersGrowthTrendResponse> {
     try {
-      return await this.tracer.startActiveSpan(
+      return await this._tracer.startActiveSpan(
         "UserGrpcController.getUsersGrowthTrend",
         async (span) => {
-          this.logger.info("Handling `GetUsersGrowthTrend` request ", {
+          this._logger.debug("Handling `GetUsersGrowthTrend` request ", {
             ctx: UserGrpcController.name,
           });
 
-          const stats = await this.getUsersGrowthTrendUseCase.execute(
+          const stats = await this._getUsersGrowthTrendUseCase.execute(
             data.year,
           );
 
-          this.logger.info(
+          this._logger.debug(
             "GetUsersGrowthTrend request has been successfully completed",
           );
 
@@ -751,10 +890,10 @@ export class UserGrpcController {
         },
       );
     } catch (error) {
-      this.logger.error("Error processing gRPC request `GetUsersStats`", {
+      this._logger.error("Error processing gRPC request `GetUsersStats`", {
         error,
       });
-      return { error: this.createErrorResponse(error) };
+      throw error;
     }
   }
   @GrpcMethod("UserService", "GetInstructorsGrowthTrend")
@@ -762,18 +901,18 @@ export class UserGrpcController {
     data: GetInstructorsGrowthTrendRequest,
   ): Promise<GetInstructorsGrowthTrendResponse> {
     try {
-      return await this.tracer.startActiveSpan(
+      return await this._tracer.startActiveSpan(
         "UserGrpcController.getInstructorsGrowthTrend",
         async (span) => {
-          this.logger.info("Handling `GetInstructorsGrowthTrend` request ", {
+          this._logger.debug("Handling `GetInstructorsGrowthTrend` request ", {
             ctx: UserGrpcController.name,
           });
 
-          const stats = await this.getInstructorsGrowthTrendUseCase.execute(
+          const stats = await this._getInstructorsGrowthTrendUseCase.execute(
             data.year,
           );
 
-          this.logger.info(
+          this._logger.debug(
             "GetInstructorsGrowthTrend request has been successfully completed",
           );
 
@@ -783,25 +922,25 @@ export class UserGrpcController {
         },
       );
     } catch (error) {
-      this.logger.error("Error processing gRPC request `GetUsersStats`", {
+      this._logger.error("Error processing gRPC request `GetUsersStats`", {
         error,
       });
-      return { error: this.createErrorResponse(error) };
+      throw error;
     }
   }
   @GrpcMethod("UserService", "GetInstructorsStats")
   async getInstructorsStats(data: Empty): Promise<GetInstructorsStatsResponse> {
     try {
-      return await this.tracer.startActiveSpan(
+      return await this._tracer.startActiveSpan(
         "UserGrpcController.getInstructorsStats",
         async (span) => {
-          this.logger.info("Handling `GetInstructorsStats` request ", {
+          this._logger.debug("Handling `GetInstructorsStats` request ", {
             ctx: UserGrpcController.name,
           });
 
-          const stats = await this.getInstructorsStatsUseCase.execute();
+          const stats = await this._getInstructorsStatsUseCase.execute();
 
-          this.logger.info(
+          this._logger.debug(
             "GetInstructorsStats request has been successfully completed",
           );
 
@@ -811,10 +950,10 @@ export class UserGrpcController {
         },
       );
     } catch (error) {
-      this.logger.error("Error processing gRPC request `GetUsersStats`", {
+      this._logger.error("Error processing gRPC request `GetUsersStats`", {
         error,
       });
-      return { error: this.createErrorResponse(error) };
+      throw error;
     }
   }
 

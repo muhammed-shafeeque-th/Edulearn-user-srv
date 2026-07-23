@@ -13,9 +13,7 @@ import { ListInstructorsRequest } from "src/infrastructure/grpc/generated/user/t
 import { IGetInstructorsUseCase } from "../interfaces/get-instructors.interface";
 
 @Injectable()
-export default class GetInstructorsUseCaseImpl
-  implements IGetInstructorsUseCase
-{
+export default class GetInstructorsUseCaseImpl implements IGetInstructorsUseCase {
   public constructor(
     private readonly _userRepository: IUserRepository,
     private readonly _logger: ILoggerService,

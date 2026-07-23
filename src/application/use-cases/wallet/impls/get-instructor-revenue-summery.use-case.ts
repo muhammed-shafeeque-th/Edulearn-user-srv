@@ -11,9 +11,7 @@ import { BadRequestException } from "src/shared/exceptions/infra.exceptions";
 import { IGetInstructorRevenueSummeryUseCase } from "../interfaces/get-instructor-revenue-summery.interface";
 
 @Injectable()
-export class GetInstructorRevenueSummeryUseCase
-  implements IGetInstructorRevenueSummeryUseCase
-{
+export class GetInstructorRevenueSummeryUseCase implements IGetInstructorRevenueSummeryUseCase {
   constructor(
     private readonly _walletRepository: IWalletRepository,
     private readonly _logger: ILoggerService,

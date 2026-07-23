@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { CartItemDto } from "src/application/dtos/cart.dto";
+import { CartItemDto } from "@/application/dtos/cart.dto";
 import { CartItem } from "src/domain/entities/cart-item.entity";
 import {
   CartItemAlreadyExistException,

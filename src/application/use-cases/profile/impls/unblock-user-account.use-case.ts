@@ -12,9 +12,7 @@ import { IUnBlockUserAccountUseCase } from "../interfaces/unblock-user-account.i
 import { IEventPublisher } from "src/application/adaptors/event-producer";
 
 @Injectable()
-export default class UnBlockUserAccountUseCaseImpl
-  implements IUnBlockUserAccountUseCase
-{
+export default class UnBlockUserAccountUseCaseImpl implements IUnBlockUserAccountUseCase {
   public constructor(
     private readonly _userRepository: IUserRepository,
     private readonly _eventPublisher: IEventPublisher,

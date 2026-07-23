@@ -1,66 +1,48 @@
-import { Module, DynamicModule, Global } from "@nestjs/common";
-import { DiscoveryModule, DiscoveryService } from "@nestjs/core";
-import { KAFKA_MODULE_OPTIONS } from "./kafka.constants";
-import { KafkaModuleOptions } from "./kafka.types";
-import { KafkaService } from "./kafka.service";
-import { KafkaClient } from "./kafka.client";
-import { KafkaExplorer } from "./kafka.explorer";
-import { LoggingService } from "../observability/logging/logging.service";
+import { Module, Global } from "@nestjs/common";
+import { IEventPublisher } from "src/application/adaptors/event-producer";
+import { KafkaPublisher } from "./kafka.producer";
+import { AppConfigService } from "../config/config.service";
+import { KafkaHealthService } from "./kafka-heath.service";
+import { CustomKafkaModule } from "./module/kafka.module";
 
 @Global()
-@Module({})
-export class KafkaModule {
-  static forRoot(
-    options: KafkaModuleOptions,
-    logger: LoggingService
-  ): DynamicModule {
-    return {
-      module: KafkaModule,
-      imports: [DiscoveryModule],
-      providers: [
-        {
-          provide: KAFKA_MODULE_OPTIONS,
-          useValue: options,
+@Module({
+  imports: [
+    CustomKafkaModule.forRootAsync({
+      useFactory: async (config: AppConfigService) => ({
+        clientId: config.kafkaClientId || "my-app",
+        brokers: config.kafkaBrokers || ["localhost:9092"],
+        consumer: {
+          groupId: config.kafkaConsumerGroup || "user-consumer-group",
+          sessionTimeout: 30000,
+          heartbeatInterval: 3000,
+          maxBytesPerPartition: config.kafkaFetchMaxBytes || 1048576,
+          retry: {
+            retries: 5,
+          },
         },
-        {
-          provide: KafkaClient,
-          useFactory: () => new KafkaClient(options, logger),
+        producer: {
+          maxInFlightRequests: 1,
+          idempotent: true,
+          retry: {
+            retries: 5,
+          },
         },
-        KafkaService,
-        KafkaExplorer,
-      ],
-      exports: [KafkaService, KafkaClient],
-    };
-  }
-
-  static forRootAsync(options: {
-    imports?: any[];
-    useFactory: (
-      ...args: any[]
-    ) => Promise<KafkaModuleOptions> | KafkaModuleOptions;
-    inject?: any[];
-  }): DynamicModule {
-    return {
-      module: KafkaModule,
-      imports: [DiscoveryModule, ...(options.imports || [])],
-      providers: [
-        {
-          provide: KAFKA_MODULE_OPTIONS,
-          useFactory: options.useFactory,
-          inject: options.inject,
-        },
-        {
-          provide: KafkaClient,
-          useFactory: (
-            moduleOptions: KafkaModuleOptions,
-            logger: LoggingService
-          ) => new KafkaClient(moduleOptions, logger),
-          inject: [KAFKA_MODULE_OPTIONS, LoggingService],
-        },
-        KafkaService,
-        KafkaExplorer,
-      ],
-      exports: [KafkaService, KafkaClient],
-    };
-  }
-}
+        // schemaRegistry: {
+        //   host: "http://localhost:8081",
+        //   auth: {
+        //     username: "schema-registry-user",
+        //     password: "password",
+        //   },
+        // },
+      }),
+      inject: [AppConfigService],
+    }),
+  ],
+  providers: [
+    { provide: IEventPublisher, useClass: KafkaPublisher },
+    KafkaHealthService,
+  ],
+  exports: [IEventPublisher, KafkaHealthService],
+})
+export class KafkaModule {}

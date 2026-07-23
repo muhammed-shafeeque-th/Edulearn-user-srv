@@ -6,9 +6,7 @@ import { ITraceService } from "src/application/adaptors/trace.service";
 import { IIsStudentOfInstructorUseCase } from "../interfaces/is-student-of-instructor.interface";
 
 @Injectable()
-export default class IsStudentOfInstructorUseCase
-  implements IIsStudentOfInstructorUseCase
-{
+export default class IsStudentOfInstructorUseCase implements IIsStudentOfInstructorUseCase {
   constructor(
     private readonly _instructorStudentRepository: IInstructorStudentRepository,
     private readonly _logger: ILoggerService,

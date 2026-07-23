@@ -10,8 +10,14 @@ import { createMockUserRepository } from "test/mocks/user-repository.mock";
 import { createMockWalletRepository } from "test/mocks/wallet-repository.mock";
 import { createMockInstructorStudentRepository } from "test/mocks/instructor-student-repository.mock";
 import CourseEnrolledUseCase from "@/application/use-cases/profile/impls/course-enrolled.use-case";
-import { createMockWallet, createMockWalletTransaction } from "test/fixtures/wallet.fixture";
-import { createMockInstructorStudent, createMockInstructorUser } from "test/fixtures";
+import {
+  createMockWallet,
+  createMockWalletTransaction,
+} from "test/fixtures/wallet.fixture";
+import {
+  createMockInstructorStudent,
+  createMockInstructorUser,
+} from "test/fixtures";
 import { buildCourseEnrollmentEvent } from "test/fixtures/event-dto.fixture";
 
 describe("CourseEnrolledUseCase", () => {
@@ -22,7 +28,7 @@ describe("CourseEnrolledUseCase", () => {
   let logger: ReturnType<typeof createMockLogger>;
   let tracer: ReturnType<typeof createMockTracer>;
 
-  const enrollmentEvent = buildCourseEnrollmentEvent({orderPrice: 0})
+  const enrollmentEvent = buildCourseEnrollmentEvent({ orderPrice: 0 });
 
   beforeEach(() => {
     userRepo = createMockUserRepository();
@@ -39,8 +45,6 @@ describe("CourseEnrolledUseCase", () => {
       tracer,
     );
   });
-
-  
 
   it("should update instructor stats and add revenue on enrollment", async () => {
     const instructor = createMockInstructorUser();
@@ -141,8 +145,6 @@ describe("CourseEnrolledUseCase", () => {
 
   it("should skip revenue for invalid order price (zero or negative)", async () => {
     const instructor = createMockInstructorUser();
-
-    
 
     userRepo.findById.mockResolvedValue(instructor);
     userRepo.update.mockResolvedValue(instructor);

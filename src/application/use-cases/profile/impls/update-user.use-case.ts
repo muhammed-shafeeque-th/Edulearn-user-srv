@@ -10,7 +10,7 @@ import { UserNotFoundException } from "src/domain/exceptions";
 import { IUserRepository } from "src/domain/repositories/user.repository";
 import { ILoggerService } from "src/application/adaptors/logger.service";
 import { ITraceService } from "src/application/adaptors/trace.service";
-import UpdateUserDto from "@/presentation/grpc/__input-dtos/update-user.dto";
+import UpdateUserDto from "@/presentation/grpc/input-dtos/update-user.dto";
 import { KafkaTopics } from "src/shared/events";
 import { v4 as uuidV4 } from "uuid";
 import { IUpdateUserUseCase } from "../interfaces/update-user.interface";
