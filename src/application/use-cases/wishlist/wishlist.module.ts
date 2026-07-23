@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import { DatabaseRepositoryModule } from "src/infrastructure/database/database-repository.module";
 import { RedisModule } from "src/infrastructure/redis/redis.module";
-import { KafkaModule } from "src/infrastructure/kafka/kafka.module";
+import { KafkaModule } from "@/infrastructure/kafka/kafka.module";
 import { AddToWishlistUseCase } from "./impls/add-to-wishlist.use-case";
 import { RemoveFromWishlistUseCase } from "./impls/remove-wishlist.use-case";
 import { GetWishlistByUserUseCase } from "./impls/get-wishlist-by-user.use-case";

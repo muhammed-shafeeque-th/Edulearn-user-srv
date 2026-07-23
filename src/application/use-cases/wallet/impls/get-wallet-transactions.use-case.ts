@@ -7,9 +7,7 @@ import { ITraceService } from "src/application/adaptors/trace.service";
 import { IGetWalletTransactionsUseCase } from "../interfaces/get-wallet-transactions.interface";
 
 @Injectable()
-export class GetWalletTransactionsUseCase
-  implements IGetWalletTransactionsUseCase
-{
+export class GetWalletTransactionsUseCase implements IGetWalletTransactionsUseCase {
   constructor(
     private readonly _walletRepository: IWalletRepository,
     private readonly _logger: ILoggerService,

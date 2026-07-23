@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import { DatabaseRepositoryModule } from "src/infrastructure/database/database-repository.module";
 import { RedisModule } from "src/infrastructure/redis/redis.module";
-import { KafkaModule } from "src/infrastructure/kafka/kafka.module";
+import { KafkaModule } from "@/infrastructure/kafka/kafka.module";
 import { GrpcClientsModule } from "src/infrastructure/grpc/clients/grpc-clients.module";
 import { IAddToCartUseCase } from "./interfaces/add-to-cart.interface";
 import { AddToCartUseCase } from "./impls/add-to-cart.use-case";

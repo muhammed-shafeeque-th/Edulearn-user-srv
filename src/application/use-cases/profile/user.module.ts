@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import { DatabaseRepositoryModule } from "src/infrastructure/database/database-repository.module";
 import { RedisModule } from "src/infrastructure/redis/redis.module";
-import { KafkaModule } from "src/infrastructure/kafka/kafka.module";
+import { KafkaModule } from "@/infrastructure/kafka/kafka.module";
 // import BlockUserUserCaseImpl from "./_block-user.use-case";
 import CurrentUserUseCaseImpl from "./impls/current-user.usecase";
 import CheckEmailExistUseCaseImpl from "./impls/email-exist.use-case";
