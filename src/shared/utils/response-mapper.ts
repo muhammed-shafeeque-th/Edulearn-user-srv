@@ -17,7 +17,7 @@ export class ResponseMapper<Entity, Response> {
 
     // Map fields based on configuration
     for (const [responseKey, entityKeyOrTransform] of Object.entries(
-      this.config.fields
+      this.config.fields,
     )) {
       const key = responseKey as keyof Response;
       const value = this.getValue(entity, entityKeyOrTransform as keyof Entity);
@@ -30,13 +30,13 @@ export class ResponseMapper<Entity, Response> {
     // Handle nested objects
     if (this.config.nested) {
       for (const [nestedKey, nestedMapper] of Object.entries(
-        this.config.nested
+        this.config.nested,
       )) {
         const key = nestedKey as keyof Response;
         const nestedEntity = entity[nestedKey as keyof Entity];
         if (nestedEntity) {
           response[key] = (nestedMapper as ResponseMapper<any, any>).toResponse(
-            nestedEntity as any
+            nestedEntity as any,
           ) as any;
         }
       }
@@ -51,7 +51,7 @@ export class ResponseMapper<Entity, Response> {
 
   private getValue(
     entity: Entity,
-    entityKeyOrTransform: keyof Entity | TransformFn<any, any>
+    entityKeyOrTransform: keyof Entity | TransformFn<any, any>,
   ): any {
     if (typeof entityKeyOrTransform === "function") {
       // Handle transformations
