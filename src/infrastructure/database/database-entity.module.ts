@@ -26,9 +26,9 @@ import { InstructorStudentOrmEntity } from "./entities/instructor-student.orm-en
         password: configService.databasePassword,
         database: configService.databaseName,
         autoLoadEntities: true, // Auto load entities registered with @Entity()
-        synchronize: configService.nodeEnv !== "production", // Auto schema sync (dev only!)
+        synchronize: true || configService.nodeEnv !== "production", // Auto schema sync (dev only!)
         // synchronize: false, // Auto schema sync (dev only!)
-        logging: configService.nodeEnv !== "production" && ["error"], // Auto schema sync (dev only!)
+        logging: configService.nodeEnv !== "production" || ["error"], // Auto schema sync (dev only!)
         extra: {
           max: 50, // Maximum number of connections
           min: 5, // Minimum number of connections to keep alive

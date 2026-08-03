@@ -11,9 +11,7 @@ import {
 } from "../entities/instructor-student.orm-entity";
 import { EntityMapper } from "../mapper/entity-mapper";
 
-export class TypeOrmInstructorStudentRepository
-  implements IInstructorStudentRepository
-{
+export class TypeOrmInstructorStudentRepository implements IInstructorStudentRepository {
   constructor(
     @InjectRepository(InstructorStudentOrmEntity)
     private readonly repo: Repository<InstructorStudentOrmEntity>,
