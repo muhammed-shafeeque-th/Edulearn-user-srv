@@ -5,36 +5,34 @@ export const COURSE_EVENT_TYPES = {
   CREATED: "CourseCreatedEvent",
 } as const;
 
-export interface CourseEnrollmentEvent
-  extends BaseEvent<{
-    instructorId: string;
+export interface CourseEnrollmentEvent extends BaseEvent<{
+  instructorId: string;
 
-    enrolledAt: string;
+  enrolledAt: string;
 
-    enrollmentId: string;
+  enrollmentId: string;
 
-    orderId: string;
+  orderId: string;
 
-    orderPrice: number;
+  orderPrice: number;
 
-    timestamp: number;
+  timestamp: number;
 
-    courseId: string;
+  courseId: string;
 
-    studentId: string;
-  }> {}
+  studentId: string;
+}> {}
 
-export interface CourseCreatedEvent
-  extends BaseEvent<{
-    instructorId: string;
+export interface CourseCreatedEvent extends BaseEvent<{
+  instructorId: string;
 
-    courseId: string;
+  courseId: string;
 
-    courseTitle: string;
+  courseTitle: string;
 
-    category?: string | undefined;
+  category?: string | undefined;
 
-    status?: string | undefined;
+  status?: string | undefined;
 
-    createdAt: Date;
-  }> {}
+  createdAt: Date;
+}> {}
