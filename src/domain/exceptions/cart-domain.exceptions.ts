@@ -1,29 +1,32 @@
-import { DomainException } from "./base.exception";
+import { ErrorCode } from "src/shared/exceptions/error-codes";
+import { DomainException } from "./domain.exception";
 
 export class CartItemNotFoundException extends DomainException {
-  errorCode: string = "CART_ITEM_NOT_FOUND_EXCEPTION";
   constructor(message?: string) {
-    super(message || `Cart item  not found`);
-  }
-
-  serializeError(): { message: string; field?: string }[] {
-    return [{ message: this.message }];
+    super(
+      ErrorCode.NOT_FOUND,
+      message || `Cart item  not found`,
+      "CART_ITEM_NOT_FOUND",
+    );
   }
 }
 export class CartNotFoundException extends DomainException {
-  errorCode: string = "CART_NOT_FOUND_EXCEPTION";
   constructor(message?: string) {
-    super(message || `Cart not found with id`);
-  }
-
-  serializeError(): { message: string; field?: string }[] {
-    return [{ message: this.message }];
+    super(
+      ErrorCode.NOT_FOUND,
+      message || `Cart not found for id`,
+      "CART_NOT_FOUND",
+    );
   }
 }
+
 export class CartItemAlreadyExistException extends DomainException {
-  errorCode: string = "CART_ITEM_ALREADY_EXIST_EXCEPTION";
   constructor(message?: string) {
-    super(message || `Cart item already present in cart`);
+    super(
+      ErrorCode.ALREADY_EXISTS,
+      message || `Cart item already present in cart`,
+      "CART_ITEM_ALREADY_EXIST",
+    );
   }
 
   serializeError(): { message: string; field?: string }[] {

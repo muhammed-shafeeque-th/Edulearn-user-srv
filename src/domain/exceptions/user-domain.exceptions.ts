@@ -1,21 +1,20 @@
 import { ErrorCode } from "src/shared/exceptions/error-codes";
 import { DomainException } from "./domain.exception";
-import { status as GrpcStatus, ServiceError } from "@grpc/grpc-js";
 
 export class UserNotFoundException extends DomainException {
-  constructor(message?: string) {
+  constructor(userId?: string) {
     super(
       ErrorCode.NOT_FOUND,
-      message || `User with  not found`,
+      `User ${userId} not found ` || `User not found`,
       "USER_NOT_FOUND",
     );
   }
 }
 export class UserAlreadyExistException extends DomainException {
-  constructor(message?: string) {
+  constructor(email?: string) {
     super(
       ErrorCode.ALREADY_EXISTS,
-      message || `user with email already exist`,
+      `user with email ${email} already exist`,
       "USER_ALREADY_EXIST",
     );
   }
