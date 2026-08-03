@@ -1,12 +1,7 @@
 import { v4 as uuidV4 } from "uuid";
 
 export type SocialProvider =
-  | "facebook"
-  | "twitter"
-  | "google"
-  | "linkedin"
-  | "github"
-  | "other";
+  "facebook" | "twitter" | "google" | "linkedin" | "github" | "other";
 
 export interface UserSocialsProps {
   id: string;

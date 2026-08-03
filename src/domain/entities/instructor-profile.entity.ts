@@ -1,7 +1,5 @@
 import { v4 as uuidV4 } from "uuid";
 
-
-
 export interface InstructorProfileProps {
   id: string;
   userId: string;
@@ -70,7 +68,7 @@ export class InstructorProfile {
   }
 
   static create(
-    props: Omit<InstructorProfileProps, "id" | "joinedAt">
+    props: Omit<InstructorProfileProps, "id" | "joinedAt">,
   ): InstructorProfile {
     return new InstructorProfile({
       ...props,
@@ -82,7 +80,6 @@ export class InstructorProfile {
   static fromPrimitives(props: InstructorProfileProps): InstructorProfile {
     return new InstructorProfile(props);
   }
-
 
   get id(): string {
     return this._id;
@@ -130,7 +127,6 @@ export class InstructorProfile {
     return { ...this._preferences };
   }
 
-
   addRating(newRating: number): void {
     if (typeof newRating !== "number" || newRating < 1 || newRating > 5) {
       throw new Error("Rating must be a number between 1 and 5.");
@@ -142,7 +138,6 @@ export class InstructorProfile {
     this._totalRatings = newTotalRatings;
   }
 
-  
   removeRating(removedRating: number): void {
     if (this._totalRatings <= 1) {
       this.resetRatings();
@@ -154,7 +149,6 @@ export class InstructorProfile {
     this._totalRatings = newTotalRatings;
   }
 
- 
   resetRatings(): void {
     this._rating = 0;
     this._totalRatings = 0;
@@ -175,7 +169,6 @@ export class InstructorProfile {
     this._totalStudents += count;
   }
 
-  
   update(data: UpdatableFields): void {
     if (data.bio !== undefined) this._bio = data.bio;
     if (data.headline !== undefined) this._headline = data.headline;
@@ -187,7 +180,6 @@ export class InstructorProfile {
       this._preferences = { ...data.preferences };
   }
 
-  
   toJSON(): InstructorProfileProps {
     return {
       id: this._id,
