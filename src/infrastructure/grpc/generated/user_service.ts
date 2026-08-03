@@ -964,9 +964,7 @@ export interface CartServiceController {
   listUserCart(
     request: ListCartRequest,
   ):
-    | Promise<ListCartResponse>
-    | Observable<ListCartResponse>
-    | ListCartResponse;
+    Promise<ListCartResponse> | Observable<ListCartResponse> | ListCartResponse;
 }
 
 export function CartServiceControllerMethods() {

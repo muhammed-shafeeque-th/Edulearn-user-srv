@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { ClientsModule, Transport } from "@nestjs/microservices";
-import path, { join } from "path";
+import path from "path";
+import { getProtoPath, PROTO_ROOT_DIR } from "@edulearn/core";
 import { GRPC_COURSE_CLIENT_TOKEN } from "./course/constants";
 import { CourseClient } from "./course/course.client";
 import { RedisModule } from "src/infrastructure/redis/redis.module";
@@ -17,10 +18,10 @@ import { AppConfigService } from "src/infrastructure/config/config.service";
             transport: Transport.GRPC,
             options: {
               package: "course_service",
-              protoPath: join(process.cwd(), "proto", "course_service.proto"),
               url: `${config.courseGrpcUrl}`,
+              protoPath: [path.join(getProtoPath("course"))],
               loader: {
-                includeDirs: [path.join(process.cwd(), "proto")],
+                includeDirs: [path.join(PROTO_ROOT_DIR, "course")],
               },
             },
           }),
