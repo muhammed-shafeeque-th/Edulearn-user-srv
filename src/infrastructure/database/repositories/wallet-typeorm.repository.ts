@@ -4,7 +4,6 @@ import { Repository } from "typeorm";
 import { WalletOrmEntity } from "../entities/wallet.orm-entity";
 import { WalletTransactionOrmEntity } from "../entities/wallet-transaction.orm-entity";
 import { IWalletRepository } from "src/domain/repositories/wallet.repository";
-import { RedisService } from "src/infrastructure/redis/redis.service";
 import { ILoggerService } from "src/application/adaptors/logger.service";
 import { ITraceService } from "src/application/adaptors/trace.service";
 import { Wallet, WalletCurrency } from "src/domain/entities/user-wallet.entity";

@@ -36,10 +36,7 @@ export default class GetInstructorByUsernameUseCaseImpl implements IGetInstructo
           await this._userRepository.findByUserSlug(usernameSlug);
 
         // Throws an error if user NOT exist with given email
-        if (!usernameExist)
-          throw new UserNotFoundException(
-            `User not found with name ${dto.username}`,
-          );
+        if (!usernameExist) throw new UserNotFoundException(dto.username);
 
         return UserDto.fromDomain(usernameExist);
       },

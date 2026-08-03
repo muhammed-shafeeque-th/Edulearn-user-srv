@@ -1,8 +1,8 @@
-import { TimeoutException } from 'src/domain/exceptions';
+import { TimeoutException } from "src/shared/exceptions/infra.exceptions";
 
 export function promiseTimeout<T>(
   callback: () => Promise<T>,
-  message: string = 'Promise callback timed out',
+  message: string = "Promise callback timed out",
   timeout: number = 10000,
 ): Promise<T> {
   let timer: NodeJS.Timeout;

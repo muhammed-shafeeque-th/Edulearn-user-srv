@@ -17,8 +17,8 @@ export class AppConfigService {
     return this.configService.get<string>("SERVICE_VERSION", "1.0.0");
   }
 
-  get apiPort(): number {
-    return this.configService.get<number>("API_PORT", 3003);
+  get httPort(): number {
+    return this.configService.get<number>("HTTP_PORT", 3003);
   }
 
   get grpcPort(): number {
@@ -71,6 +71,16 @@ export class AppConfigService {
       "REDIS_URL",
       "redis://localhost:6379/0",
     );
+  }
+
+  get redisDb(): number {
+    return this.configService.get<number>("REDIS_DB", 2);
+  }
+  get redisHost(): string {
+    return this.configService.get<string>("REDIS_HOST", "localhost");
+  }
+  get redisPort(): number {
+    return this.configService.get<number>("REDIS_PORT", 6379);
   }
 
   get redisMaxConnections(): number {
@@ -134,10 +144,6 @@ export class AppConfigService {
 
   // Observability config
 
-  get jaegerEndpoint(): string {
-    return this.configService.get<string>("JAEGER_ENDPOINT", "development");
-  }
-
   get tracingSamplingRatio(): number {
     return this.configService.get<number>("TRACING_SAMPLING_RATIO", 0.1);
   }
@@ -146,19 +152,11 @@ export class AppConfigService {
     return this.configService.get<string>("LOG_LEVEL", "info");
   }
 
-  get jaegerHost(): string {
-    return this.configService.get<string>("JAEGER_HOST", "localhost");
+  get collectorUrl(): string {
+    return this.configService.get<string>("OTLP_ENDPOINT", "http://");
   }
 
-  get jaegerPort(): number {
-    return this.configService.get<number>("JAEGER_PORT", 6831);
-  }
-
-  get lokiUrl(): string {
-    return this.configService.get<string>("LOKI_URL", "http://localhost:3100");
-  }
-
-  get prometheusPort(): number {
-    return this.configService.get<number>("PROMETHEUS_PORT", 9091);
+  get metricsPort(): number {
+    return this.configService.get<number>("METRICS_PORT", 9091);
   }
 }

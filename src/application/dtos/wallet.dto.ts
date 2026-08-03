@@ -1,6 +1,9 @@
 import { Wallet } from "src/domain/entities/user-wallet.entity";
 import { WalletTransaction as WalletTransactionEntity } from "src/domain/entities/wallet-transaction.entiy";
-import { UserWalletData, WalletTransaction } from "src/infrastructure/grpc/generated/user/types/user_wallet_types";
+import {
+  UserWalletData,
+  WalletTransaction,
+} from "src/infrastructure/grpc/generated/user/types/user_wallet_types";
 
 export class WalletTransactionDto {
   id: string;

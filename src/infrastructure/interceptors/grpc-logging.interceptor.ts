@@ -4,17 +4,17 @@ import {
   Injectable,
   NestInterceptor,
 } from "@nestjs/common";
-import { LoggingService } from "../observability/logging/logging.service";
-import { MetricsService } from "../observability/metrics/metrics.service";
-import { finalize, Observable, tap} from "rxjs";
+import { finalize, Observable, tap } from "rxjs";
 import { Metadata } from "@grpc/grpc-js";
 import { context, propagation } from "@opentelemetry/api";
+import { IMetricService } from "src/application/adaptors/metric.service";
+import { ILoggerService } from "src/application/adaptors/logger.service";
 
 @Injectable()
 export class GrpcInterceptor implements NestInterceptor {
   constructor(
-    private readonly logger: LoggingService,
-    private readonly metrics: MetricsService,
+    private readonly _logger: ILoggerService,
+    private readonly metrics: IMetricService,
   ) {}
 
   intercept(
@@ -24,11 +24,9 @@ export class GrpcInterceptor implements NestInterceptor {
     const call = ctx.switchToRpc();
     const metadata: Metadata = call.getContext();
     const method = ctx.getHandler().name;
+    
 
-    //Extract tracing context
-    propagation.extract(context.active(), metadata);
-
-    this.logger.debug(`gRPC request received to method ${method}`, {
+    this._logger.debug(`gRPC request received to method ${method}`, {
       ctx: GrpcInterceptor.name,
     });
     const endRequest = this.metrics.measureRequestDuration(method);
@@ -40,7 +38,7 @@ export class GrpcInterceptor implements NestInterceptor {
       tap({
         error: (error) => {
           status = "error";
-          this.logger.error(`gRPC method ${method} failed: ${error.message}`, {
+          this._logger.error(`gRPC method ${method} failed: ${error.message}`, {
             error,
             ctx: GrpcInterceptor.name,
           });
@@ -50,7 +48,7 @@ export class GrpcInterceptor implements NestInterceptor {
       finalize(() => {
         const duration = (Date.now() - start) / 1000; // Convert to seconds
         endRequest();
-        this.logger.debug(
+        this._logger.debug(
           `gRPC method ${method} completed with status ${status} in ${duration}s`,
           { ctx: GrpcInterceptor.name },
         );

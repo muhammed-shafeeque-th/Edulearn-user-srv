@@ -1,89 +1,24 @@
 import { Global, Module } from "@nestjs/common";
-import { TraceService } from "./trace.service";
-import { NodeSDK } from "@opentelemetry/sdk-node";
-import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-proto";
-import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions";
-import { GrpcInstrumentation } from "@opentelemetry/instrumentation-grpc";
-import { KafkaJsInstrumentation } from "@opentelemetry/instrumentation-kafkajs";
-import { PgInstrumentation } from "@opentelemetry/instrumentation-pg";
-import { RedisInstrumentation } from "@opentelemetry/instrumentation-redis";
-import { WinstonInstrumentation } from "@opentelemetry/instrumentation-winston";
-import { NestInstrumentation } from "@opentelemetry/instrumentation-nestjs-core";
-import {
-  BatchSpanProcessor,
-  ParentBasedSampler,
-  SimpleSpanProcessor,
-  TraceIdRatioBasedSampler,
-} from "@opentelemetry/sdk-trace-base";
-import { resourceFromAttributes } from "@opentelemetry/resources";
-import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
 import { AppConfigService } from "src/infrastructure/config/config.service";
 import { ITraceService } from "src/application/adaptors/trace.service";
+import { TraceService } from "./trace.service";
+import { TracerModule } from "@edulearn/nest";
 
 @Global()
 @Module({
-  providers: [
-    { provide: ITraceService, useClass: TraceService },
-    {
-      provide: "OTEL_SDK",
-      useFactory: async (configService: AppConfigService) => {
-        const { serviceName, jaegerEndpoint, tracingSamplingRatio, nodeEnv } =
-          configService;
-
-        const resource = resourceFromAttributes({
-          [SemanticResourceAttributes.SERVICE_NAME]: serviceName,
-        });
-
-        const sampler =
-          nodeEnv === "production"
-            ? new ParentBasedSampler({
-                root: new TraceIdRatioBasedSampler(tracingSamplingRatio),
-              })
-            : new ParentBasedSampler({
-                root: new TraceIdRatioBasedSampler(1.0),
-              });
-
-        const exporter = jaegerEndpoint
-          ? new OTLPTraceExporter({ url: jaegerEndpoint })
-          : undefined;
-
-        const spanProcessor =
-          nodeEnv === "production" && exporter
-            ? new BatchSpanProcessor(exporter)
-            : exporter
-              ? new SimpleSpanProcessor(exporter)
-              : undefined;
-        const sdk = new NodeSDK({
-          resource,
-          spanProcessor,
-          sampler,
-          instrumentations: [
-            getNodeAutoInstrumentations(),
-            new GrpcInstrumentation(),
-            new KafkaJsInstrumentation(),
-            new NestInstrumentation(),
-            new RedisInstrumentation(),
-            new WinstonInstrumentation(),
-            new PgInstrumentation(),
-          ],
-        });
-        sdk.start();
-
-        process.on("SIGTERM", () => {
-          sdk
-            .shutdown()
-            .then(() => console.log(`OpenTelemetry SDK shut down successfully`))
-            .catch((err) =>
-              console.error("Error shutting down OpenTelemetry SDK", err),
-            )
-            .finally(() => process.exit(1));
-        });
-
-        return sdk;
-      },
+  imports: [
+    TracerModule.forRootAsync({
       inject: [AppConfigService],
-    },
+
+      useFactory: (config: AppConfigService) => ({
+        environment: config.nodeEnv,
+        version: config.serviceVersion,
+        collectorUrl: config.collectorUrl,
+        serviceName: config.serviceName,
+      }),
+    }),
   ],
+  providers: [{ provide: ITraceService, useClass: TraceService }],
   exports: [ITraceService],
 })
-export class TracingModule {}
+export class AppTracerModule {}

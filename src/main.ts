@@ -1,22 +1,22 @@
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
-import { LoggingService } from "./infrastructure/observability/logging/logging.service";
 import {
   MicroserviceOptions,
   Transport,
-  TcpStatus,
+  // TcpStatus,
 } from "@nestjs/microservices";
 import { ValidationPipe } from "@nestjs/common";
-import { GrpcExceptionFilter } from "./infrastructure/filters/grpc-exeption.filter";
+import { GrpcExceptionFilter } from "./infrastructure/filters/grpc-exception.filter";
 import { GrpcInterceptor } from "./infrastructure/interceptors/grpc-logging.interceptor";
-import { GrpcAuthGuard } from "./infrastructure/guards/grpc-auth.guard";
 import { AppConfigService } from "./infrastructure/config/config.service";
-import { MetricsService } from "./infrastructure/observability/metrics/metrics.service";
 import path from "path";
+import { getProtoPath, PROTO_ROOT_DIR } from "@edulearn/core";
+import { ILoggerService } from "./application/adaptors/logger.service";
+import { IMetricService } from "./application/adaptors/metric.service";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const logger = app.get(LoggingService);
+  const logger = app.get(ILoggerService);
   const config = app.get(AppConfigService);
 
   // Set Global logger
@@ -27,14 +27,11 @@ async function bootstrap() {
     transport: Transport.GRPC,
     options: {
       package: "user_service",
-      protoPath: path.join(
-       process.cwd(),
-        "proto",
-        "user_service.proto"
-      ),
       url: `0.0.0.0:${config.grpcPort}`,
+
+      protoPath: [path.join(getProtoPath("user"))],
       loader: {
-        includeDirs: [path.join(process.cwd(), "proto")],
+        includeDirs: [path.join(PROTO_ROOT_DIR, "user")],
       },
     },
   });
@@ -50,21 +47,21 @@ async function bootstrap() {
       whitelist: true, // Strip properties not defined in DTOs
       forbidNonWhitelisted: true, // Throw error if non-whitelisted properties are present
       errorHttpStatusCode: 400, // Map validation errors to BAD_REQUEST
-    })
+    }),
   );
 
   app.useGlobalFilters(new GrpcExceptionFilter(logger));
   app.useGlobalInterceptors(
-    new GrpcInterceptor(logger, app.get(MetricsService))
+    new GrpcInterceptor(logger, app.get(IMetricService)),
   );
   // app.useGlobalGuards(new GrpcAuthGuard(logger));
 
   // Start both gRPC and HTTP
   await app.startAllMicroservices();
-  await app.listen(config.apiPort || 3002);
+  await app.listen(config.httPort || 3002);
   logger.info(
-    `User service started on (http port ${config.apiPort}) (grpc port ${config.grpcPort})`,
-    { ctx: "Bootstrap" }
+    `User service started on (http port ${config.httPort}) (grpc port ${config.grpcPort})`,
+    { ctx: "Bootstrap" },
   );
 }
 bootstrap();

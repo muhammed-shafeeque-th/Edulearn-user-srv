@@ -11,11 +11,8 @@ import { AppConfigService } from "@/infrastructure/config/config.service";
       inject: [AppConfigService],
 
       useFactory: (config: AppConfigService) => ({
-        namespace: config.nodeEnv,
         subsystem: "user_service",
-
         version: config.serviceVersion,
-        port: config.apiPort,
         defaultLabels: {
           service: config.serviceName,
         },

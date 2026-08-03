@@ -1,16 +1,15 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { RedisService } from "../../redis/redis.service";
-import { LoggingService } from "src/infrastructure/observability/logging/logging.service";
-import { TracingService } from "src/infrastructure/observability/tracing/trace.service";
-import { MetricsService } from "src/infrastructure/observability/metrics/metrics.service";
+import { ILoggerService } from "src/application/adaptors/logger.service";
+import { ITraceService } from "src/application/adaptors/trace.service";
 import { Wishlist } from "src/domain/entities/wishlist.entity";
 import { WishlistItem } from "src/domain/entities/wishlist-item.entity";
 import { WishlistOrmEntity } from "../entities/wishlist.orm-entity";
 import { WishlistItemOrmEntity } from "../entities/wishlist-item.orm-entity";
 import { IWishlistRepository } from "src/domain/repositories/wishlist.repository";
 import { EntityMapper } from "../mapper/entity-mapper";
+import { IMetricService } from "src/application/adaptors/metric.service";
 
 @Injectable()
 export class WishlistTypeOrmRepository implements IWishlistRepository {
@@ -19,13 +18,13 @@ export class WishlistTypeOrmRepository implements IWishlistRepository {
     private readonly repo: Repository<WishlistOrmEntity>,
     @InjectRepository(WishlistItemOrmEntity)
     private readonly wishlistItemRepo: Repository<WishlistItemOrmEntity>,
-    private readonly logger: LoggingService,
-    private readonly tracer: TracingService,
-    private readonly metrics: MetricsService,
+    private readonly _logger: ILoggerService,
+    private readonly _tracer: ITraceService,
+    private readonly metrics: IMetricService,
   ) {}
 
   async create(wishlist: Wishlist): Promise<void> {
-    return await this.tracer.startActiveSpan(
+    return await this._tracer.startActiveSpan(
       "WishlistTypeOrmRepository.create",
       async (span) => {
         span.setAttributes({
@@ -55,7 +54,7 @@ export class WishlistTypeOrmRepository implements IWishlistRepository {
   }
 
   async findById(id: string): Promise<Wishlist | null> {
-    return await this.tracer.startActiveSpan(
+    return await this._tracer.startActiveSpan(
       "WishlistTypeOrmRepository.findById",
       async (span) => {
         span.setAttributes({
@@ -90,7 +89,7 @@ export class WishlistTypeOrmRepository implements IWishlistRepository {
     userId: string,
     courseId: string,
   ): Promise<WishlistItem | null> {
-    return await this.tracer.startActiveSpan(
+    return await this._tracer.startActiveSpan(
       "WishlistTypeOrmRepository.findItemByUserIdAndCourseId",
       async (span) => {
         span.setAttributes({
@@ -125,7 +124,7 @@ export class WishlistTypeOrmRepository implements IWishlistRepository {
     offset?: number,
     limit?: number,
   ): Promise<{ wishlist: Wishlist | null; totalItems: number }> {
-    return await this.tracer.startActiveSpan(
+    return await this._tracer.startActiveSpan(
       "WishlistTypeOrmRepository.findByUserId",
       async (span) => {
         span.setAttributes({
@@ -175,7 +174,7 @@ export class WishlistTypeOrmRepository implements IWishlistRepository {
   }
 
   async delete(wishlist: Wishlist): Promise<void> {
-    return await this.tracer.startActiveSpan(
+    return await this._tracer.startActiveSpan(
       "WishlistTypeOrmRepository.delete",
       async (span) => {
         span.setAttributes({
@@ -199,7 +198,7 @@ export class WishlistTypeOrmRepository implements IWishlistRepository {
   }
 
   async update(wishlist: Wishlist): Promise<void> {
-    return await this.tracer.startActiveSpan(
+    return await this._tracer.startActiveSpan(
       "WishlistTypeOrmRepository.update",
       async (span) => {
         span.setAttributes({
@@ -227,7 +226,7 @@ export class WishlistTypeOrmRepository implements IWishlistRepository {
 
         end();
 
-        this.logger.debug(`Updated wishlist ${wishlist.id}`, {
+        this._logger.debug(`Updated wishlist ${wishlist.id}`, {
           ctx: WishlistTypeOrmRepository.name,
         });
       },
@@ -235,7 +234,7 @@ export class WishlistTypeOrmRepository implements IWishlistRepository {
   }
 
   async addItem(wishlistItem: WishlistItem): Promise<void> {
-    return await this.tracer.startActiveSpan(
+    return await this._tracer.startActiveSpan(
       "WishlistTypeOrmRepository.addItem",
       async (span) => {
         span.setAttributes({
@@ -255,7 +254,7 @@ export class WishlistTypeOrmRepository implements IWishlistRepository {
         await this.wishlistItemRepo.save(wishlistItemOrm);
         end();
 
-        this.logger.debug(
+        this._logger.debug(
           `Added item ${wishlistItem.courseId} to wishlist ${wishlistItem.wishlistId}`,
           {
             ctx: WishlistTypeOrmRepository.name,
@@ -266,7 +265,7 @@ export class WishlistTypeOrmRepository implements IWishlistRepository {
   }
 
   async removeItem(wishlistId: string, courseId: string): Promise<void> {
-    return await this.tracer.startActiveSpan(
+    return await this._tracer.startActiveSpan(
       "WishlistTypeOrmRepository.removeItem",
       async (span) => {
         span.setAttributes({
@@ -284,7 +283,7 @@ export class WishlistTypeOrmRepository implements IWishlistRepository {
         await this.wishlistItemRepo.delete({ wishlistId, courseId });
         end();
 
-        this.logger.debug(
+        this._logger.debug(
           `Removed item ${courseId} from wishlist ${wishlistId}`,
           {
             ctx: WishlistTypeOrmRepository.name,

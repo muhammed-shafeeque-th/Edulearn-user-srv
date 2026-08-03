@@ -47,10 +47,7 @@ export default class RegisterInstructorUseCase implements IRegisterInstructorUse
 
         const usernameExist =
           await this._userRepository.findByUserSlug(usernameSlug);
-        if (usernameExist)
-          throw new UserAlreadyExistException(
-            `user already exist with ${dto.username}`,
-          );
+        if (usernameExist) throw new UserAlreadyExistException(dto.username);
 
         const instructor = InstructorProfile.create({
           userId: user.id,

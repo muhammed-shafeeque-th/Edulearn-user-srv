@@ -14,15 +14,22 @@ export enum UserStatus {
   VERIFIED = "verified",
   NOT_VERIFIED = "not-verified",
   ACTIVE = "active",
+  DELETED = "deleted",
   NOT_ACTIVE = "not-active",
   BLOCKED = "blocked",
-  DELETED = "deleted",
+}
+
+export enum RoleStatus {
+  ACTIVE = "active",
+  SUSPENDED = "suspended",
+  BLOCKED = "blocked",
 }
 
 export interface UserProps {
   id: string;
   email: string;
-  role: UserRoles;
+  roles?: UserRoles[];
+  roleStatus?: Partial<Record<UserRoles, RoleStatus>>;
   status: UserStatus;
   username?: string;
   slug?: string;
@@ -41,11 +48,11 @@ type UpdatableUserProps = Partial<
   Pick<UserProps, "firstName" | "lastName" | "username" | "slug" | "avatar">
 >;
 
-
 export class User {
   private readonly _id: string;
   private _email: string;
-  private _role: UserRoles;
+  private _roles: UserRoles[];
+  private _roleStatus: Record<UserRoles, RoleStatus>;
   private _status: UserStatus;
   private _username?: string;
   private _slug?: string;
@@ -63,7 +70,21 @@ export class User {
   private constructor(props: UserProps) {
     this._id = props.id;
     this._email = props.email;
-    this._role = props.role;
+
+    this._roles =
+      Array.isArray(props.roles) && props.roles.length > 0
+        ? props.roles
+        : [UserRoles.STUDENT];
+
+    this._roleStatus = {
+      [UserRoles.STUDENT]: RoleStatus.ACTIVE,
+      [UserRoles.INSTRUCTOR]: RoleStatus.ACTIVE,
+      [UserRoles.ADMIN]: RoleStatus.ACTIVE,
+    };
+    if (props.roleStatus) {
+      Object.assign(this._roleStatus, props.roleStatus);
+    }
+
     this._status = props.status;
     this._username = props.username;
     this._slug = props.slug;
@@ -81,11 +102,11 @@ export class User {
     this._updatedAt = props.updatedAt ? new Date(props.updatedAt) : new Date();
   }
 
-
   static create(props: UserProps) {
     return new User({
       ...props,
       id: props.id,
+      roles: props.roles ?? [UserRoles.STUDENT],
       status: props.status ?? UserStatus.VERIFIED,
       // wallet: props.wallet ?? Wallet.createInitial(userId),
       createdAt: props.createdAt ?? new Date(),
@@ -93,13 +114,11 @@ export class User {
     });
   }
 
- 
   static fromPrimitives(props: UserProps): User {
     return new User({
       ...props,
     });
   }
-
 
   get id() {
     return this._id;
@@ -107,8 +126,11 @@ export class User {
   get email() {
     return this._email;
   }
-  get role() {
-    return this._role;
+  get roles() {
+    return [...this._roles];
+  }
+  get roleStatusMap() {
+    return { ...this._roleStatus };
   }
   get status() {
     return this._status;
@@ -154,17 +176,47 @@ export class User {
     return `${this._firstName ?? ""} ${this._lastName ?? ""}`.trim();
   }
 
-
   promoteToInstructor(instructor: InstructorProfile): void {
-    if (this._role === UserRoles.INSTRUCTOR) return;
-    this._role = UserRoles.INSTRUCTOR;
+    if (this._roles.includes(UserRoles.INSTRUCTOR)) return;
+    this._roles.push(UserRoles.INSTRUCTOR);
     this._instructorProfile = instructor;
     this._touch();
   }
 
-  block(): void {
+  isBlocked(): boolean {
+    return this._status === UserStatus.BLOCKED;
+  }
+
+  isInstructor(): boolean {
+    return this._roles.includes(UserRoles.INSTRUCTOR);
+  }
+
+  isRoleBlocked(role: UserRoles): boolean {
+    return this._roleStatus[role] === RoleStatus.BLOCKED;
+  }
+
+  blockAccount(): void {
     this._status = UserStatus.BLOCKED;
     this._touch();
+  }
+
+  unblockAccount(): void {
+    this._status = UserStatus.ACTIVE;
+    this._touch();
+  }
+
+  blockRole(role: UserRoles): void {
+    if (this._roleStatus[role] !== RoleStatus.BLOCKED) {
+      this._roleStatus[role] = RoleStatus.BLOCKED;
+      this._touch();
+    }
+  }
+
+  unblockRole(role: UserRoles): void {
+    if (this._roleStatus[role] === RoleStatus.BLOCKED) {
+      this._roleStatus[role] = RoleStatus.ACTIVE;
+      this._touch();
+    }
   }
 
   activate(): void {
@@ -178,7 +230,9 @@ export class User {
   }
 
   updateRole(role: UserRoles): void {
-    this._role = role;
+    if (!this._roles.includes(role)) {
+      this._roles.push(role);
+    }
     this._touch();
   }
 
@@ -230,7 +284,8 @@ export class User {
     return {
       id: this._id,
       email: this._email,
-      role: this._role,
+      roles: [...this._roles],
+      roleStatus: { ...this._roleStatus },
       status: this._status,
       username: this._username,
       slug: this._slug,

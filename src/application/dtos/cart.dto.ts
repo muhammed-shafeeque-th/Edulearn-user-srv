@@ -1,6 +1,9 @@
 import { CartItem } from "src/domain/entities/cart-item.entity";
 import { Cart } from "src/domain/entities/cart.entity";
-import { CartData, CartItemData } from "src/infrastructure/grpc/generated/user/types/cart_types";
+import {
+  CartData,
+  CartItemData,
+} from "src/infrastructure/grpc/generated/user/types/cart_types";
 
 export class CartItemDto {
   id: string;

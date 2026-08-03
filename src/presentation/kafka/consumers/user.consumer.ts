@@ -1,40 +1,42 @@
-import { Controller } from '@nestjs/common';
-import { UserHandler } from '../handlers/user.handler';
-import { TracingService } from 'src/infrastructure/observability/tracing/trace.service';
-import { LoggingService } from 'src/infrastructure/observability/logging/logging.service';
-import { KafkaTopics } from 'src/shared/events';
-import { KafkaMessage } from 'src/infrastructure/kafka/kafka.types';
-import CreateUserDto from 'src/presentation/grpc/dtos/create-user.dto';
-import { UserCreatedEvent } from 'src/domain/events/user-created.event';
-import { EventPattern } from 'src/infrastructure/kafka/kafka.decorators';
+import { Controller } from "@nestjs/common";
+import { UserHandler } from "../handlers/user.handler";
+
+import { KafkaTopics } from "src/shared/events";
+import { KafkaMessage } from "@/infrastructure/kafka/module/kafka.types";
+import { UserAccountCreatedEvent } from "src/domain/events/user-created.event";
+import { EventPattern } from "@/infrastructure/kafka/module/kafka.decorators";
+import { ITraceService } from "src/application/adaptors/trace.service";
+import { ILoggerService } from "src/application/adaptors/logger.service";
 
 @Controller()
 export class UserConsumer {
-    constructor(
-        private readonly userHandler: UserHandler,
-        private readonly tracer: TracingService,
-        private readonly logger: LoggingService
-    ) { }
+  constructor(
+    private readonly userHandler: UserHandler,
+    private readonly _tracer: ITraceService,
+    private readonly _logger: ILoggerService,
+  ) {}
 
-    @EventPattern(KafkaTopics.AuthUserCreated)
-  async handleUserCreate(data: KafkaMessage<UserCreatedEvent>): Promise<void> {
+  @EventPattern(KafkaTopics.AuthUserCreated)
+  async handleUserCreate(
+    data: KafkaMessage<UserAccountCreatedEvent>,
+  ): Promise<void> {
     try {
-      await this.tracer.startActiveSpan(
+      await this._tracer.startActiveSpan(
         "UserConsumer.handleUserCreate",
         async (span) => {
-          this.logger.info("Handling `handleUserCreate` request ", {
+          this._logger.debug("Handling `handleUserCreate` request ", {
             ctx: UserConsumer.name,
           });
 
           await this.userHandler.handle(data.value);
 
-          this.logger.info(
-            "handleUserCreate request has been successfully completed"
+          this._logger.debug(
+            "handleUserCreate request has been successfully completed",
           );
-        }
+        },
       );
     } catch (error) {
-      this.logger.error("Error processing kafka handler `handleUserCreate`", {
+      this._logger.error("Error processing kafka handler `handleUserCreate`", {
         error,
       });
     }

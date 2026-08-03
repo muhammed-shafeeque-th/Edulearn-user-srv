@@ -35,9 +35,7 @@ export default class UnBlockInstructorRoleUseCaseImpl implements IUnBlockInstruc
         const user = await this._userRepository.findById(dto.instructorId);
 
         if (!user) {
-          throw new UserNotFoundException(
-            `User not found with Id ${dto.instructorId}`,
-          );
+          throw new UserNotFoundException(dto.instructorId);
         }
 
         if (!user.isInstructor()) {

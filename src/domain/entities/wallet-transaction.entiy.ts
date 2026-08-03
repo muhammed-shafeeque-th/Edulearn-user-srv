@@ -1,10 +1,7 @@
 import { v4 as uuidV4 } from "uuid";
 
 export type WalletTransactionType =
-  | "deposit"
-  | "withdrawal"
-  | "purchase"
-  | "refund";
+  "deposit" | "withdrawal" | "purchase" | "refund";
 export type WalletTransactionStatus = "pending" | "complete" | "failed";
 
 export interface WalletTransactionProps {

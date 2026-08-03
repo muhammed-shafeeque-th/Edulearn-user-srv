@@ -11,7 +11,11 @@ import {
   SocialProvider,
   UserSocials,
 } from "src/domain/entities/user-socials.entity";
-import User, { RoleStatus, UserRoles, UserStatus } from "src/domain/entities/user-entity";
+import User, {
+  RoleStatus,
+  UserRoles,
+  UserStatus,
+} from "src/domain/entities/user-entity";
 import { InstructorMeta } from "src/infrastructure/grpc/generated/user/types/instructor_types";
 
 export class UserProfileDto {
