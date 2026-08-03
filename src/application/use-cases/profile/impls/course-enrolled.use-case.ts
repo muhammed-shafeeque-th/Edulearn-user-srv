@@ -97,7 +97,7 @@ export default class CourseEnrolledUseCase implements ICourseEnrolledUseCase {
             message: err?.message || "Unhandled error",
           });
           throw err;
-        } 
+        }
       },
     );
   }

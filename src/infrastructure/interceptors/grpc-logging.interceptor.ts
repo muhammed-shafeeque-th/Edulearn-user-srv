@@ -24,7 +24,6 @@ export class GrpcInterceptor implements NestInterceptor {
     const call = ctx.switchToRpc();
     const metadata: Metadata = call.getContext();
     const method = ctx.getHandler().name;
-    
 
     this._logger.debug(`gRPC request received to method ${method}`, {
       ctx: GrpcInterceptor.name,
