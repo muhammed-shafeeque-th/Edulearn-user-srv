@@ -54,7 +54,7 @@ export default class CourseEnrolledUseCase implements ICourseEnrolledUseCase {
           );
           if (!user) {
             const msg = `Instructor not found for id [${payload.instructorId}] during enrollment event.`;
-            this._logger.error(msg);
+            this._logger.warn(msg);
             throw new UserNotFoundException(payload.instructorId);
           }
 
@@ -76,7 +76,7 @@ export default class CourseEnrolledUseCase implements ICourseEnrolledUseCase {
             user,
           );
           if (!updatedUser) {
-            this._logger.error(
+            this._logger.warn(
               `Failed to persist instructor [${payload.instructorId}] update after enrollment.`,
             );
             return null;
@@ -97,9 +97,7 @@ export default class CourseEnrolledUseCase implements ICourseEnrolledUseCase {
             message: err?.message || "Unhandled error",
           });
           throw err;
-        } finally {
-          span.end();
-        }
+        } 
       },
     );
   }

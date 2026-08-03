@@ -33,9 +33,7 @@ export default class BlockUserAccountUseCaseImpl implements IBlockUserAccountUse
         const user = await this._userRepository.findById(dto.userId);
 
         if (!user) {
-          throw new UserNotFoundException(
-            `User not found with Id ${dto.userId}`,
-          );
+          throw new UserNotFoundException(dto.userId);
         }
 
         if (user.isBlocked()) {

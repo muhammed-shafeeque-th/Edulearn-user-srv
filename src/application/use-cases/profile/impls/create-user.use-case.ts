@@ -41,9 +41,7 @@ export default class CreateUserUseCase implements ICreateUserUseCase {
             `User already exists with the email: ${payload.email}`,
           );
           span.setAttribute("email.exist", true);
-          throw new UserAlreadyExistException(
-            `User already exists with ${payload.email}`,
-          );
+          throw new UserAlreadyExistException(payload.email);
         }
         this._logger.debug(
           `No existing user found with email: ${payload.email}`,
