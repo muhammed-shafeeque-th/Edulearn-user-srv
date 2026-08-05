@@ -8,7 +8,7 @@ import RegisterInstructorDto from "@/presentation/grpc/input-dtos/register-instr
 import { KafkaTopics } from "src/shared/events";
 import { UserAlreadyExistException } from "../../../../domain/exceptions";
 import slugify from "slugify";
-import { UserRoles } from "src/domain/entities/_user.entity";
+import { UserRoles } from "src/domain/entities/user-entity";
 import { UserDto } from "@/application/dtos/user.dto";
 import { v4 as uuidV4 } from "uuid";
 import { InstructorRegisterEvent } from "src/domain/events/register-instructor.event";

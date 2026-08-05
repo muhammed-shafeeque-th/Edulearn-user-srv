@@ -1,5 +1,5 @@
 import { IsEmail, IsEnum, IsOptional, IsString } from "class-validator";
-import { UserRoles, UserStatus } from "src/domain/entities/_user.entity";
+import { UserRoles, UserStatus } from "src/domain/entities/user-entity";
 
 export default class CreateUserDto {
   @IsString({ message: "userId must be string" })
