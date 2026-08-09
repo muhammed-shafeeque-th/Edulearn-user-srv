@@ -1,5 +1,4 @@
 import { Injectable } from "@nestjs/common";
-import { WishlistItemDto } from "@/application/dtos/wishlist.dto";
 import { WishlistItem } from "src/domain/entities/wishlist-item.entity";
 import { WishlistItemNotFoundException } from "src/domain/exceptions";
 import { IWishlistRepository } from "src/domain/repositories/wishlist.repository";
@@ -18,7 +17,7 @@ export class ToggleWishlistUseCase implements IToggleWishlistUseCase {
     private readonly courseClient: CourseClient,
   ) {}
 
-  async execute(userId: string, courseId: string): Promise<WishlistItemDto> {
+  async execute(userId: string, courseId: string): Promise<WishlistItem> {
     return await this._tracer.startActiveSpan(
       "ToggleWishlistUseCase.execute",
       async (span) => {
@@ -60,7 +59,7 @@ export class ToggleWishlistUseCase implements IToggleWishlistUseCase {
           });
           await this._wishlistRepository.addItem(wishlistItem);
         }
-        return WishlistItemDto.fromDomain(wishlistItem);
+        return wishlistItem;
       },
     );
   }

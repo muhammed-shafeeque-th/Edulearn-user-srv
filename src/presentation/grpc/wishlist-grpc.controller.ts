@@ -8,8 +8,6 @@ import {
   AddToWishlistResponse,
   RemoveFromWishlistRequest,
   RemoveFromWishlistResponse,
-  WishlistData,
-  WishlistItemData,
   ListWishlistRequest,
   ListWishlistResponse,
   ToggleWishlistItemResponse,
@@ -24,6 +22,7 @@ import {
   PaginationResponse,
 } from "src/infrastructure/grpc/generated/user/common";
 import { GrpcExceptionFilter } from "src/infrastructure/filters/grpc-exception.filter";
+import { WishlistItemMapper, WishlistMapper } from "../mappers/wishlist.mapper";
 
 @Controller()
 @UseFilters(GrpcExceptionFilter)
@@ -53,155 +52,124 @@ export class WishlistGrpcController {
   async addToWishlist(
     data: AddToWishlistRequest,
   ): Promise<AddToWishlistResponse> {
-    try {
-      return await this._tracer.startActiveSpan(
-        "WishlistGrpcController.addToWishlist",
-        async (span) => {
-          const { courseId, userId } = data!;
+    return await this._tracer.startActiveSpan(
+      "WishlistGrpcController.addToWishlist",
+      async (span) => {
+        const { courseId, userId } = data!;
 
-          span.setAttributes({ courseId, userId });
-          this._logger.debug("Handling `AddToWishlist` request ", {
-            ctx: WishlistGrpcController.name,
-          });
+        span.setAttributes({ courseId, userId });
+        this._logger.debug("Handling `AddToWishlist` request ", {
+          ctx: WishlistGrpcController.name,
+        });
 
-          const wishlistItem = await this._addToWishlistUseCase.execute(
-            userId,
-            courseId,
-          );
+        const wishlistItem = await this._addToWishlistUseCase.execute(
+          userId,
+          courseId,
+        );
 
-          this._logger.debug(
-            "AddToWishlist request has been successfully completed",
-          );
+        this._logger.debug(
+          "AddToWishlist request has been successfully completed",
+        );
 
-          return {
-            item: wishlistItem.toGrpcResponse(),
-          };
-        },
-      );
-    } catch (error) {
-      this._logger.error("Error processing gRPC request `AddToWishlist`", {
-        error,
-      });
-      throw error;
-    }
+        return {
+          item: WishlistItemMapper.toGrpcResponse(wishlistItem),
+        };
+      },
+    );
   }
 
   @GrpcMethod("WishlistService", "ToggleWishlistItem")
   async toggleWishlist(
     data: ToggleWishlistItemRequest,
   ): Promise<ToggleWishlistItemResponse> {
-    try {
-      return await this._tracer.startActiveSpan(
-        "WishlistGrpcController.ToggleWishlistItem",
-        async (span) => {
-          const { courseId, userId } = data!;
+    return await this._tracer.startActiveSpan(
+      "WishlistGrpcController.ToggleWishlistItem",
+      async (span) => {
+        const { courseId, userId } = data!;
 
-          span.setAttributes({ courseId, userId });
-          this._logger.debug("Handling `ToggleWishlistItem` request ", {
-            ctx: WishlistGrpcController.name,
-          });
+        span.setAttributes({ courseId, userId });
+        this._logger.debug("Handling `ToggleWishlistItem` request ", {
+          ctx: WishlistGrpcController.name,
+        });
 
-          const cartItem = await this._toggleWishlistItemUseCase.execute(
-            userId,
-            courseId,
-          );
+        const wishlistItem = await this._toggleWishlistItemUseCase.execute(
+          userId,
+          courseId,
+        );
 
-          this._logger.debug(
-            "ToggleWishlistItem request has been successfully completed",
-          );
+        this._logger.debug(
+          "ToggleWishlistItem request has been successfully completed",
+        );
 
-          return {
-            item: cartItem.toGrpcResponse(),
-          };
-        },
-      );
-    } catch (error) {
-      this._logger.error("Error processing gRPC request `AddToCart`", {
-        error,
-      });
-      throw error;
-    }
+        return {
+          item: WishlistItemMapper.toGrpcResponse(wishlistItem),
+        };
+      },
+    );
   }
 
   @GrpcMethod("WishlistService", "RemoveFromWishlist")
   async removeFromWishlist(
     data: RemoveFromWishlistRequest,
   ): Promise<RemoveFromWishlistResponse> {
-    try {
-      return await this._tracer.startActiveSpan(
-        "WishlistGrpcController.removeFromWishlist",
-        async (span) => {
-          const { courseId, userId } = data!;
+    return await this._tracer.startActiveSpan(
+      "WishlistGrpcController.removeFromWishlist",
+      async (span) => {
+        const { courseId, userId } = data!;
 
-          span.setAttributes({ courseId, userId });
-          this._logger.debug("Handling `RemoveFromWishlist` request ", {
-            ctx: WishlistGrpcController.name,
-          });
+        span.setAttributes({ courseId, userId });
+        this._logger.debug("Handling `RemoveFromWishlist` request ", {
+          ctx: WishlistGrpcController.name,
+        });
 
-          const wishlist = await this._removeFromWishlistUseCase.execute(
-            userId,
-            courseId,
-          );
+        await this._removeFromWishlistUseCase.execute(userId, courseId);
 
-          this._logger.debug(
-            "RemoveFromWishlist request has been successfully completed",
-          );
+        this._logger.debug(
+          "RemoveFromWishlist request has been successfully completed",
+        );
 
-          return {
-            success: { removed: true },
-          };
-        },
-      );
-    } catch (error) {
-      this._logger.error("Error processing gRPC request `RemoveFromWishlist`", {
-        error,
-      });
-      throw error;
-    }
+        return {
+          success: { removed: true },
+        };
+      },
+    );
   }
   @GrpcMethod("WishlistService", "ListUserWishlist")
   async listUserWishlist(
     data: ListWishlistRequest,
   ): Promise<ListWishlistResponse> {
-    try {
-      return await this._tracer.startActiveSpan(
-        "WishlistGrpcController.listUserWishlist",
-        async (span) => {
-          const { pagination, userId } = data!;
+    return await this._tracer.startActiveSpan(
+      "WishlistGrpcController.listUserWishlist",
+      async (span) => {
+        const { pagination, userId } = data!;
 
-          span.setAttributes({ userId });
-          this._logger.debug("Handling `ListUserWishlist` request ", {
-            ctx: WishlistGrpcController.name,
-          });
+        span.setAttributes({ userId });
+        this._logger.debug("Handling `ListUserWishlist` request ", {
+          ctx: WishlistGrpcController.name,
+        });
 
-          const { wishlist, total } =
-            await this._getWishlistByUserUseCase.execute(
-              userId,
-              pagination.page,
-              pagination.pageSize,
-            );
-
-          this._logger.debug(
-            "ListUserWishlist request has been successfully completed",
+        const { wishlist, total } =
+          await this._getWishlistByUserUseCase.execute(
+            userId,
+            pagination.page,
+            pagination.pageSize,
           );
-          const paginationResponse: PaginationResponse = {
-            totalItems: total, // Replace with actual total items if available
-          };
 
-          return {
-            success: {
-              wishlist: wishlist.toGrpcResponse(),
-              pagination: paginationResponse,
-            },
-          };
-        },
-      );
-    } catch (error) {
-      this._logger.error("Error processing gRPC request `ListUserWishlist`", {
-        error,
-      });
-      throw error;
-    }
+        this._logger.debug(
+          "ListUserWishlist request has been successfully completed",
+        );
+        const paginationResponse: PaginationResponse = {
+          totalItems: total, // Replace with actual total items if available
+        };
+
+        return {
+          success: {
+            wishlist: WishlistMapper.toGrpcResponse(wishlist),
+            pagination: paginationResponse,
+          },
+        };
+      },
+    );
   }
 
   // private mapToWishlistItemResponse(

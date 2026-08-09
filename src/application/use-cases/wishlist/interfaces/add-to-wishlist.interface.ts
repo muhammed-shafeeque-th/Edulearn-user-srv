@@ -1,5 +1,5 @@
-import { WishlistItemDto } from "@/application/dtos/wishlist.dto";
+import { WishlistItem } from "src/domain/entities/wishlist-item.entity";
 
 export abstract class IAddToWishlistUseCase {
-  abstract execute(userId: string, courseId: string): Promise<WishlistItemDto>;
+  abstract execute(userId: string, courseId: string): Promise<WishlistItem>;
 }
