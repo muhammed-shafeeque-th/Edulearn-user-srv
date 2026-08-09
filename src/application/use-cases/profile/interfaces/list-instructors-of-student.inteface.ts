@@ -1,4 +1,4 @@
-import { UserDto } from "@/application/dtos/user.dto";
+import User from "@/domain/entities/user-entity";
 import { ListInstructorsOfStudentRequest } from "src/infrastructure/grpc/generated/user/types/instructor_student";
 
 export abstract class IListInstructorsOfStudentUseCase {
@@ -8,5 +8,5 @@ export abstract class IListInstructorsOfStudentUseCase {
    */
   abstract execute(
     dto: ListInstructorsOfStudentRequest,
-  ): Promise<{ instructors: UserDto[]; total: number }>;
+  ): Promise<{ instructors: User[]; total: number }>;
 }

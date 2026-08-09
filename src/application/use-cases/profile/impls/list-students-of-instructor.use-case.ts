@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { UserDto } from "@/application/dtos/user.dto";
+import User from "@/domain/entities/user-entity";
 import { IInstructorStudentRepository } from "src/domain/repositories/instructor-student.repository";
 import { IUserRepository } from "src/domain/repositories/user.repository";
 import { ListStudentsOfInstructorRequest } from "src/infrastructure/grpc/generated/user/types/instructor_student";
@@ -18,7 +18,7 @@ export default class ListStudentsOfInstructorUseCase implements IListStudentsOfI
 
   async execute(
     dto: ListStudentsOfInstructorRequest,
-  ): Promise<{ students: UserDto[]; total: number }> {
+  ): Promise<{ students: User[]; total: number }> {
     return this._tracer.startActiveSpan(
       "ListStudentsOfInstructorUseCase.execute",
       async (span) => {
@@ -60,7 +60,7 @@ export default class ListStudentsOfInstructorUseCase implements IListStudentsOfI
           });
 
           return {
-            students: instructors.map(UserDto.fromDomain),
+            students: instructors,
             total,
           };
         } catch (error: any) {

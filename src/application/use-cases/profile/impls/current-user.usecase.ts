@@ -5,7 +5,7 @@ import { ILoggerService } from "src/application/adaptors/logger.service";
 import { ITraceService } from "src/application/adaptors/trace.service";
 import { ICurrentUserUseCase } from "../interfaces/current-user.interface";
 import CurrentUserDto from "@/presentation/grpc/input-dtos/current-user.dto";
-import { UserDto } from "@/application/dtos/user.dto";
+import User from "@/domain/entities/user-entity";
 
 @Injectable()
 export default class CurrentUserUseCaseImpl implements ICurrentUserUseCase {
@@ -14,7 +14,7 @@ export default class CurrentUserUseCaseImpl implements ICurrentUserUseCase {
     private readonly _logger: ILoggerService,
     private readonly _tracer: ITraceService,
   ) {}
-  public async execute(dto: CurrentUserDto): Promise<UserDto> {
+  public async execute(dto: CurrentUserDto): Promise<User> {
     return await this._tracer.startActiveSpan(
       "CurrentUserUseCaseImpl.execute",
       async (span) => {
@@ -32,7 +32,7 @@ export default class CurrentUserUseCaseImpl implements ICurrentUserUseCase {
           // Throws an error if user NOT exist with given email
           if (!user) throw new UserNotFoundException(dto.userId);
 
-          return UserDto.fromDomain(user);
+          return user;
         } catch (error) {
           this._logger.error(
             `Error while Executing CurrentUserUseCaseImpl for user : ${dto.userId}`,

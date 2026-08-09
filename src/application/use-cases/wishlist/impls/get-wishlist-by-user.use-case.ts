@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { WishlistDto } from "@/application/dtos/wishlist.dto";
+import { Wishlist } from "@/domain/entities/wishlist.entity";
 import { WishlistNotFoundException } from "src/domain/exceptions";
 import { IWishlistRepository } from "src/domain/repositories/wishlist.repository";
 import { ILoggerService } from "src/application/adaptors/logger.service";
@@ -18,7 +18,7 @@ export class GetWishlistByUserUseCase implements IGetWishlistByUserUseCase {
     userId: string,
     page: number,
     pageSize: number,
-  ): Promise<{ wishlist: WishlistDto; total: number }> {
+  ): Promise<{ wishlist: Wishlist; total: number }> {
     return await this._tracer.startActiveSpan(
       "GetWishlistByUserUseCase.execute",
       async (span) => {
@@ -61,7 +61,7 @@ export class GetWishlistByUserUseCase implements IGetWishlistByUserUseCase {
         );
 
         return {
-          wishlist: WishlistDto.fromDomain(wishlist),
+          wishlist: wishlist,
           total: totalItems,
         };
       },

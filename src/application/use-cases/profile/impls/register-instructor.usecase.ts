@@ -9,7 +9,7 @@ import { KafkaTopics } from "src/shared/events";
 import { UserAlreadyExistException } from "../../../../domain/exceptions";
 import slugify from "slugify";
 import { UserRoles } from "src/domain/entities/user-entity";
-import { UserDto } from "@/application/dtos/user.dto";
+import User from "@/domain/entities/user-entity";
 import { v4 as uuidV4 } from "uuid";
 import { InstructorRegisterEvent } from "src/domain/events/register-instructor.event";
 import { IRegisterInstructorUseCase } from "../interfaces/register-instructor.interface";
@@ -23,7 +23,7 @@ export default class RegisterInstructorUseCase implements IRegisterInstructorUse
     private readonly _logger: ILoggerService,
     private readonly _tracer: ITraceService,
   ) {}
-  public async execute(dto: RegisterInstructorDto): Promise<UserDto | null> {
+  public async execute(dto: RegisterInstructorDto): Promise<User | null> {
     return await this._tracer.startActiveSpan(
       "RegisterInstructorUseCase.execute",
       async (span) => {
@@ -88,7 +88,7 @@ export default class RegisterInstructorUseCase implements IRegisterInstructorUse
           },
         );
 
-        return UserDto.fromDomain(updatedUser);
+        return updatedUser;
       },
     );
   }

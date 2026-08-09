@@ -1,4 +1,4 @@
-import { WishlistDto } from "@/application/dtos/wishlist.dto";
+import { Wishlist } from "@/domain/entities/wishlist.entity";
 
 export abstract class IGetWishlistByUserUseCase {
   /**
@@ -11,5 +11,5 @@ export abstract class IGetWishlistByUserUseCase {
     userId: string,
     page: number,
     pageSize: number,
-  ): Promise<{ wishlist: WishlistDto; total: number }>;
+  ): Promise<{ wishlist: Wishlist; total: number }>;
 }

@@ -1,5 +1,4 @@
 import { Injectable } from "@nestjs/common";
-import { CartItemDto } from "src/application/dtos/cart.dto";
 import { CartItem } from "src/domain/entities/cart-item.entity";
 import { CartNotFoundException } from "src/domain/exceptions";
 import { ICartRepository } from "src/domain/repositories/cart.repository";
@@ -15,7 +14,7 @@ export class ToggleCartUseCase implements IToggleCartUseCase {
     private readonly _tracer: ITraceService,
   ) {}
 
-  async execute(userId: string, courseId: string): Promise<CartItemDto> {
+  async execute(userId: string, courseId: string): Promise<CartItem> {
     return await this._tracer.startActiveSpan(
       "ToggleCartUseCase.execute",
       async (span) => {
@@ -50,7 +49,7 @@ export class ToggleCartUseCase implements IToggleCartUseCase {
           await this._cartRepository.addItem(cartItem);
         }
 
-        return CartItemDto.fromDomain(cartItem);
+        return cartItem;
       },
     );
   }

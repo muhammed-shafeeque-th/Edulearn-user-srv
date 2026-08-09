@@ -1,5 +1,4 @@
 import { Injectable } from "@nestjs/common";
-import { WishlistItemDto } from "@/application/dtos/wishlist.dto";
 import { WishlistItem } from "src/domain/entities/wishlist-item.entity";
 import { Wishlist } from "src/domain/entities/wishlist.entity";
 import {
@@ -23,7 +22,7 @@ export class AddToWishlistUseCase implements IAddToWishlistUseCase {
     private readonly courseClient: CourseClient,
   ) {}
 
-  async execute(userId: string, courseId: string): Promise<WishlistItemDto> {
+  async execute(userId: string, courseId: string): Promise<WishlistItem> {
     return await this._tracer.startActiveSpan(
       "AddToWishlistUseCase.execute",
       async (span) => {
@@ -69,7 +68,7 @@ export class AddToWishlistUseCase implements IAddToWishlistUseCase {
 
         await this._wishlistRepository.addItem(wishlistItem);
 
-        return WishlistItemDto.fromDomain(wishlistItem);
+        return wishlistItem;
       },
     );
   }

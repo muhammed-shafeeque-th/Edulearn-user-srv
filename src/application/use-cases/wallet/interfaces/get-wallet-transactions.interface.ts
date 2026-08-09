@@ -1,4 +1,4 @@
-import { WalletTransactionDto } from "@/application/dtos/wallet.dto";
+import { WalletTransaction } from "@/domain/entities/wallet-transaction.entiy";
 
 export abstract class IGetWalletTransactionsUseCase {
   /**
@@ -11,5 +11,5 @@ export abstract class IGetWalletTransactionsUseCase {
     userId: string,
     page?: number,
     limit?: number,
-  ): Promise<{ transactions: WalletTransactionDto[]; total: number }>;
+  ): Promise<{ transactions: WalletTransaction[]; total: number }>;
 }

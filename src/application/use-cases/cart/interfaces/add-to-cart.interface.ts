@@ -1,5 +1,5 @@
-import { CartItemDto } from "@/application/dtos/cart.dto";
+import { CartItem } from "src/domain/entities/cart-item.entity";
 
 export abstract class IAddToCartUseCase {
-  abstract execute(userId: string, courseId: string): Promise<CartItemDto>;
+  abstract execute(userId: string, courseId: string): Promise<CartItem>;
 }

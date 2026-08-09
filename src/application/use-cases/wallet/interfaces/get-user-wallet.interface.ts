@@ -1,4 +1,4 @@
-import { WalletDto } from "@/application/dtos/wallet.dto";
+import { Wallet } from "@/domain/entities/user-wallet.entity";
 
 export abstract class IGetUserWalletUseCase {
   /**
@@ -11,5 +11,5 @@ export abstract class IGetUserWalletUseCase {
     userId: string,
     page?: number,
     limit?: number,
-  ): Promise<{ wallet: WalletDto; total: number }>;
+  ): Promise<{ wallet: Wallet; total: number }>;
 }

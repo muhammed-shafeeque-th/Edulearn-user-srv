@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { UserDto } from "@/application/dtos/user.dto";
+import User from "@/domain/entities/user-entity";
 import { Gender, UserProfile } from "src/domain/entities/user-profile.entity";
 import {
   SocialProvider,
@@ -24,7 +24,7 @@ export default class UpdateUserUseCaseImpl implements IUpdateUserUseCase {
     private readonly _logger: ILoggerService,
     private readonly _tracer: ITraceService,
   ) {}
-  public async execute(dto: UpdateUserDto): Promise<UserDto | null> {
+  public async execute(dto: UpdateUserDto): Promise<User | null> {
     return await this._tracer.startActiveSpan(
       "UpdateUserUseCaseImpl.execute",
       async (span) => {
@@ -126,7 +126,7 @@ export default class UpdateUserUseCaseImpl implements IUpdateUserUseCase {
         );
 
         // Return updated user
-        return UserDto.fromDomain(updatedUser);
+        return updatedUser;
       },
     );
   }

@@ -1,8 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { ILoggerService } from "src/application/adaptors/logger.service";
 import { ITraceService } from "src/application/adaptors/trace.service";
-import { UserDto } from "@/application/dtos/user.dto";
-import User from "src/domain/entities/user-entity";
+import User from "@/domain/entities/user-entity";
 import { UserNotFoundException } from "src/domain/exceptions";
 import { IUserRepository } from "src/domain/repositories/user.repository";
 import DetailedUserDto from "@/presentation/grpc/input-dtos/detailed-user.dto";
@@ -15,7 +14,7 @@ export default class GetUserUseCaseImpl implements IGetUserUseCase {
     private readonly _logger: ILoggerService,
     private readonly _tracer: ITraceService,
   ) {}
-  public async execute(dto: DetailedUserDto): Promise<UserDto> {
+  public async execute(dto: DetailedUserDto): Promise<User> {
     return await this._tracer.startActiveSpan(
       "GetUserUseCaseImpl.execute",
       async (span) => {
@@ -32,7 +31,7 @@ export default class GetUserUseCaseImpl implements IGetUserUseCase {
         // Throws an error if user NOT exist with given email
         if (!user) throw new UserNotFoundException(dto.userId);
 
-        return UserDto.fromDomain(user);
+        return user;
       },
     );
   }
