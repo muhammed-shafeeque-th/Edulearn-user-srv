@@ -1,5 +1,4 @@
 import { Injectable } from "@nestjs/common";
-import { CartItemDto } from "@/application/dtos/cart.dto";
 import { CartItem } from "src/domain/entities/cart-item.entity";
 import {
   CartItemAlreadyExistException,
@@ -22,7 +21,7 @@ export class AddToCartUseCase implements IAddToCartUseCase {
     private readonly _courseServiceClient: CourseClient,
   ) {}
 
-  async execute(userId: string, courseId: string): Promise<CartItemDto> {
+  async execute(userId: string, courseId: string): Promise<CartItem> {
     return await this._tracer.startActiveSpan(
       "AddToCartUseCase.execute",
       async (span) => {
@@ -92,7 +91,7 @@ export class AddToCartUseCase implements IAddToCartUseCase {
 
         await this._cartRepository.addItem(cartItem);
 
-        return CartItemDto.fromDomain(cartItem);
+        return cartItem;
       },
     );
   }

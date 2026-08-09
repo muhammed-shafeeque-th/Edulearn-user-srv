@@ -1,10 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { ILoggerService } from "src/application/adaptors/logger.service";
 import { ITraceService } from "src/application/adaptors/trace.service";
-import { CartDto } from "src/application/dtos/cart.dto";
 import { CartNotFoundException } from "src/domain/exceptions";
 import { ICartRepository } from "src/domain/repositories/cart.repository";
 import { IGetCartByUserUseCase } from "../interfaces/get-cart-by-user.interface";
+import { Cart } from "@/domain/entities/cart.entity";
 
 @Injectable()
 export class GetCartByUserUseCase implements IGetCartByUserUseCase {
@@ -18,7 +18,7 @@ export class GetCartByUserUseCase implements IGetCartByUserUseCase {
     userId: string,
     page: number,
     limit: number,
-  ): Promise<{ cart: CartDto | null; total: number }> {
+  ): Promise<{ cart: Cart | null; total: number }> {
     return await this._tracer.startActiveSpan(
       "GetCartByUserUseCase.execute",
       async (span) => {
@@ -53,7 +53,7 @@ export class GetCartByUserUseCase implements IGetCartByUserUseCase {
         this._logger.log(`Found ${totalItems} cart item for user ${userId}`, {
           ctx: GetCartByUserUseCase.name,
         });
-        return { cart: CartDto.fromDomain(cart), total: totalItems };
+        return { cart: cart, total: totalItems };
       },
     );
   }

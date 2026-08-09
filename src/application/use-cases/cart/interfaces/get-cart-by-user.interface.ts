@@ -1,9 +1,9 @@
-import { CartDto } from "@/application/dtos/cart.dto";
+import { Cart } from "@/domain/entities/cart.entity";
 
 export abstract class IGetCartByUserUseCase {
   abstract execute(
     userId: string,
     page: number,
     limit: number,
-  ): Promise<{ cart: CartDto | null; total: number }>;
+  ): Promise<{ cart: Cart | null; total: number }>;
 }
