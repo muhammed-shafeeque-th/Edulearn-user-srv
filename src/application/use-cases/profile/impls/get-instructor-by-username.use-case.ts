@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import slugify from "slugify";
 import { ILoggerService } from "src/application/adaptors/logger.service";
 import { ITraceService } from "src/application/adaptors/trace.service";
-import { UserDto } from "@/application/dtos/user.dto";
+import User from "@/domain/entities/user-entity";
 import { UserNotFoundException } from "src/domain/exceptions";
 import { IUserRepository } from "src/domain/repositories/user.repository";
 import { IGetInstructorByUsernameUseCase } from "../interfaces/get-instructor-by-username.interface";
@@ -15,7 +15,7 @@ export default class GetInstructorByUsernameUseCaseImpl implements IGetInstructo
     private readonly _logger: ILoggerService,
     private readonly _tracer: ITraceService,
   ) {}
-  public async execute(dto: GetUserByUsernameDto): Promise<UserDto> {
+  public async execute(dto: GetUserByUsernameDto): Promise<User> {
     return await this._tracer.startActiveSpan(
       "GetInstructorByUsernameUseCaseImpl.execute",
       async (span) => {
@@ -38,7 +38,7 @@ export default class GetInstructorByUsernameUseCaseImpl implements IGetInstructo
         // Throws an error if user NOT exist with given email
         if (!usernameExist) throw new UserNotFoundException(dto.username);
 
-        return UserDto.fromDomain(usernameExist);
+        return usernameExist;
       },
     );
   }

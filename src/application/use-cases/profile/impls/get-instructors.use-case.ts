@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { UserDto } from "@/application/dtos/user.dto";
+import User from "@/domain/entities/user-entity";
 import { IUserRepository } from "src/domain/repositories/user.repository";
 import { ILoggerService } from "src/application/adaptors/logger.service";
 import { ITraceService } from "src/application/adaptors/trace.service";
@@ -21,7 +21,7 @@ export default class GetInstructorsUseCaseImpl implements IGetInstructorsUseCase
   ) {}
   public async execute(
     dto: ListInstructorsRequest,
-  ): Promise<{ instructors: UserDto[]; total: number }> {
+  ): Promise<{ instructors: User[]; total: number }> {
     return await this._tracer.startActiveSpan(
       "GetInstructorsUseCaseImpl.execute",
       async (span) => {
@@ -59,7 +59,7 @@ export default class GetInstructorsUseCaseImpl implements IGetInstructorsUseCase
           await this._userRepository.findInstructors(filters);
 
         return {
-          instructors: instructors.map(UserDto.fromDomain),
+          instructors: instructors,
           total: totalInstructors,
         };
       },

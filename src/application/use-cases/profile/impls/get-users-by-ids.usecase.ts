@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { UserDto } from "@/application/dtos/user.dto";
+import User from "@/domain/entities/user-entity";
 import { IUserRepository } from "src/domain/repositories/user.repository";
 import { ILoggerService } from "src/application/adaptors/logger.service";
 import { ITraceService } from "src/application/adaptors/trace.service";
@@ -13,7 +13,7 @@ export default class GetUsersByIdsUseCase implements IGetUsersByIdsUseCase {
     private readonly _logger: ILoggerService,
     private readonly _tracer: ITraceService,
   ) {}
-  public async execute(dto: GetUsersByIdsDto): Promise<{ users: UserDto[] }> {
+  public async execute(dto: GetUsersByIdsDto): Promise<{ users: User[] }> {
     return await this._tracer.startActiveSpan(
       "GetUsersByIdsUseCase.execute",
       async (span) => {
@@ -21,7 +21,7 @@ export default class GetUsersByIdsUseCase implements IGetUsersByIdsUseCase {
         // Checks users with limit and offset
         const users = await this._userRepository.findUsersByIds(dto.userIds);
 
-        return { users: users.map(UserDto.fromDomain) };
+        return { users: users };
       },
     );
   }

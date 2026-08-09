@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { UserDto } from "@/application/dtos/user.dto";
+import User from "@/domain/entities/user-entity";
 import { BadRequestException } from "src/shared/exceptions/infra.exceptions";
 import {
   IUserRepository,
@@ -25,7 +25,7 @@ export default class GetUsersUseCaseImpl implements IGetUsersUseCase {
 
   public async execute(
     dto: GetUsersDto,
-  ): Promise<{ users: UserDto[]; total: number }> {
+  ): Promise<{ users: User[]; total: number }> {
     return await this._tracer.startActiveSpan(
       "GetUsersUseCaseImpl.execute",
       async (span) => {
@@ -50,7 +50,7 @@ export default class GetUsersUseCaseImpl implements IGetUsersUseCase {
           `Successfully fetched ${users.length} users (total: ${totalUsers})`,
         );
 
-        return { users: users.map(UserDto.fromDomain), total: totalUsers };
+        return { users: users, total: totalUsers };
       },
     );
   }
