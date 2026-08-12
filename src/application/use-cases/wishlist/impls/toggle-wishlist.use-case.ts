@@ -25,7 +25,7 @@ export class ToggleWishlistUseCase implements IToggleWishlistUseCase {
           "user.id": userId,
           "course.id": courseId,
         });
-        this._logger.log(`Adding item to wishlist for course ${courseId}`, {
+        this._logger.debug(`Adding item to wishlist for course ${courseId}`, {
           ctx: ToggleWishlistUseCase.name,
         });
         const { wishlist: userWishlist } =

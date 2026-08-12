@@ -25,7 +25,7 @@ export class GetCartByUserUseCase implements IGetCartByUserUseCase {
         span.setAttributes({
           "user.id": userId,
         });
-        this._logger.log(`Fetching cart for user ${userId}`, {
+        this._logger.debug(`Fetching cart for user ${userId}`, {
           ctx: GetCartByUserUseCase.name,
         });
         // Page should be >= 1, fallback if not
@@ -50,7 +50,7 @@ export class GetCartByUserUseCase implements IGetCartByUserUseCase {
         }
         span.setAttribute("cart.count", totalItems);
 
-        this._logger.log(`Found ${totalItems} cart item for user ${userId}`, {
+        this._logger.debug(`Found ${totalItems} cart item for user ${userId}`, {
           ctx: GetCartByUserUseCase.name,
         });
         return { cart: cart, total: totalItems };

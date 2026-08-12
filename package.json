@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@bufbuild/protobuf": "^2.5.1",
-    "@edulearn/nest": "1.0.23",
+    "@edulearn/nest": "1.0.24",
     "@grpc/grpc-js": "^1.13.4",
     "@grpc/proto-loader": "^0.7.15",
     "@kafkajs/confluent-schema-registry": "^3.9.0",

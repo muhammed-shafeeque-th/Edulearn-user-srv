@@ -26,7 +26,7 @@ export class GetWishlistByUserUseCase implements IGetWishlistByUserUseCase {
           "user.id": userId,
         });
 
-        this._logger.log(`Fetching wishlist for user ${userId}`, {
+        this._logger.debug(`Fetching wishlist for user ${userId}`, {
           ctx: GetWishlistByUserUseCase.name,
         });
 
@@ -53,7 +53,7 @@ export class GetWishlistByUserUseCase implements IGetWishlistByUserUseCase {
 
         span.setAttribute("wishlist.count", totalItems);
 
-        this._logger.log(
+        this._logger.debug(
           `Found ${totalItems} wishlist items for user ${userId} (page=${safePage}, pageSize=${safePageSize})`,
           {
             ctx: GetWishlistByUserUseCase.name,
