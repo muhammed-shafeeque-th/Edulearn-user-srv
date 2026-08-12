@@ -29,7 +29,7 @@ export class AddToCartUseCase implements IAddToCartUseCase {
           "user.id": userId,
           "course.id": courseId,
         });
-        this._logger.log(
+        this._logger.debug(
           `Adding item to cart by user ${userId} for course ${courseId}`,
           { ctx: AddToCartUseCase.name },
         );

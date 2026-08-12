@@ -82,7 +82,7 @@ export class KafkaClient implements OnApplicationBootstrap, OnModuleDestroy {
 
   async onApplicationBootstrap(): Promise<void> {
     await this.producer.connect();
-    this._logger.log("Kafka producer connected successfully");
+    this._logger.debug("Kafka producer connected successfully");
 
     for (const [groupId, subs] of this.pendingSubscriptions.entries()) {
       const consumer = this.kafka.consumer({
@@ -100,12 +100,12 @@ export class KafkaClient implements OnApplicationBootstrap, OnModuleDestroy {
 
       await consumer.connect();
       this.consumers.set(groupId, consumer);
-      this._logger.log(`Consumer ${groupId} connected`);
+      this._logger.debug(`Consumer ${groupId} connected`);
 
       // subscribe all topics
       for (const { topic } of subs) {
         await consumer.subscribe({ topic, fromBeginning: false });
-        this._logger.log(`Consumer ${groupId} subscribed to topic ${topic}`);
+        this._logger.debug(`Consumer ${groupId} subscribed to topic ${topic}`);
       }
 
       // Run once per consumer group
@@ -123,7 +123,7 @@ export class KafkaClient implements OnApplicationBootstrap, OnModuleDestroy {
         },
       });
 
-      this._logger.log(`Consumer ${groupId} is now running`);
+      this._logger.debug(`Consumer ${groupId} is now running`);
     }
 
     this.pendingSubscriptions.clear();
@@ -135,12 +135,12 @@ export class KafkaClient implements OnApplicationBootstrap, OnModuleDestroy {
 
       for (const [groupId, consumer] of this.consumers) {
         await consumer.disconnect();
-        this._logger.log(`Consumer ${groupId} disconnected`);
+        this._logger.debug(`Consumer ${groupId} disconnected`);
       }
 
       this.consumers.clear();
 
-      this._logger.log("Kafka connections closed successfully");
+      this._logger.debug("Kafka connections closed successfully");
     } catch (error) {
       this._logger.error("Error closing Kafka connections", { error });
     }
@@ -220,7 +220,7 @@ export class KafkaClient implements OnApplicationBootstrap, OnModuleDestroy {
 
   //     await consumer.connect();
   //     this.consumers.set(groupId, consumer);
-  //     this._logger.log(`Consumer ${groupId} connected successfully`);
+  //     this._logger.debug(`Consumer ${groupId} connected successfully`);
   //   }
 
   //   await consumer.subscribe({ topic: pattern.topic, fromBeginning: false });
@@ -234,7 +234,7 @@ export class KafkaClient implements OnApplicationBootstrap, OnModuleDestroy {
   //     },
   //   });
 
-  //   this._logger.log(
+  //   this._logger.debug(
   //     `Subscribed to topic ${pattern.topic} with group ${groupId}`
   //   );
   // }
@@ -267,7 +267,7 @@ export class KafkaClient implements OnApplicationBootstrap, OnModuleDestroy {
 
   //     await consumer.connect();
   //     this.consumers.set(groupId, consumer);
-  //     this._logger.log(`Consumer ${groupId} connected successfully`);
+  //     this._logger.debug(`Consumer ${groupId} connected successfully`);
   //   }
 
   //   // 2️⃣ Register the handler for this topic
@@ -277,7 +277,7 @@ export class KafkaClient implements OnApplicationBootstrap, OnModuleDestroy {
 
   //   // 3️⃣ Subscribe to topic (safe even after run)
   //   await consumer.subscribe({ topic: pattern.topic, fromBeginning: false });
-  //   this._logger.log(
+  //   this._logger.debug(
   //     `Subscribed to topic ${pattern.topic} with group ${groupId}`
   //   );
 
@@ -304,7 +304,7 @@ export class KafkaClient implements OnApplicationBootstrap, OnModuleDestroy {
   //     });
 
   //     this.runningConsumers.add(groupId);
-  //     this._logger.log(`Consumer ${groupId} is now running`);
+  //     this._logger.debug(`Consumer ${groupId} is now running`);
   //   }
   // }
 

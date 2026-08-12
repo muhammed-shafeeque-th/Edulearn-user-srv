@@ -22,7 +22,7 @@ export class ToggleCartUseCase implements IToggleCartUseCase {
           "user.id": userId,
           "course.id": courseId,
         });
-        this._logger.log(
+        this._logger.debug(
           `Adding item to cart by user ${userId} for course ${courseId}`,
           { ctx: ToggleCartUseCase.name },
         );
