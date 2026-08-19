@@ -114,9 +114,7 @@ export class RedisClientImpl implements ICacheService {
             { error, ctx: "RedisClient" },
           );
           throw error;
-        } finally {
-          span.end();
-        }
+        } 
       },
     );
   }
